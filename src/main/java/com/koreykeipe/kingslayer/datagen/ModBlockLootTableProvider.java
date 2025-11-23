@@ -1,6 +1,7 @@
 package com.koreykeipe.kingslayer.datagen;
 
 import com.koreykeipe.kingslayer.block.ModBlocks;
+import com.koreykeipe.kingslayer.item.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
@@ -17,7 +18,10 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
+        dropSelf(ModBlocks.SLAY_ORE.get());
 
+        this.add(ModBlocks.SLAY_ORE.get(),
+                block -> createOreDrop(ModBlocks.SLAY_ORE.get(), ModItems.CROWN.get()));
     }
 
     @Override

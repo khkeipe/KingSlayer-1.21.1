@@ -1,5 +1,8 @@
 {
 
-  "item.kcs_kingslayer.crown": "Crown"
+  "item.kcs_kingslayer.crown": "Crown",
 
+  "block.kcs_kingslayer.slay_ore":"Slay Ore",
+
+  "creativetab.kcs_kingslayer.kingslayer_items": "King Slayer"
 }
