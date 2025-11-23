@@ -12,7 +12,7 @@ public class ModItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, KingSlayer.MOD_ID);
 
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown",
-            ()-> new Item(new Item.Properties()));
+            ()-> new Item(new Item.Properties().food(ModFoodProperties.CROWN)));
 
 
     public static void register(IEventBus eventBus) {
