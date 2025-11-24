@@ -2,6 +2,7 @@ package com.koreykeipe.kingslayer.datagen;
 
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.block.ModBlocks;
+import com.koreykeipe.kingslayer.util.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
@@ -19,6 +20,9 @@ public class ModBlockTagProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                .add(ModBlocks.SLAY_ORE.get());
+
+        tag(BlockTags.NEEDS_IRON_TOOL)
                 .add(ModBlocks.SLAY_ORE.get());
 
     }

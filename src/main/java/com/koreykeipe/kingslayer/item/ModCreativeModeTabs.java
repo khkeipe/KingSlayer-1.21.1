@@ -21,6 +21,12 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.CROWN.get());
                         output.accept(ModBlocks.SLAY_ORE.get());
 
+                        output.accept(ModItems.SLAYER_SWORD.get());
+                        output.accept(ModItems.SLAYER_PICKAXE.get());
+                        output.accept(ModItems.SLAYER_SHOVEL.get());
+                        output.accept(ModItems.SLAYER_AXE.get());
+                        output.accept(ModItems.SLAYER_HOE.get());
+
                     }).build());
 
 
