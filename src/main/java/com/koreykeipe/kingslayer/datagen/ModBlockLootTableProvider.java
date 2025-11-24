@@ -34,7 +34,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
     protected void generate() {
 
         this.add(ModBlocks.SLAYER_CRATE.get(),
-                block -> createMultipleOreDrops(ModBlocks.SLAYER_CRATE.get(), ModItems.CROWN.get(), 1, 3));
+                block -> createOreDrop(ModBlocks.SLAYER_CRATE.get(), ModItems.CROWN.get()));
 
     }
 

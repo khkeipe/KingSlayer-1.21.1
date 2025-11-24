@@ -26,9 +26,26 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     @Override
     protected void start(HolderLookup.Provider registries) {
 
-        this.add("crown_from_short_grass",
+        this.add("slayer_pickaxe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SHORT_GRASS).build(),
-                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.CROWN.get()));
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.4f).build() }, ModItems.SLAYER_PICKAXE.get()));
+this.add("slayer_axe_from_crate",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.SLAYER_AXE.get()));
+this.add("slayer_shovel_from_crate",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.SLAYER_SHOVEL.get()));
+this.add("slayer_sword_from_crate",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.SLAYER_SWORD.get()));
+
+        add("crown_from_zombie", new AddItemModifier(new LootItemCondition[] {
+                new LootTableIdCondition.Builder(ResourceLocation.withDefaultNamespace("entities/zombie"))
+                        .and(LootItemRandomChanceCondition.randomChance(0.5f)).build() }, // modified by the creeper's own loot table
+                ModItems.CROWN.get()));
     }
 }
