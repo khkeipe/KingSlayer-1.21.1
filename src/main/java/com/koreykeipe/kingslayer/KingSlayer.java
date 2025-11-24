@@ -3,6 +3,7 @@ package com.koreykeipe.kingslayer;
 import com.koreykeipe.kingslayer.block.ModBlocks;
 import com.koreykeipe.kingslayer.item.ModCreativeModeTabs;
 import com.koreykeipe.kingslayer.item.ModItems;
+import com.koreykeipe.kingslayer.loot.ModLootModifiers;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -41,7 +42,7 @@ public class KingSlayer
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
 
-
+        ModLootModifiers.register(modEventBus);
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
