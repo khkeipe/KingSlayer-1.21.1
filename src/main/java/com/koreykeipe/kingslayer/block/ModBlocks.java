@@ -21,8 +21,8 @@ public class ModBlocks {
             DeferredRegister.create(ForgeRegistries.BLOCKS, KingSlayer.MOD_ID);
 
     public static final RegistryObject<Block> SLAYER_CRATE = registerBlock("slayer_crate",
-        ()-> new DropExperienceBlock(UniformInt.of(1,2),BlockBehaviour.Properties.of()
-            .strength(0.5f).sound(SoundType.SCULK)));
+        ()-> new DropExperienceBlock(UniformInt.of(1,1),BlockBehaviour.Properties.of()
+            .strength(0.4f).sound(SoundType.SCULK)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
