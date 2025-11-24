@@ -7,6 +7,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -19,9 +20,9 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, KingSlayer.MOD_ID);
 
-    public static final RegistryObject<Block> SLAY_ORE = registerBlock("slay_ore",
-        ()-> new DropExperienceBlock(UniformInt.of(2,4),BlockBehaviour.Properties.of()
-            .strength(3f).requiresCorrectToolForDrops()));
+    public static final RegistryObject<Block> SLAYER_CRATE = registerBlock("slayer_crate",
+        ()-> new DropExperienceBlock(UniformInt.of(1,3),BlockBehaviour.Properties.of()
+            .strength(0.5f).sound(SoundType.SCULK)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

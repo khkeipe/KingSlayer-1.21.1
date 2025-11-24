@@ -18,8 +18,8 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
-        this.add(ModBlocks.SLAY_ORE.get(),
-                block -> createOreDrop(ModBlocks.SLAY_ORE.get(), ModItems.CROWN.get()));
+        this.add(ModBlocks.SLAYER_CRATE.get(),
+                block -> createOreDrop(ModBlocks.SLAYER_CRATE.get(), ModItems.CROWN.get()));
     }
 
     @Override

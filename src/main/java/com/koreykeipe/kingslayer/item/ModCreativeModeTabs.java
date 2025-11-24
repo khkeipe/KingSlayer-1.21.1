@@ -19,7 +19,7 @@ public class ModCreativeModeTabs {
                     .title(Component.translatable("creativetab.kcs_kingslayer.kingslayer_items"))
                     .displayItems((itemDisplayParameters, output) -> {
                         output.accept(ModItems.CROWN.get());
-                        output.accept(ModBlocks.SLAY_ORE.get());
+                        output.accept(ModBlocks.SLAYER_CRATE.get());
 
                         output.accept(ModItems.SLAYER_SWORD.get());
                         output.accept(ModItems.SLAYER_PICKAXE.get());
