@@ -29,19 +29,23 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         this.add("slayer_pickaxe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(0.4f).build() }, ModItems.SLAYER_PICKAXE.get()));
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, ModItems.SLAYER_PICKAXE.get()));
 this.add("slayer_axe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.SLAYER_AXE.get()));
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, ModItems.SLAYER_AXE.get()));
 this.add("slayer_shovel_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.SLAYER_SHOVEL.get()));
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, ModItems.SLAYER_SHOVEL.get()));
 this.add("slayer_sword_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(0.25f).build() }, ModItems.SLAYER_SWORD.get()));
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, ModItems.SLAYER_SWORD.get()));
+        this.add("slayer_hoe_from_crate",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, ModItems.SLAYER_HOE.get()));
 
         add("crown_from_zombie", new AddItemModifier(new LootItemCondition[] {
                 new LootTableIdCondition.Builder(ResourceLocation.withDefaultNamespace("entities/zombie"))
