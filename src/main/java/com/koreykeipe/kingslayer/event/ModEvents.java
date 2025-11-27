@@ -1,56 +1,93 @@
 package com.koreykeipe.kingslayer.event;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
-import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.*;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.Objects;
+
 
 @Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
-    public static ServerScoreboard scoreboard;
 
     @SubscribeEvent
-    public static void onJoin(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
+        if(event.getEntity() instanceof Player player){
+            CompoundTag persistent = player.getPersistentData();
+            if(!persistent.contains("hasJoinedBefore")){
+                //First Time Join
+                persistent.putBoolean("hasJoinedBefore", true);
+                player.sendSystemMessage(Component.literal("Welcome to King Slayer!"));
+
+                Scoreboard scoreboard = player.getServer().getScoreboard();
+                PlayerTeam team = scoreboard.getPlayerTeam("aqua_team");
+                if(team != null){
+                    scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                }
+
+            }else{
+                player.sendSystemMessage(Component.literal("Welcome Back o/"));
+            }
+
+
 
         }
     }
+
 
     @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         final int MAX_DEATHS = 5;
         if(event.isWasDeath()) {
             if(event.getEntity() instanceof ServerPlayer player){
-                int deaths = player.getStats().getValue(Stats.CUSTOM,Stats.DEATHS);
+                Scoreboard scoreboard = player.getServer().getScoreboard();
+                int deaths = player.getStats().getValue(Stats.CUSTOM, Stats.DEATHS);
                 player.sendSystemMessage(Component.literal("You've Lost A Life"));
 
-
                 if(deaths == 0){
-                    player.getScoreboard().addPlayerToTeam("dark_green");
+                    PlayerTeam team = scoreboard.getPlayerTeam("aqua_team");
+                    if(team != null){
+                        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                    }
                 }
                 else if(deaths == 1){
-
+                    PlayerTeam team = scoreboard.getPlayerTeam("green_team");
+                    if(team != null){
+                        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                    }
                 }
                 else if(deaths == 2){
-
-                }
+                    PlayerTeam team = scoreboard.getPlayerTeam("green_team");
+                    if(team != null){
+                        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                    }                }
                 else if(deaths == 3){
-
-                }
+                    PlayerTeam team = scoreboard.getPlayerTeam("yello_team");
+                    if(team != null){
+                        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                    }                }
                 else if(deaths == 4){
-
-                }else if(deaths >= 5){
+                    PlayerTeam team = scoreboard.getPlayerTeam("red_team");
+                    if(team != null){
+                        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                    }
+                }
+                else if(deaths >= 5){
+                    PlayerTeam team = scoreboard.getPlayerTeam("gray_team");
+                    if(team != null){
+                        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+                    }
                     player.setGameMode(GameType.SPECTATOR);
                     player.sendSystemMessage(Component.literal("THANKS FOR PLAYING KING SLAYER"));
                 }
