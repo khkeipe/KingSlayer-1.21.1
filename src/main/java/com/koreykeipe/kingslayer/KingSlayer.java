@@ -5,7 +5,11 @@ import com.koreykeipe.kingslayer.item.ModCreativeModeTabs;
 import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.loot.ModLootModifiers;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -17,7 +21,12 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(KingSlayer.MOD_ID)
@@ -64,6 +73,26 @@ public class KingSlayer
     {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+
+        Scoreboard scoreboard = event.getServer().getScoreboard();
+
+        Map<String, DyeColor> teams = Map.of(
+                "redteam", DyeColor.RED,
+                "blueteam", DyeColor.BLUE,
+                "greenteam", DyeColor.GREEN,
+                "yellowteam", DyeColor.YELLOW
+        );
+        for (Map.Entry<String, DyeColor> entry : teams.entrySet()) {
+            String teamName = entry.getKey();
+            DyeColor color = entry.getValue();
+
+            PlayerTeam team = scoreboard.getPlayerTeam(teamName);
+            if (team == null) {
+                team = scoreboard.addPlayerTeam(teamName);
+            }
+
+            team.setColor(ChatFormatting.getByName(color.toString()));
+        }
 
     }
 
