@@ -6,14 +6,6 @@ import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.loot.ModLootModifiers;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.numbers.NumberFormat;
-import net.minecraft.server.ServerScoreboard;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.scores.DisplaySlot;
-import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -26,10 +18,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-
-import javax.annotation.Nullable;
-
-import static java.awt.SystemColor.text;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(KingSlayer.MOD_ID)
@@ -52,6 +40,7 @@ public class KingSlayer
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+
 
         ModLootModifiers.register(modEventBus);
         // Register the item to a creative tab
@@ -76,17 +65,6 @@ public class KingSlayer
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
 
-        ServerScoreboard scoreboard = event.getServer().getScoreboard();
-        Objective life_objective = scoreboard.getObjective("lives");
-
-        if(life_objective == null){
-            LOGGER.info("No Life Objective . . . Creating objective now");
-            Objective obj = new Objective(scoreboard, "lives", ObjectiveCriteria.DUMMY, Component.literal("Lives"),ObjectiveCriteria.RenderType.INTEGER,true, null);
-            scoreboard.addObjective("lives",ObjectiveCriteria.DUMMY,Component.literal("Lives"),ObjectiveCriteria.RenderType.INTEGER,true,null);
-            life_objective = obj;
-            scoreboard.setDisplayObjective(DisplaySlot.LIST,obj);
-
-        }
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
