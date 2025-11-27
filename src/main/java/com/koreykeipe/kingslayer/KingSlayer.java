@@ -1,5 +1,9 @@
 package com.koreykeipe.kingslayer;
 
+import com.koreykeipe.kingslayer.block.ModBlocks;
+import com.koreykeipe.kingslayer.item.ModCreativeModeTabs;
+import com.koreykeipe.kingslayer.item.ModItems;
+import com.koreykeipe.kingslayer.loot.ModLootModifiers;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,6 +36,13 @@ public class KingSlayer
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
+        ModCreativeModeTabs.register(modEventBus);
+
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+
+
+        ModLootModifiers.register(modEventBus);
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
@@ -53,6 +64,7 @@ public class KingSlayer
     {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

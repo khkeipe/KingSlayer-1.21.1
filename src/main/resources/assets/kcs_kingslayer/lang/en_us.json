@@ -1,0 +1,15 @@
+{
+
+  "item.kcs_kingslayer.crown": "Crown",
+
+  "item.kcs_kingslayer.slayer_sword": "Slayer Sword",
+  "item.kcs_kingslayer.slayer_pickaxe": "Slayer Pickaxe",
+  "item.kcs_kingslayer.slayer_shovel": "Slayer Shovel",
+  "item.kcs_kingslayer.slayer_axe": "Slayer Axe",
+  "item.kcs_kingslayer.slayer_hoe": "Slayer Hoe",
+
+
+  "block.kcs_kingslayer.slayer_crate":"Slayer Crate",
+
+  "creativetab.kcs_kingslayer.kingslayer_items": "King Slayer"
+}
