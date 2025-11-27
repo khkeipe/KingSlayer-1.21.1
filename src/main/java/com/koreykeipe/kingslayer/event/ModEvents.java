@@ -4,7 +4,6 @@ import com.koreykeipe.kingslayer.KingSlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
@@ -14,8 +13,6 @@ import net.minecraft.world.scores.*;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.Objects;
 
 
 @Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -40,8 +37,6 @@ public class ModEvents {
                 player.sendSystemMessage(Component.literal("Welcome Back o/"));
             }
 
-
-
         }
     }
 
@@ -53,7 +48,8 @@ public class ModEvents {
             if(event.getEntity() instanceof ServerPlayer player){
                 Scoreboard scoreboard = player.getServer().getScoreboard();
                 int deaths = player.getStats().getValue(Stats.CUSTOM, Stats.DEATHS);
-                player.sendSystemMessage(Component.literal("You've Lost A Life"));
+                int lives = MAX_DEATHS - deaths;
+                player.sendSystemMessage(Component.literal("You've Lost A Life, You Have " + lives + " Remaining"));
 
                 if(deaths == 0){
                     PlayerTeam team = scoreboard.getPlayerTeam("aqua_team");
@@ -68,15 +64,17 @@ public class ModEvents {
                     }
                 }
                 else if(deaths == 2){
-                    PlayerTeam team = scoreboard.getPlayerTeam("green_team");
+                    PlayerTeam team = scoreboard.getPlayerTeam("lime_team");
                     if(team != null){
                         scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                    }                }
+                    }
+                }
                 else if(deaths == 3){
                     PlayerTeam team = scoreboard.getPlayerTeam("yello_team");
                     if(team != null){
                         scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                    }                }
+                    }
+                }
                 else if(deaths == 4){
                     PlayerTeam team = scoreboard.getPlayerTeam("red_team");
                     if(team != null){

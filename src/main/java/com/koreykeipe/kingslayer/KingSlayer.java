@@ -81,6 +81,8 @@ public class KingSlayer
         PlayerTeam aquaTeam = scoreboard.getPlayerTeam(team_aqua);
         String team_green = "green_team";
         PlayerTeam greenTeam = scoreboard.getPlayerTeam(team_green);
+        String team_lime = "lime_team";
+        PlayerTeam limeTeam = scoreboard.getPlayerTeam(team_lime);
         String team_yello = "yello_team";
         PlayerTeam yellowTeam = scoreboard.getPlayerTeam(team_yello);
         String team_red = "red_team";
@@ -96,6 +98,10 @@ public class KingSlayer
             greenTeam = scoreboard.addPlayerTeam(team_green);
             greenTeam.setColor(ChatFormatting.DARK_GREEN);
         }
+        if(limeTeam == null){
+            limeTeam = scoreboard.addPlayerTeam(team_lime);
+            limeTeam.setColor(ChatFormatting.GREEN);
+        }
         if(yellowTeam == null){
             yellowTeam = scoreboard.addPlayerTeam(team_yello);
             yellowTeam.setColor(ChatFormatting.YELLOW);
@@ -108,8 +114,6 @@ public class KingSlayer
             grayTeam = scoreboard.addPlayerTeam(team_gray);
             grayTeam.setColor(ChatFormatting.GRAY);
         }
-
-
 
     }
 
