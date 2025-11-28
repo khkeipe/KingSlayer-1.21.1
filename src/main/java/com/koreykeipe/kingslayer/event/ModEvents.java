@@ -1,6 +1,7 @@
 package com.koreykeipe.kingslayer.event;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import com.koreykeipe.kingslayer.command.DeathCommand;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.*;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -43,9 +45,20 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event) {
-        final int MAX_DEATHS = 5;
         if(event.isWasDeath()) {
-            if(event.getEntity() instanceof ServerPlayer player){
+            if (event.getEntity() instanceof ServerPlayer player) {
+                updateDeaths(player);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRegisterCommands(RegisterCommandsEvent event){
+        DeathCommand.register(event.getDispatcher());
+    }
+
+    public static void updateDeaths(ServerPlayer player){
+        final int MAX_DEATHS = 5;
                 Scoreboard scoreboard = player.getServer().getScoreboard();
                 int deaths = player.getStats().getValue(Stats.CUSTOM, Stats.DEATHS);
                 int lives = MAX_DEATHS - deaths;
@@ -93,7 +106,5 @@ public class ModEvents {
                     Stat<ResourceLocation> stat = Stats.CUSTOM.get(Stats.DEATHS);
                     player.getStats().setValue(player, stat, 0);
                 }
-            }
         }
-    }
 }
