@@ -1,0 +1,13 @@
+{
+  "type": "forge:add_features",
+  "biomes": [
+    "minecraft:forest",
+    "minecraft:meadow",
+    "minecraft:birch_forest",
+    "minecraft:plains",
+    "minecraft:flower_forest",
+    "minecraft:taiga"
+  ],
+  "features": "kcs_kingslayer:crate_placed",
+  "step": "vegetal_decoration"
+}

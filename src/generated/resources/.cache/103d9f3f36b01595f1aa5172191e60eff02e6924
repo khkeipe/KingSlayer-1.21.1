@@ -1,0 +1,4 @@
+// 1.21.1	2026-05-26T16:12:38.5296583	Registries
+10e61bd1cb7185fab72e43e61ad97cfd1e1a060d data/kcs_kingslayer/forge/biome_modifier/add_crate.json
+8bd14f60b491102929ce39e9ef50befc5089e54b data/kcs_kingslayer/worldgen/configured_feature/crate.json
+16d85f77d89658081bab0796994c79a46b332968 data/kcs_kingslayer/worldgen/placed_feature/crate_placed.json
