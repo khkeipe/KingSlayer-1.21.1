@@ -25,15 +25,30 @@ public class CombatLog {
 
     private static String formatKill(KillEntry entry) {
         String victim = "§c" + entry.victimName() + "§r";
+        StringBuilder sb = new StringBuilder("§6KingSlayer §r");
+
         if (entry.killerName() != null) {
             if (entry.indirect()) {
-                return "§6[KingSlayer] " + victim + " §7died to §e" + entry.cause()
-                        + " §7(last hit by §a" + entry.killerName() + "§7)";
+                sb.append(victim).append(" §7died to §e").append(entry.cause())
+                  .append(" §7(last hit by §a").append(entry.killerName()).append("§7)");
             } else {
-                return "§6[KingSlayer] " + victim + " §7was killed by §a" + entry.killerName();
+                sb.append(victim).append(" §7was killed by §a").append(entry.killerName());
             }
         } else {
-            return "§6[KingSlayer] " + victim + " §7died to §e" + entry.cause();
+            sb.append(victim).append(" §7died to §e").append(entry.cause());
         }
+
+        List<AssistEntry> assists = entry.assists();
+        if (!assists.isEmpty()) {
+            sb.append(" §8[");
+            for (int i = 0; i < assists.size(); i++) {
+                if (i > 0) sb.append("§8, ");
+                AssistEntry a = assists.get(i);
+                sb.append("§7").append(a.playerName()).append(" §8(").append(a.contribution()).append("§8)");
+            }
+            sb.append("§8]");
+        }
+
+        return sb.toString();
     }
 }

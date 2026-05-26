@@ -33,7 +33,7 @@ public class GameManager {
         CombatLog.clear();
         CombatTracker.clear();
         gameActive = true;
-        KingSlayer.LOGGER.info("[KingSlayer] Game initialized — waiting for players to join.");
+        KingSlayer.LOGGER.info("KingSlayer initialized — waiting for players to join.");
     }
 
     public void onPlayerLogin(ServerPlayer player) {
@@ -41,30 +41,44 @@ public class GameManager {
         UUID uuid = player.getUUID();
         if (eliminatedPlayers.contains(uuid)) return;
         if (alivePlayers.add(uuid)) {
-            broadcast("§6[KingSlayer] §a" + player.getName().getString()
+            broadcast("§6KingSlayer §a" + player.getName().getString()
                     + " §ehas entered the arena. §7(" + alivePlayers.size() + " players)");
         }
     }
 
-    public void onPlayerDeath(ServerPlayer victim, @Nullable String killerName, String cause, boolean indirect) {
+    /** Called on every player death — logs the kill source to chat and the combat log. */
+    public void onPlayerKilled(ServerPlayer victim, CombatTracker.KillAttribution attribution) {
         if (!gameActive) return;
         UUID uuid = victim.getUUID();
+        if (!alivePlayers.contains(uuid) && !eliminatedPlayers.contains(uuid)) return;
+        KillEntry entry = new KillEntry(
+            victim.getName().getString(),
+            attribution.killerName(),
+            attribution.cause(),
+            attribution.indirect(),
+            attribution.assists(),
+            System.currentTimeMillis()
+        );
+        CombatLog.logKill(entry, server);
+    }
+
+    /** Called when a player exhausts all lives — removes them from the arena and checks the win condition. */
+    public void onPlayerEliminated(ServerPlayer player) {
+        if (!gameActive) return;
+        UUID uuid = player.getUUID();
         if (!alivePlayers.remove(uuid)) return;
         eliminatedPlayers.add(uuid);
-
-        KillEntry entry = new KillEntry(victim.getName().getString(), killerName, cause, indirect, System.currentTimeMillis());
-        CombatLog.logKill(entry, server);
 
         int remaining = alivePlayers.size();
         if (remaining == 1) {
             UUID winnerId = alivePlayers.iterator().next();
             ServerPlayer winner = server.getPlayerList().getPlayer(winnerId);
             String winnerName = winner != null ? winner.getName().getString() : "Unknown";
-            broadcast("§6[KingSlayer] §a§l" + winnerName + " §r§ewins the KingSlayer! §7("
+            broadcast("§6KingSlayer §a§l" + winnerName + " §r§ewins the KingSlayer! §7("
                     + CombatLog.getEntries().size() + " kills total)");
             gameActive = false;
         } else if (remaining == 0) {
-            broadcast("§6[KingSlayer] §cNo survivors! It's a draw!");
+            broadcast("§6KingSlayer §cNo survivors! It's a draw!");
             gameActive = false;
         } else {
             broadcast("§7" + remaining + " players remain.");
