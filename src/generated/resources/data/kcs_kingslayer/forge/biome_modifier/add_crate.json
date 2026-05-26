@@ -6,7 +6,12 @@
     "minecraft:birch_forest",
     "minecraft:plains",
     "minecraft:flower_forest",
-    "minecraft:taiga"
+    "minecraft:desert",
+    "minecraft:dark_forest",
+    "minecraft:savanna",
+    "minecraft:jungle",
+    "minecraft:swamp",
+    "minecraft:stony_shore"
   ],
   "features": "kcs_kingslayer:crate_placed",
   "step": "vegetal_decoration"
