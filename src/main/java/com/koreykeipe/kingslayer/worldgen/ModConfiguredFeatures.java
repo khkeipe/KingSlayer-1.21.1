@@ -38,7 +38,8 @@ public class ModConfiguredFeatures {
                                 SimpleWeightedRandomList.<BlockState>builder()
                                         .add(ModBlocks.SLAYER_CRATE.get().defaultBlockState(), 1)
                                         .add(Blocks.GRAVEL.defaultBlockState(), 2)
-                                        .add(Blocks.COARSE_DIRT.defaultBlockState(), 5)
+                                        .add(Blocks.COARSE_DIRT.defaultBlockState(), 3)
+                                        .add(Blocks.STONE.defaultBlockState(), 4)
                         )));
 
     }

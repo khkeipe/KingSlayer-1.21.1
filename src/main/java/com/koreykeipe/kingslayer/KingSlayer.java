@@ -5,7 +5,10 @@ import com.koreykeipe.kingslayer.item.ModCreativeModeTabs;
 import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.loot.ModLootModifiers;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -64,6 +67,46 @@ public class KingSlayer
     {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+
+        Scoreboard scoreboard = event.getServer().getScoreboard();
+
+        String team_aqua = "aqua_team";
+        PlayerTeam aquaTeam = scoreboard.getPlayerTeam(team_aqua);
+        String team_green = "green_team";
+        PlayerTeam greenTeam = scoreboard.getPlayerTeam(team_green);
+        String team_lime = "lime_team";
+        PlayerTeam limeTeam = scoreboard.getPlayerTeam(team_lime);
+        String team_yello = "yello_team";
+        PlayerTeam yellowTeam = scoreboard.getPlayerTeam(team_yello);
+        String team_red = "red_team";
+        PlayerTeam redTeam = scoreboard.getPlayerTeam(team_red);
+         String team_gray = "gray_team";
+        PlayerTeam grayTeam = scoreboard.getPlayerTeam(team_gray);
+
+        if(aquaTeam == null){
+            aquaTeam = scoreboard.addPlayerTeam(team_aqua);
+            aquaTeam.setColor(ChatFormatting.DARK_AQUA);
+        }
+        if(greenTeam == null){
+            greenTeam = scoreboard.addPlayerTeam(team_green);
+            greenTeam.setColor(ChatFormatting.DARK_GREEN);
+        }
+        if(limeTeam == null){
+            limeTeam = scoreboard.addPlayerTeam(team_lime);
+            limeTeam.setColor(ChatFormatting.GREEN);
+        }
+        if(yellowTeam == null){
+            yellowTeam = scoreboard.addPlayerTeam(team_yello);
+            yellowTeam.setColor(ChatFormatting.YELLOW);
+        }
+        if(redTeam == null){
+            redTeam = scoreboard.addPlayerTeam(team_red);
+            redTeam.setColor(ChatFormatting.RED);
+        }
+        if(grayTeam == null){
+            grayTeam = scoreboard.addPlayerTeam(team_gray);
+            grayTeam.setColor(ChatFormatting.GRAY);
+        }
 
     }
 
