@@ -27,7 +27,12 @@ public class ModBiomeModifiers {
                         biomes.getOrThrow(Biomes.BIRCH_FOREST),
                         biomes.getOrThrow(Biomes.PLAINS),
                         biomes.getOrThrow(Biomes.FLOWER_FOREST),
-                        biomes.getOrThrow(Biomes.TAIGA)
+                        biomes.getOrThrow(Biomes.DESERT),
+                        biomes.getOrThrow(Biomes.DARK_FOREST),
+                        biomes.getOrThrow(Biomes.SAVANNA),
+                        biomes.getOrThrow(Biomes.JUNGLE),
+                        biomes.getOrThrow(Biomes.SWAMP),
+                        biomes.getOrThrow(Biomes.STONY_SHORE)
                         ),
                 HolderSet.direct(placedFeature.getOrThrow(ModPlacedFeatures.CRATE_PLACED_KEY)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
