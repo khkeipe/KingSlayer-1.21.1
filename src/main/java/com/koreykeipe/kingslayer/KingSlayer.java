@@ -1,12 +1,16 @@
 package com.koreykeipe.kingslayer;
 
+import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
 import com.koreykeipe.kingslayer.block.ModBlocks;
+import com.koreykeipe.kingslayer.client.AirdropEntityRenderer;
+import com.koreykeipe.kingslayer.entity.ModEntityTypes;
 import com.koreykeipe.kingslayer.item.ModCreativeModeTabs;
 import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.loot.ModLootModifiers;
 import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,13 +47,15 @@ public class KingSlayer
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
-
+        ModEntityTypes.register(modEventBus);
 
         ModLootModifiers.register(modEventBus);
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        // Airdrop system config (server-side — loot tables and thresholds)
+        context.registerConfig(ModConfig.Type.SERVER, AirdropConfig.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -120,6 +126,9 @@ public class KingSlayer
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
+            // Register renderer for the falling airdrop entity
+            EntityRenderers.register(ModEntityTypes.AIRDROP.get(), AirdropEntityRenderer::new);
         }
     }
 }

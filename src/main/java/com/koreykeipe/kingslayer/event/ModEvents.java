@@ -1,6 +1,8 @@
 package com.koreykeipe.kingslayer.event;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import com.koreykeipe.kingslayer.airdrop.AirdropManager;
+import com.koreykeipe.kingslayer.command.AirdropCommand;
 import com.koreykeipe.kingslayer.command.DeathCommand;
 import com.koreykeipe.kingslayer.game.CombatTracker;
 import com.koreykeipe.kingslayer.game.GameManager;
@@ -73,6 +75,7 @@ public class ModEvents {
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event){
         DeathCommand.register(event.getDispatcher());
+        AirdropCommand.register(event.getDispatcher());
     }
 
     public static void updateDeaths(ServerPlayer player){
@@ -149,6 +152,7 @@ public class ModEvents {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         GameManager.get().onServerStarted(event.getServer());
+        AirdropManager.get().onServerStarted(event.getServer());
     }
 
     @SubscribeEvent
@@ -183,6 +187,12 @@ public class ModEvents {
 
         CombatTracker.clearPlayer(victim.getUUID());
         GameManager.get().onPlayerKilled(victim, attribution);
+
+        // Check whether this death has crossed an airdrop threshold
+        net.minecraft.server.MinecraftServer server = victim.getServer();
+        if (server != null) {
+            AirdropManager.get().onPlayerDeath(server);
+        }
     }
 
     // -------------------------------------------------------------------------

@@ -25,11 +25,11 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
 
         this.add("slayer_pickaxe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, ModItems.SLAYER_PICKAXE.get()));
         this.add("slayer_axe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.RARE_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.2f).build() }, ModItems.SLAYER_AXE.get()));
         this.add("slayer_shovel_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
@@ -37,7 +37,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, ModItems.SLAYER_SHOVEL.get()));
         this.add("slayer_sword_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.2f).build() }, ModItems.SLAYER_SWORD.get()));
         this.add("slayer_hoe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
