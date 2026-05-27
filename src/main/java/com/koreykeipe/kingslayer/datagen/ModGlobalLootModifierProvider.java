@@ -4,12 +4,9 @@ import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.block.ModBlocks;
 import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.loot.AddItemModifier;
-import com.koreykeipe.kingslayer.util.ModTags;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
@@ -28,23 +25,23 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
 
         this.add("slayer_pickaxe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, ModItems.SLAYER_PICKAXE.get()));
         this.add("slayer_axe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.2f).build() }, ModItems.SLAYER_AXE.get()));
         this.add("slayer_shovel_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, ModItems.SLAYER_SHOVEL.get()));
         this.add("slayer_sword_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.2f).build() }, ModItems.SLAYER_SWORD.get()));
         this.add("slayer_hoe_from_crate",
                 new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.SLAYER_CRATE.get()).build(),
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, ModItems.SLAYER_HOE.get()));
 
         add("crown_from_zombie", new AddItemModifier(new LootItemCondition[] {

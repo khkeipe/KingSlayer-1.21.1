@@ -2,7 +2,6 @@ package com.koreykeipe.kingslayer.datagen;
 
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.block.ModBlocks;
-import com.koreykeipe.kingslayer.util.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
@@ -23,7 +22,7 @@ public class ModBlockTagProvider extends BlockTagsProvider {
     //            .add(ModBlocks.SLAY_ORE.get());
 
         tag(BlockTags.NEEDS_IRON_TOOL)
-                .add(ModBlocks.SLAYER_CRATE.get());
+                .add(ModBlocks.COMMON_CRATE.get());
 
     }
 }

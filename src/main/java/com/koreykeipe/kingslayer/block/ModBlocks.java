@@ -20,9 +20,21 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, KingSlayer.MOD_ID);
 
-    public static final RegistryObject<Block> SLAYER_CRATE = registerBlock("slayer_crate",
-        ()-> new DropExperienceBlock(UniformInt.of(1,1),BlockBehaviour.Properties.of()
+    public static final RegistryObject<Block> COMMON_CRATE = registerBlock("common_crate",
+        () -> new DropExperienceBlock(UniformInt.of(1, 1), BlockBehaviour.Properties.of()
             .strength(0.4f).sound(SoundType.SCULK)));
+
+    public static final RegistryObject<Block> RARE_CRATE = registerBlock("rare_crate",
+        () -> new DropExperienceBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
+            .strength(0.8f).sound(SoundType.AMETHYST)));
+
+    public static final RegistryObject<Block> EPIC_CRATE = registerBlock("epic_crate",
+        () -> new DropExperienceBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
+            .strength(1.5f).sound(SoundType.ANCIENT_DEBRIS)));
+
+    public static final RegistryObject<Block> LEGENDARY_CRATE = registerBlock("legendary_crate",
+        () -> new DropExperienceBlock(UniformInt.of(8, 16), BlockBehaviour.Properties.of()
+            .strength(2.5f).sound(SoundType.NETHERITE_BLOCK)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
