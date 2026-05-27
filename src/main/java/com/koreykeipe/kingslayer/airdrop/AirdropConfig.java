@@ -21,6 +21,13 @@ public class AirdropConfig {
 
     public static final ForgeConfigSpec.BooleanValue ENABLED;
     public static final ForgeConfigSpec.IntValue SPAWN_HEIGHT;
+    /**
+     * Terminal fall velocity in blocks/tick. Lower = slower, more cinematic drop.
+     * 0.5 ≈ 5s from 60 blocks, 1.5 ≈ 3s from 60 blocks, 3.0 ≈ 2s from 60 blocks.
+     */
+    public static final ForgeConfigSpec.DoubleValue FALL_SPEED;
+    /** How many ticks the chest glows after landing. 20 ticks = 1 second. */
+    public static final ForgeConfigSpec.IntValue GLOW_DURATION;
 
     // -------------------------------------------------------------------------
     // Per-tier settings
@@ -39,6 +46,13 @@ public class AirdropConfig {
         SPAWN_HEIGHT = BUILDER
                 .comment("How many blocks above the surface the airdrop spawns before falling.")
                 .defineInRange("spawn_height", 60, 10, 256);
+        FALL_SPEED = BUILDER
+                .comment("Terminal fall velocity in blocks/tick (acceleration is fixed at 0.04 b/t²). "
+                        + "0.5 = slow/cinematic (~5s from 60 blocks), 1.5 = default (~3s), 3.0 = fast (~2s).")
+                .defineInRange("fall_speed", 1.5, 0.1, 5.0);
+        GLOW_DURATION = BUILDER
+                .comment("How many ticks the chest glows after landing. 200 = 10 seconds.")
+                .defineInRange("glow_duration_ticks", 200, 20, 6000);
         BUILDER.pop();
 
         // repeat_interval_ticks defaults (0 = fire once and stop):

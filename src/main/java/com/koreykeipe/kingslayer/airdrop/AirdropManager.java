@@ -6,14 +6,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Singleton that tracks which airdrop tiers have fired and handles both
@@ -52,6 +56,12 @@ public class AirdropManager {
     /** Guards the one-time pre-marking pass on the first death after a restart. */
     private boolean initialized = false;
 
+    /**
+     * UUID → expiry server-tick for temporary glowing ArmorStand markers placed over chests.
+     * Populated by {@link #trackGlowMarker} and cleaned up each tick.
+     */
+    private final Map<UUID, Integer> glowMarkers = new HashMap<>();
+
     /** Half-width of the square spawn area centred on the world origin (blocks). */
     private static final int SPAWN_SPREAD = 200;
 
@@ -67,6 +77,7 @@ public class AirdropManager {
     public void onServerStarted(MinecraftServer server) {
         triggeredTiers.clear();
         lastFireTick.clear();
+        glowMarkers.clear();
         initialized = false;
     }
 
@@ -129,11 +140,37 @@ public class AirdropManager {
                 spawnAirdrop(server, tier, null); // null label = repeat drop, no tag in chat
             }
         }
+
+        // Expire glowing chest markers
+        if (!glowMarkers.isEmpty()) {
+            Iterator<Map.Entry<UUID, Integer>> it = glowMarkers.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<UUID, Integer> entry = it.next();
+                if (currentTick >= entry.getValue()) {
+                    it.remove();
+                    for (ServerLevel level : server.getAllLevels()) {
+                        Entity entity = level.getEntity(entry.getKey());
+                        if (entity != null) {
+                            entity.discard();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
     // Manual trigger (operator command)
     // -------------------------------------------------------------------------
+
+    /**
+     * Registers a glowing ArmorStand marker to be removed after {@code GLOW_DURATION} ticks.
+     * Called by {@link AirdropEntity} immediately after the marker is spawned.
+     */
+    public void trackGlowMarker(UUID entityId, MinecraftServer server) {
+        glowMarkers.put(entityId, server.getTickCount() + AirdropConfig.GLOW_DURATION.get());
+    }
 
     /**
      * Bypasses threshold checks and spawns a drop immediately.
