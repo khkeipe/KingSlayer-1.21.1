@@ -8,32 +8,48 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.level.levelgen.Heightmap;
 
+import javax.annotation.Nullable;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * Singleton that tracks which airdrop tiers have fired and
- * schedules new drops when the death-progress threshold is crossed.
+ * Singleton that tracks which airdrop tiers have fired and handles both
+ * threshold-based first-fires and configurable repeating intervals.
  *
  * <h3>Progress formula</h3>
  * <pre>
  *   progress = sum( min(deaths, 5) for each online player ) / ( playerCount × 5 )
  * </pre>
- * Eliminated players remain online as spectators with deaths ≥ 5, so they
- * correctly contribute their full 5/5 to the numerator.
+ *
+ * <h3>Interval behaviour</h3>
+ * Once a tier is unlocked (threshold crossed), it fires immediately. If
+ * {@code repeat_interval_ticks > 0} in the config, it will keep firing every
+ * N ticks thereafter for the rest of the session. Set the interval to 0 for
+ * one-shot behaviour.
  *
  * <h3>Restart safety</h3>
- * On the first death after a server restart, {@code onPlayerDeath} performs a
- * one-time pre-marking pass: any tier whose threshold is already exceeded is
- * quietly marked as triggered <em>without</em> spawning a new drop.  Subsequent
- * deaths then only fire drops for newly-crossed thresholds.
+ * On the first death after a server restart, a silent pre-marking pass marks
+ * any tier whose threshold is already exceeded <em>without</em> spawning a drop.
+ * The interval timer for pre-marked tiers starts from that moment, so the first
+ * repeat happens N ticks after the restart, not instantly.
  */
 public class AirdropManager {
 
     private static final AirdropManager INSTANCE = new AirdropManager();
 
+    /** Tiers that have been unlocked (threshold crossed or manually triggered). */
     private final Set<AirdropTier> triggeredTiers = EnumSet.noneOf(AirdropTier.class);
+
+    /**
+     * Server tick ({@link MinecraftServer#getTickCount()}) when each tier last fired a drop.
+     * Used to gate the repeat interval.  Pre-marked tiers are recorded here without firing.
+     */
+    private final Map<AirdropTier, Integer> lastFireTick = new EnumMap<>(AirdropTier.class);
+
+    /** Guards the one-time pre-marking pass on the first death after a restart. */
     private boolean initialized = false;
 
     /** Half-width of the square spawn area centred on the world origin (blocks). */
@@ -47,62 +63,126 @@ public class AirdropManager {
     // Lifecycle
     // -------------------------------------------------------------------------
 
-    /**
-     * Called when the server starts. Clears state so a fresh game begins cleanly.
-     * Actual pre-marking of already-exceeded tiers is deferred until the first death
-     * (at which point players are online and death counts are readable).
-     */
+    /** Called when the server starts. Resets all state for a fresh game. */
     public void onServerStarted(MinecraftServer server) {
         triggeredTiers.clear();
+        lastFireTick.clear();
         initialized = false;
     }
 
     // -------------------------------------------------------------------------
-    // Death hook
+    // Death hook — called after every player death
     // -------------------------------------------------------------------------
 
-    /**
-     * Called after every player death. Recalculates progress and fires any
-     * newly-crossed tier drops.
-     */
     public void onPlayerDeath(MinecraftServer server) {
         if (!AirdropConfig.ENABLED.get()) return;
         if (!GameManager.get().isGameActive()) return;
 
         double progress = calculateProgress(server);
 
-        // One-time pre-marking pass on the first death after a (re)start
+        // One-time pre-marking pass: silently mark already-exceeded tiers without dropping.
+        // Interval timers start from this tick so repeats don't fire immediately on restart.
         if (!initialized) {
             initialized = true;
+            int currentTick = server.getTickCount();
             for (AirdropTier tier : AirdropTier.values()) {
                 if (progress >= configFor(tier).thresholdPercent.get()) {
                     triggeredTiers.add(tier);
+                    lastFireTick.put(tier, currentTick);
                     KingSlayer.LOGGER.info(
-                            "KingSlayer Airdrop: pre-marking {} as already triggered (progress {}).",
+                            "KingSlayer Airdrop: pre-marking {} (progress {}).",
                             tier.getDisplayName(), String.format("%.1f%%", progress * 100));
                 }
             }
-            return; // Don't fire drops on the pre-marking pass
+            return;
         }
 
-        // Check for newly-crossed thresholds
+        // Fire drops for any newly-crossed thresholds
         for (AirdropTier tier : AirdropTier.values()) {
             if (triggeredTiers.contains(tier)) continue;
             if (progress >= configFor(tier).thresholdPercent.get()) {
                 triggeredTiers.add(tier);
-                spawnAirdrop(server, tier, progress);
+                spawnAirdrop(server, tier, String.format("%.0f%% progress", progress * 100));
             }
         }
     }
 
     // -------------------------------------------------------------------------
-    // Internal helpers
+    // Tick hook — called every server tick to drive repeating intervals
+    // -------------------------------------------------------------------------
+
+    public void onServerTick(MinecraftServer server) {
+        if (!AirdropConfig.ENABLED.get()) return;
+        if (!GameManager.get().isGameActive()) return;
+        if (triggeredTiers.isEmpty()) return; // cheap early exit before any tier is unlocked
+
+        int currentTick = server.getTickCount();
+
+        for (AirdropTier tier : AirdropTier.values()) {
+            if (!triggeredTiers.contains(tier)) continue;
+
+            int intervalTicks = configFor(tier).repeatIntervalTicks.get();
+            if (intervalTicks <= 0) continue; // one-shot mode — no repeat
+
+            int lastFire = lastFireTick.getOrDefault(tier, currentTick - intervalTicks - 1);
+            if (currentTick - lastFire >= intervalTicks) {
+                spawnAirdrop(server, tier, null); // null label = repeat drop, no tag in chat
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Manual trigger (operator command)
     // -------------------------------------------------------------------------
 
     /**
-     * Returns the current death-progress fraction for all online players.
-     * Each player's contribution is capped at 5 (their maximum lives).
+     * Bypasses threshold checks and spawns a drop immediately.
+     * Also unlocks the repeat interval for the tier (useful for testing repeats).
      */
+    public void triggerManual(MinecraftServer server, AirdropTier tier) {
+        triggeredTiers.add(tier); // enable the repeat timer even if threshold wasn't met
+        spawnAirdrop(server, tier, "manual");
+    }
+
+    // -------------------------------------------------------------------------
+    // Core spawn logic
+    // -------------------------------------------------------------------------
+
+    /**
+     * Picks a random surface location, broadcasts the incoming warning, and
+     * spawns an {@link AirdropEntity}.
+     *
+     * @param label  Text shown in parentheses in the chat announcement, e.g.
+     *               {@code "35% progress"} or {@code "manual"}.
+     *               Pass {@code null} for silent repeat drops (no tag shown).
+     */
+    private void spawnAirdrop(MinecraftServer server, AirdropTier tier, @Nullable String label) {
+        ServerLevel overworld = server.overworld();
+
+        int x        = overworld.random.nextIntBetweenInclusive(-SPAWN_SPREAD, SPAWN_SPREAD);
+        int z        = overworld.random.nextIntBetweenInclusive(-SPAWN_SPREAD, SPAWN_SPREAD);
+        int surfaceY = overworld.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+        int spawnY   = surfaceY + AirdropConfig.SPAWN_HEIGHT.get();
+
+        // Record fire time before spawning so the interval is measured from this moment
+        lastFireTick.put(tier, server.getTickCount());
+
+        // Broadcast warning
+        String tag = label != null ? " §7(" + label + ")" : "";
+        GameManager.get().broadcast("§6§l☆ " + tier.coloredName() + " §r§6§lis incoming!" + tag);
+
+        // Spawn entity
+        AirdropEntity entity = new AirdropEntity(tier, overworld, x + 0.5, spawnY, z + 0.5);
+        overworld.addFreshEntity(entity);
+
+        KingSlayer.LOGGER.info("KingSlayer Airdrop: spawned {} at ({}, {}, {})",
+                tier.getDisplayName(), x, spawnY, z);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
     private double calculateProgress(MinecraftServer server) {
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
         if (players.isEmpty()) return 0.0;
@@ -113,35 +193,6 @@ public class AirdropManager {
             totalDeaths += Math.min(deaths, 5);
         }
         return (double) totalDeaths / ((double) players.size() * 5.0);
-    }
-
-    /**
-     * Manually spawns an airdrop of the given tier, bypassing threshold and triggered-tier checks.
-     * Intended for operator testing via the /airdrop command.
-     */
-    public void triggerManual(MinecraftServer server, AirdropTier tier) {
-        spawnAirdrop(server, tier, -1.0);
-    }
-
-    private void spawnAirdrop(MinecraftServer server, AirdropTier tier, double progress) {
-        ServerLevel overworld = server.overworld();
-
-        // Random spawn point near the world centre
-        int x = overworld.random.nextIntBetweenInclusive(-SPAWN_SPREAD, SPAWN_SPREAD);
-        int z = overworld.random.nextIntBetweenInclusive(-SPAWN_SPREAD, SPAWN_SPREAD);
-        int surfaceY = overworld.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
-        int spawnY   = surfaceY + AirdropConfig.SPAWN_HEIGHT.get();
-
-        // Incoming warning broadcast (progress < 0 means manually triggered)
-        String progressTag = progress >= 0 ? " §7(" + String.format("%.0f%%", progress * 100) + " progress)" : " §7(manual)";
-        GameManager.get().broadcast("§6§l☆ " + tier.coloredName() + " §r§6§lis incoming!" + progressTag);
-
-        // Spawn the falling entity
-        AirdropEntity entity = new AirdropEntity(tier, overworld, x + 0.5, spawnY, z + 0.5);
-        overworld.addFreshEntity(entity);
-
-        KingSlayer.LOGGER.info("KingSlayer Airdrop: spawned {} at ({}, {}, {})",
-                tier.getDisplayName(), x, spawnY, z);
     }
 
     private AirdropConfig.TierConfig configFor(AirdropTier tier) {

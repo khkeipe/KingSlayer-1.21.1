@@ -41,7 +41,9 @@ public class AirdropConfig {
                 .defineInRange("spawn_height", 60, 10, 256);
         BUILDER.pop();
 
-        COMMON = new TierConfig(BUILDER, "common", 0.15,
+        // repeat_interval_ticks defaults (0 = fire once and stop):
+        //   6000  =  5 min  |  9000  = 7.5 min  |  12000 = 10 min  |  18000 = 15 min
+        COMMON = new TierConfig(BUILDER, "common", 0.15, 6000,
                 List.of(
                         "minecraft:golden_apple 0.9 1 2",
                         "minecraft:bow 0.6 1 1",
@@ -50,7 +52,7 @@ public class AirdropConfig {
                         "minecraft:iron_ingot 0.7 2 4"
                 ));
 
-        RARE = new TierConfig(BUILDER, "rare", 0.35,
+        RARE = new TierConfig(BUILDER, "rare", 0.35, 9000,
                 List.of(
                         "minecraft:enchanted_golden_apple 0.2 1 1",
                         "minecraft:diamond_sword 0.5 1 1",
@@ -59,7 +61,7 @@ public class AirdropConfig {
                         "minecraft:iron_chestplate 0.6 1 1"
                 ));
 
-        EPIC = new TierConfig(BUILDER, "epic", 0.60,
+        EPIC = new TierConfig(BUILDER, "epic", 0.60, 12000,
                 List.of(
                         "minecraft:enchanted_golden_apple 0.5 1 2",
                         "minecraft:diamond_chestplate 0.6 1 1",
@@ -68,7 +70,7 @@ public class AirdropConfig {
                         "minecraft:arrow 1.0 24 48"
                 ));
 
-        LEGENDARY = new TierConfig(BUILDER, "legendary", 0.85,
+        LEGENDARY = new TierConfig(BUILDER, "legendary", 0.85, 18000,
                 List.of(
                         "minecraft:enchanted_golden_apple 1.0 2 3",
                         "minecraft:netherite_sword 0.8 1 1",
@@ -93,18 +95,30 @@ public class AirdropConfig {
         public final ForgeConfigSpec.DoubleValue thresholdPercent;
 
         /**
+         * How many ticks between repeat drops once this tier is unlocked.
+         * Set to 0 to fire only once (on threshold cross) and never repeat.
+         * 6000 = 5 min, 12000 = 10 min, 24000 = 20 min.
+         */
+        public final ForgeConfigSpec.IntValue repeatIntervalTicks;
+
+        /**
          * Loot entries. Each string: {@code "namespace:item chance min max"}.
          * All four fields are required. Invalid entries are silently skipped.
          */
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> loot;
 
         TierConfig(ForgeConfigSpec.Builder builder, String name, double defaultThreshold,
-                   List<String> defaultLoot) {
+                   int defaultRepeatInterval, List<String> defaultLoot) {
             builder.push("tiers").push(name);
 
             thresholdPercent = builder
                     .comment("Death-progress fraction (0.0–1.0) required to trigger this drop tier.")
                     .defineInRange("death_threshold_percent", defaultThreshold, 0.0, 1.0);
+
+            repeatIntervalTicks = builder
+                    .comment("Ticks between repeat drops after this tier unlocks. 0 = fire once only. "
+                            + "(20 ticks = 1 second, 6000 = 5 min, 12000 = 10 min)")
+                    .defineInRange("repeat_interval_ticks", defaultRepeatInterval, 0, Integer.MAX_VALUE);
 
             loot = builder
                     .comment("Loot list. Format: \"namespace:item_id chance min max\"  (chance = 0.0–1.0).")
