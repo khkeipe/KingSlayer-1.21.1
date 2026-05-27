@@ -1,4 +1,13 @@
-// 1.21.1	2026-05-26T16:12:38.5296583	Block States: kcs_kingslayer
-fd4b8730001ca83872f7c87513c86e7325d3e0ff assets/kcs_kingslayer/blockstates/slayer_crate.json
-236b2de8f3e2c3d11b25c5740c993b523e09b6be assets/kcs_kingslayer/models/block/slayer_crate.json
-8fe020da1e20eac3b0ab7380dfd985d3f48a4a31 assets/kcs_kingslayer/models/item/slayer_crate.json
+// 1.21.1	2026-05-26T18:23:40.5825337	Block States: kcs_kingslayer
+45b29594d66b02a2f5af4c57649a5053190b9b87 assets/kcs_kingslayer/blockstates/broken_crate.json
+a46a8f33fe664940587d141f39fa8c954bcb3e7f assets/kcs_kingslayer/blockstates/common_crate.json
+9e55fa5dd9c61c0fdbeda200f4e64f7ca21a9a51 assets/kcs_kingslayer/blockstates/epic_crate.json
+1951ac6e9cb6a52ee5f5e4d2af44e8d673ca9360 assets/kcs_kingslayer/blockstates/rare_crate.json
+6f3d1d149fc35bb94ffa653b0f58b1bf920b17f9 assets/kcs_kingslayer/models/block/broken_crate.json
+5cbdc0c9ca0f5337093b95b4748b63fff8146c14 assets/kcs_kingslayer/models/block/common_crate.json
+630c104483233289263ab0fbb9d217d1b00de920 assets/kcs_kingslayer/models/block/epic_crate.json
+cc97204dcbdab65fe810b82aa5624e4ec3fc4af8 assets/kcs_kingslayer/models/block/rare_crate.json
+53f0d69fc207d68a09f6c603fe9f2755dd4f58c5 assets/kcs_kingslayer/models/item/broken_crate.json
+0974d230ad1179b5ea25ef34389cbb07bf329eb5 assets/kcs_kingslayer/models/item/common_crate.json
+730699d84be1250b775bc3a785d298a5f04061c1 assets/kcs_kingslayer/models/item/epic_crate.json
+e051cdfa1b254688f0e66fe3fd47f89f95a2eb87 assets/kcs_kingslayer/models/item/rare_crate.json

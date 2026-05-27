@@ -8,8 +8,10 @@
   "item.kcs_kingslayer.slayer_axe": "Slayer Axe",
   "item.kcs_kingslayer.slayer_hoe": "Slayer Hoe",
 
-
-  "block.kcs_kingslayer.slayer_crate":"Slayer Crate",
+  "block.kcs_kingslayer.broken_crate":"Broken Crate",
+  "block.kcs_kingslayer.common_crate":"Common Crate",
+  "block.kcs_kingslayer.rare_crate":"Rare Crate",
+  "block.kcs_kingslayer.epic_crate":"Epic Crate",
 
   "creativetab.kcs_kingslayer.kingslayer_items": "King Slayer"
 }

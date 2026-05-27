@@ -22,7 +22,7 @@ public class ModBlockTagProvider extends BlockTagsProvider {
     //            .add(ModBlocks.SLAY_ORE.get());
 
         tag(BlockTags.NEEDS_IRON_TOOL)
-                .add(ModBlocks.COMMON_CRATE.get());
+                .add(ModBlocks.BROKEN_CRATE.get());
 
     }
 }

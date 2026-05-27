@@ -15,10 +15,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
+        blockWithItem(ModBlocks.BROKEN_CRATE);
         blockWithItem(ModBlocks.COMMON_CRATE);
         blockWithItem(ModBlocks.RARE_CRATE);
         blockWithItem(ModBlocks.EPIC_CRATE);
-        blockWithItem(ModBlocks.LEGENDARY_CRATE);
     }
 
     private void blockWithItem(RegistryObject<Block> blocksRegistryObject){
