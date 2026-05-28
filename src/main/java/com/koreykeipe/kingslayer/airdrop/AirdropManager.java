@@ -114,6 +114,7 @@ public class AirdropManager {
             if (progress >= configFor(tier).thresholdPercent.get()) {
                 triggeredTiers.add(tier);
                 spawnAirdrop(server, tier, String.format("%.0f%% progress", progress * 100));
+                BorderManager.get().onTierTriggered(server, tier);
             }
         }
     }
@@ -179,6 +180,7 @@ public class AirdropManager {
     public void triggerManual(MinecraftServer server, AirdropTier tier) {
         triggeredTiers.add(tier); // enable the repeat timer even if threshold wasn't met
         spawnAirdrop(server, tier, "manual");
+        BorderManager.get().onTierTriggered(server, tier);
     }
 
     // -------------------------------------------------------------------------

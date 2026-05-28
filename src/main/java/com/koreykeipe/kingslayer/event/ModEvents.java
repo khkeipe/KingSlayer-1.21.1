@@ -2,6 +2,7 @@ package com.koreykeipe.kingslayer.event;
 
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.airdrop.AirdropManager;
+import com.koreykeipe.kingslayer.airdrop.BorderManager;
 import com.koreykeipe.kingslayer.command.AirdropCommand;
 import com.koreykeipe.kingslayer.command.DeathCommand;
 import com.koreykeipe.kingslayer.game.CombatTracker;
@@ -45,10 +46,15 @@ public class ModEvents {
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
         if(event.getEntity() instanceof ServerPlayer player){
             GameManager.get().onPlayerLogin(player);
+
             CompoundTag persistent = player.getPersistentData();
             if(!persistent.contains("hasJoinedBefore")){
-                //First Time Join
+                //First Time Join — expand the world border by one player's allocation
                 persistent.putBoolean("hasJoinedBefore", true);
+                net.minecraft.server.MinecraftServer srv = player.getServer();
+                if (srv != null) {
+                    BorderManager.get().onNewPlayerFirstJoin(srv);
+                }
                 player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Welcome to ")
                         .append(Component.literal("King Slayer").withStyle(ChatFormatting.GOLD))
                 ));
@@ -154,6 +160,7 @@ public class ModEvents {
     public static void onServerStarted(ServerStartedEvent event) {
         GameManager.get().onServerStarted(event.getServer());
         AirdropManager.get().onServerStarted(event.getServer());
+        BorderManager.get().onServerStarted(event.getServer());
     }
 
     @SubscribeEvent
