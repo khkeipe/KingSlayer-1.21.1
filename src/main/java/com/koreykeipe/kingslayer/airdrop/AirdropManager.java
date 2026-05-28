@@ -2,11 +2,22 @@ package com.koreykeipe.kingslayer.airdrop;
 
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.game.GameManager;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import javax.annotation.Nullable;
@@ -57,13 +68,17 @@ public class AirdropManager {
     private boolean initialized = false;
 
     /**
-     * UUID → expiry server-tick for temporary glowing ArmorStand markers placed over chests.
+     * UUID → expiry server-tick for temporary glowing Slime markers placed over chests.
      * Populated by {@link #trackGlowMarker} and cleaned up each tick.
      */
     private final Map<UUID, Integer> glowMarkers = new HashMap<>();
 
-    /** Half-width of the square spawn area centred on the world origin (blocks). */
-    private static final int SPAWN_SPREAD = 200;
+    /**
+     * UUID of glow-marker entity → campfire block position.
+     * Only populated for land landings; absent (never put) for water landings.
+     * The campfire is removed from the world when the associated glow marker expires.
+     */
+    private final Map<UUID, BlockPos> campfirePositions = new HashMap<>();
 
     private AirdropManager() {}
 
@@ -78,6 +93,7 @@ public class AirdropManager {
         triggeredTiers.clear();
         lastFireTick.clear();
         glowMarkers.clear();
+        campfirePositions.clear();
         initialized = false;
     }
 
@@ -149,6 +165,12 @@ public class AirdropManager {
                 Map.Entry<UUID, Integer> entry = it.next();
                 if (currentTick >= entry.getValue()) {
                     it.remove();
+                    // Remove the campfire smoke beacon (always in the overworld; no-op if already mined)
+                    BlockPos campfire = campfirePositions.remove(entry.getKey());
+                    if (campfire != null) {
+                        server.overworld().removeBlock(campfire, false);
+                    }
+                    // Discard the glow-marker entity (search all levels for safety)
                     for (ServerLevel level : server.getAllLevels()) {
                         Entity entity = level.getEntity(entry.getKey());
                         if (entity != null) {
@@ -166,11 +188,17 @@ public class AirdropManager {
     // -------------------------------------------------------------------------
 
     /**
-     * Registers a glowing ArmorStand marker to be removed after {@code GLOW_DURATION} ticks.
-     * Called by {@link AirdropEntity} immediately after the marker is spawned.
+     * Registers a glowing Slime marker (and optional campfire) to be cleaned up after
+     * {@code GLOW_DURATION} ticks. Called by {@link AirdropEntity} on landing.
+     *
+     * @param campfirePos  Position of the signal campfire placed under the chest,
+     *                     or {@code null} for water landings where no campfire is used.
      */
-    public void trackGlowMarker(UUID entityId, MinecraftServer server) {
+    public void trackGlowMarker(UUID entityId, MinecraftServer server, @Nullable BlockPos campfirePos) {
         glowMarkers.put(entityId, server.getTickCount() + AirdropConfig.GLOW_DURATION.get());
+        if (campfirePos != null) {
+            campfirePositions.put(entityId, campfirePos);
+        }
     }
 
     /**
@@ -188,27 +216,39 @@ public class AirdropManager {
     // -------------------------------------------------------------------------
 
     /**
-     * Picks a random surface location, broadcasts the incoming warning, and
-     * spawns an {@link AirdropEntity}.
+     * Picks a random surface location inside the current world border, announces
+     * the drop via screen title + sound (first-fires only), and spawns the entity.
      *
-     * @param label  Text shown in parentheses in the chat announcement, e.g.
-     *               {@code "35% progress"} or {@code "manual"}.
-     *               Pass {@code null} for silent repeat drops (no tag shown).
+     * @param label  Non-null on the first fire of a tier (e.g. {@code "35% progress"}
+     *               or {@code "manual"}); {@code null} for silent repeat drops.
      */
     private void spawnAirdrop(MinecraftServer server, AirdropTier tier, @Nullable String label) {
         ServerLevel overworld = server.overworld();
 
-        int x        = overworld.random.nextIntBetweenInclusive(-SPAWN_SPREAD, SPAWN_SPREAD);
-        int z        = overworld.random.nextIntBetweenInclusive(-SPAWN_SPREAD, SPAWN_SPREAD);
+        // Pick a random surface position inside the current world border (8-block inset
+        // keeps drops away from the wall even while the border is shrinking).
+        WorldBorder border = overworld.getWorldBorder();
+        final int BORDER_INSET = 8;
+        int minX = (int) Math.ceil(border.getMinX())  + BORDER_INSET;
+        int maxX = (int) Math.floor(border.getMaxX()) - BORDER_INSET;
+        int minZ = (int) Math.ceil(border.getMinZ())  + BORDER_INSET;
+        int maxZ = (int) Math.floor(border.getMaxZ()) - BORDER_INSET;
+        // Guard against a border that is too small to give a valid range
+        if (minX > maxX) { minX = maxX = (int) border.getCenterX(); }
+        if (minZ > maxZ) { minZ = maxZ = (int) border.getCenterZ(); }
+
+        int x        = overworld.random.nextIntBetweenInclusive(minX, maxX);
+        int z        = overworld.random.nextIntBetweenInclusive(minZ, maxZ);
         int surfaceY = overworld.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
         int spawnY   = surfaceY + AirdropConfig.SPAWN_HEIGHT.get();
 
         // Record fire time before spawning so the interval is measured from this moment
         lastFireTick.put(tier, server.getTickCount());
 
-        // Broadcast warning
-        String tag = label != null ? " §7(" + label + ")" : "";
-        GameManager.get().broadcast("§6§l☆ " + tier.coloredName() + " §r§6§lis incoming!" + tag);
+        // Announce via screen title + sound (first-fire only; repeats are silent)
+        if (label != null) {
+            announceIncoming(server, tier);
+        }
 
         // Spawn entity
         AirdropEntity entity = new AirdropEntity(tier, overworld, x + 0.5, spawnY, z + 0.5);
@@ -216,6 +256,39 @@ public class AirdropManager {
 
         KingSlayer.LOGGER.info("KingSlayer Airdrop: spawned {} at ({}, {}, {})",
                 tier.getDisplayName(), x, spawnY, z);
+    }
+
+    /**
+     * Sends a screen title, subtitle, and notification sound to every online player.
+     * The sound is sent directly as a packet at each player's location so it is
+     * guaranteed audible regardless of world-border size or player spread.
+     */
+    private void announceIncoming(MinecraftServer server, AirdropTier tier) {
+        ChatFormatting tierColor = switch (tier) {
+            case BROKEN -> ChatFormatting.GRAY;
+            case COMMON -> ChatFormatting.GREEN;
+            case RARE   -> ChatFormatting.BLUE;
+            case EPIC   -> ChatFormatting.DARK_PURPLE;
+        };
+
+        Component title = Component.literal("✦  AIRDROP  ✦")
+                .withStyle(style -> style.withColor(ChatFormatting.GOLD).withBold(true));
+        Component subtitle = Component.literal(tier.getDisplayName() + " Airdrop is incoming!")
+                .withStyle(style -> style.withColor(tierColor).withBold(false).withItalic(false));
+
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            // Timing: 0.5 s fade-in | 3.5 s hold | 1 s fade-out
+            player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 70, 20));
+            player.connection.send(new ClientboundSetTitleTextPacket(title));
+            player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
+            // Challenge-complete ding — sent directly so every player hears it
+            player.connection.send(new ClientboundSoundPacket(
+                    BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE),
+                    SoundSource.MASTER,
+                    player.getX(), player.getY(), player.getZ(),
+                    1.0f, 1.0f, player.getRandom().nextLong()
+            ));
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -236,10 +309,10 @@ public class AirdropManager {
 
     private AirdropConfig.TierConfig configFor(AirdropTier tier) {
         return switch (tier) {
-            case COMMON    -> AirdropConfig.COMMON;
-            case RARE      -> AirdropConfig.RARE;
-            case EPIC      -> AirdropConfig.EPIC;
-            case LEGENDARY -> AirdropConfig.LEGENDARY;
+            case BROKEN -> AirdropConfig.BROKEN;
+            case COMMON -> AirdropConfig.COMMON;
+            case RARE   -> AirdropConfig.RARE;
+            case EPIC   -> AirdropConfig.EPIC;
         };
     }
 }

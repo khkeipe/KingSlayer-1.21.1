@@ -2,7 +2,7 @@
   "type": "kcs_kingslayer:add_item",
   "conditions": [
     {
-      "block": "kcs_kingslayer:broken_crate",
+      "block": "kcs_kingslayer:epic_crate",
       "condition": "minecraft:block_state_property"
     },
     {

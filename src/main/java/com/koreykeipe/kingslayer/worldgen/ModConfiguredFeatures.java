@@ -20,12 +20,11 @@ public class ModConfiguredFeatures {
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 
-
         register(context, CRATE_KEY,Feature.BLOCK_PILE,
                 new BlockPileConfiguration(
                         new WeightedStateProvider(
                                 SimpleWeightedRandomList.<BlockState>builder()
-                                        .add(ModBlocks.BROKEN_CRATE.get().defaultBlockState(), 1)
+                                        .add(ModBlocks.BROKEN_CRATE.get().defaultBlockState(), 2)
                                         .add(Blocks.GRAVEL.defaultBlockState(), 1)
                                         .add(Blocks.COARSE_DIRT.defaultBlockState(), 2)
                                         .add(Blocks.STONE.defaultBlockState(), 4)

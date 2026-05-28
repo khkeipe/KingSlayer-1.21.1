@@ -48,10 +48,10 @@ public class AirdropConfig {
     // Per-tier settings
     // -------------------------------------------------------------------------
 
+    public static final TierConfig BROKEN;
     public static final TierConfig COMMON;
     public static final TierConfig RARE;
     public static final TierConfig EPIC;
-    public static final TierConfig LEGENDARY;
 
     static {
         BUILDER.comment("=== KingSlayer Airdrop System ===").push("global");
@@ -60,14 +60,14 @@ public class AirdropConfig {
                 .define("enabled", true);
         SPAWN_HEIGHT = BUILDER
                 .comment("How many blocks above the surface the airdrop spawns before falling.")
-                .defineInRange("spawn_height", 60, 10, 256);
+                .defineInRange("spawn_height", 150, 10, 256);
         FALL_SPEED = BUILDER
                 .comment("Terminal fall velocity in blocks/tick (acceleration is fixed at 0.04 b/t²). "
                         + "0.5 = slow/cinematic (~5s from 60 blocks), 1.5 = default (~3s), 3.0 = fast (~2s).")
-                .defineInRange("fall_speed", 1.5, 0.1, 5.0);
+                .defineInRange("fall_speed", 0.1, 0.1, 5.0);
         GLOW_DURATION = BUILDER
                 .comment("How many ticks the chest glows after landing. 200 = 10 seconds.")
-                .defineInRange("glow_duration_ticks", 200, 20, 6000);
+                .defineInRange("glow_duration_ticks", 500, 20, 6000);
 
         BORDER_ENABLED = BUILDER
                 .comment("Set to false to leave the world border unmanaged by the airdrop system.")
@@ -84,7 +84,7 @@ public class AirdropConfig {
 
         // repeat_interval_ticks defaults (0 = fire once and stop):
         //   6000  =  5 min  |  9000  = 7.5 min  |  12000 = 10 min  |  18000 = 15 min
-        COMMON = new TierConfig(BUILDER, "common", 0.15, 6000, 75, 12000,
+        BROKEN = new TierConfig(BUILDER, "broken", 0.15, 6000, 75, 12000,
                 List.of(
                         "minecraft:golden_apple 0.9 1 2",
                         "minecraft:bow 0.6 1 1",
@@ -93,7 +93,7 @@ public class AirdropConfig {
                         "minecraft:iron_ingot 0.7 2 4"
                 ));
 
-        RARE = new TierConfig(BUILDER, "rare", 0.35, 9000, 100, 15000,
+        COMMON = new TierConfig(BUILDER, "common", 0.35, 9000, 100, 15000,
                 List.of(
                         "minecraft:enchanted_golden_apple 0.2 1 1",
                         "minecraft:diamond_sword 0.5 1 1",
@@ -102,7 +102,7 @@ public class AirdropConfig {
                         "minecraft:iron_chestplate 0.6 1 1"
                 ));
 
-        EPIC = new TierConfig(BUILDER, "epic", 0.60, 12000, 125, 18000,
+        RARE = new TierConfig(BUILDER, "rare", 0.60, 12000, 125, 18000,
                 List.of(
                         "minecraft:enchanted_golden_apple 0.5 1 2",
                         "minecraft:diamond_chestplate 0.6 1 1",
@@ -111,7 +111,7 @@ public class AirdropConfig {
                         "minecraft:arrow 1.0 24 48"
                 ));
 
-        LEGENDARY = new TierConfig(BUILDER, "legendary", 0.85, 18000, 150, 24000,
+        EPIC = new TierConfig(BUILDER, "epic", 0.85, 18000, 150, 24000,
                 List.of(
                         "minecraft:enchanted_golden_apple 1.0 2 3",
                         "minecraft:netherite_sword 0.8 1 1",

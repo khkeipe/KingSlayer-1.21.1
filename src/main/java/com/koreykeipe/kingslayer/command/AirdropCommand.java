@@ -61,7 +61,7 @@ public class AirdropCommand {
                             } catch (IllegalArgumentException e) {
                                 source.sendFailure(Component.literal(
                                     "§cUnknown tier \"" + arg.toLowerCase()
-                                    + "\". Valid: common, rare, epic, legendary, all"));
+                                    + "\". Valid: broken, common, rare, epic, all"));
                                 return 0;
                             }
 

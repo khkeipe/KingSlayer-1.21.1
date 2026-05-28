@@ -22,7 +22,8 @@ public class ModBiomeModifiers {
 
 
         context.register(ADD_CRATE, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                HolderSet.direct(biomes.getOrThrow(Biomes.FOREST),
+                HolderSet.direct(
+                        biomes.getOrThrow(Biomes.FOREST),
                         biomes.getOrThrow(Biomes.MEADOW),
                         biomes.getOrThrow(Biomes.BIRCH_FOREST),
                         biomes.getOrThrow(Biomes.PLAINS),

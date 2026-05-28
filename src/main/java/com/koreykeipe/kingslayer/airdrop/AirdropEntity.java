@@ -20,7 +20,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,12 +35,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.block.CampfireBlock;
+
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * A falling entity that descends from the sky, trailing smoke and flame particles,
  * then places a named loot chest on landing, spawns fireworks, and leaves a glowing
- * ArmorStand marker over the chest for a configurable duration.
+ * Slime marker over the chest for a configurable duration.
  */
 public class AirdropEntity extends Entity {
 
@@ -49,8 +53,12 @@ public class AirdropEntity extends Entity {
 
     /** Gravity applied every tick (blocks/tick²). */
     private static final double GRAVITY = 0.04;
-    /** Discard after this many ticks if landing never fires (safety valve). */
-    private static final int TIMEOUT_TICKS = 1200; // 60 seconds
+    /**
+     * Discard after this many ticks if landing never fires (safety valve).
+     * Must exceed the worst-case fall time: max SPAWN_HEIGHT (256) ÷ min FALL_SPEED (0.1) ≈ 2 560 ticks.
+     * 6 000 ticks (5 minutes) comfortably covers every valid config combination.
+     */
+    private static final int TIMEOUT_TICKS = 6000;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -147,6 +155,15 @@ public class AirdropEntity extends Entity {
                         SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.NEUTRAL, 1.2f, 0.7f);
             }
 
+            // Water landing — catch the entity the moment it enters any fluid so it
+            // doesn't sink to the seafloor before triggering the landing logic.
+            if (this.isInWater()) {
+                BlockPos surface = findWaterSurface((ServerLevel) this.level(), this.blockPosition());
+                onLand((ServerLevel) this.level(), surface);
+                this.discard();
+                return;
+            }
+
             // Landing detection — onGround() is set by move() when the entity hits a floor
             if (this.onGround()) {
                 onLand((ServerLevel) this.level(), this.blockPosition());
@@ -160,15 +177,35 @@ public class AirdropEntity extends Entity {
     // -------------------------------------------------------------------------
 
     private void onLand(ServerLevel level, BlockPos landPos) {
-        BlockPos chestPos = findPlacementPos(level, landPos);
-        if (chestPos == null) {
-            KingSlayer.LOGGER.warn("AirdropEntity: no valid placement position near {} — skipping chest.", landPos);
-            return;
+        // Determine whether this is a water landing (entity entered fluid before hitting the floor)
+        boolean waterLanding = level.getFluidState(landPos).is(FluidTags.WATER);
+
+        BlockPos campfirePos = null; // non-null for land landings; null for water landings
+        BlockPos chestPos;
+
+        if (waterLanding) {
+            // Float the chest just above the water surface — no campfire in water
+            chestPos = landPos.above();
+        } else {
+            // Land: campfire at the placement slot, chest sits on top of it
+            campfirePos = findPlacementPos(level, landPos);
+            if (campfirePos == null) {
+                KingSlayer.LOGGER.warn("AirdropEntity: no valid placement position near {} — skipping chest.", landPos);
+                return;
+            }
+            chestPos = campfirePos.above();
         }
 
         AirdropTier tier = getTier();
 
-        // 1 — Place and name the chest.
+        // 1 — Place a lit signal campfire (land landings only — produces tall smoke beacon)
+        if (campfirePos != null) {
+            level.setBlockAndUpdate(campfirePos,
+                    Blocks.CAMPFIRE.defaultBlockState()
+                            .setValue(CampfireBlock.SIGNAL_FIRE, true));
+        }
+
+        // 2 — Place and name the chest.
         // setCustomName is inaccessible in 1.21.1 through the public API, so we write
         // the custom name the same way the game itself does it: via NBT load.
         // This is called before fillChest so the empty-items load is harmless.
@@ -185,16 +222,16 @@ public class AirdropEntity extends Entity {
             }
         }
 
-        // 2 — Landing thud
+        // 3 — Landing thud
         level.playSound(null, chestPos, SoundEvents.ANVIL_LAND, SoundSource.NEUTRAL, 1.5f, 0.6f);
 
-        // 3 — Firework burst (4 rockets, slight random spread)
+        // 4 — Firework burst (4 rockets, slight random spread)
         spawnFireworks(level, chestPos, tier);
 
-        // 4 — Glowing ArmorStand marker
-        spawnGlowMarker(level, chestPos);
+        // 5 — Glowing Slime marker (invisible, cube hitbox fits the chest)
+        spawnGlowMarker(level, chestPos, campfirePos);
 
-        // 5 — Announce landing coordinates
+        // 6 — Announce landing coordinates
         String msg = "§6§l☆ " + tier.coloredName()
                 + " §ehas landed at §f("
                 + chestPos.getX() + ", " + chestPos.getY() + ", " + chestPos.getZ()
@@ -213,12 +250,12 @@ public class AirdropEntity extends Entity {
     /** Builds a styled chest title shown when the player opens it. */
     private static Component buildChestName(AirdropTier tier) {
         ChatFormatting color = switch (tier) {
-            case COMMON    -> ChatFormatting.GREEN;
-            case RARE      -> ChatFormatting.BLUE;
-            case EPIC      -> ChatFormatting.DARK_PURPLE;
-            case LEGENDARY -> ChatFormatting.GOLD;
+            case BROKEN -> ChatFormatting.GRAY;
+            case COMMON -> ChatFormatting.GREEN;
+            case RARE   -> ChatFormatting.BLUE;
+            case EPIC   -> ChatFormatting.DARK_PURPLE;
         };
-        boolean bold = (tier == AirdropTier.LEGENDARY);
+        boolean bold = (tier == AirdropTier.EPIC);
         return Component.literal("✦ " + tier.getDisplayName() + " Airdrop")
                 .withStyle(style -> style.withColor(color).withBold(bold).withItalic(false));
     }
@@ -229,10 +266,10 @@ public class AirdropEntity extends Entity {
 
     private void spawnFireworks(ServerLevel level, BlockPos origin, AirdropTier tier) {
         int color = switch (tier) {
-            case COMMON    -> 0x55FF55;  // bright green
-            case RARE      -> 0x5555FF;  // blue
-            case EPIC      -> 0xAA00AA;  // purple
-            case LEGENDARY -> 0xFFAA00;  // gold
+            case BROKEN -> 0x999999;  // gray
+            case COMMON -> 0x55FF55;  // bright green
+            case RARE   -> 0x5555FF;  // blue
+            case EPIC   -> 0xAA00AA;  // purple
         };
 
         // Build a colored firework item using 1.21.1 DataComponents
@@ -271,24 +308,27 @@ public class AirdropEntity extends Entity {
     // Glow marker
     // -------------------------------------------------------------------------
 
-    private void spawnGlowMarker(ServerLevel level, BlockPos chestPos) {
-        ArmorStand marker = new ArmorStand(EntityType.ARMOR_STAND, level);
-        // Position at the chest so the outline appears over it
+    private void spawnGlowMarker(ServerLevel level, BlockPos chestPos, @Nullable BlockPos campfirePos) {
+        // A size-2 Slime has a ~1×1×1 block hitbox — the glow outline fits the chest
+        // far better than an ArmorStand's tall/narrow humanoid silhouette.
+        // It's invisible, has AI disabled, and can't be targeted or damaged.
+        Slime marker = new Slime(EntityType.SLIME, level);
+        marker.setSize(2, false);
+        // Centre the slime's hitbox over the chest block
         marker.setPos(chestPos.getX() + 0.5, chestPos.getY(), chestPos.getZ() + 0.5);
         marker.setInvisible(true);
         marker.setNoGravity(true);
         marker.setInvulnerable(true);
         marker.setSilent(true);
-        marker.setNoBasePlate(true);
-        marker.setShowArms(false);
-        // setGlowing() is inaccessible in 1.21.1 — use the Glowing mob effect instead.
-        // The effect auto-expires after GLOW_DURATION ticks; AirdropManager removes the entity.
+        marker.setNoAi(true);
+        // Prevent natural despawn — AirdropManager will explicitly discard it after GLOW_DURATION
+        marker.setPersistenceRequired();
+        // setGlowing() is inaccessible in 1.21.1; MobEffects.GLOWING achieves the same result.
         marker.addEffect(new MobEffectInstance(
                 MobEffects.GLOWING, AirdropConfig.GLOW_DURATION.get(), 0, false, false));
         level.addFreshEntity(marker);
 
-        // Hand off to AirdropManager so it can expire the marker after the configured duration
-        AirdropManager.get().trackGlowMarker(marker.getUUID(), level.getServer());
+        AirdropManager.get().trackGlowMarker(marker.getUUID(), level.getServer(), campfirePos);
     }
 
     // -------------------------------------------------------------------------
@@ -305,12 +345,27 @@ public class AirdropEntity extends Entity {
         return null;
     }
 
+    /**
+     * Starting from {@code start} (which must be inside water), climbs upward until
+     * the block above is no longer water, then returns the topmost water block.
+     * The caller should place the chest one block above the returned position.
+     */
+    private static BlockPos findWaterSurface(ServerLevel level, BlockPos start) {
+        BlockPos pos = start;
+        // Walk up while the next block is still water
+        while (level.getFluidState(pos.above()).is(FluidTags.WATER)) {
+            pos = pos.above();
+            if (pos.getY() >= level.getMaxBuildHeight() - 1) break;
+        }
+        return pos; // topmost water block; pos.above() is air (or build-height cap)
+    }
+
     private void fillChest(ChestBlockEntity chest) {
         AirdropConfig.TierConfig cfg = switch (getTier()) {
-            case COMMON    -> AirdropConfig.COMMON;
-            case RARE      -> AirdropConfig.RARE;
-            case EPIC      -> AirdropConfig.EPIC;
-            case LEGENDARY -> AirdropConfig.LEGENDARY;
+            case BROKEN -> AirdropConfig.BROKEN;
+            case COMMON -> AirdropConfig.COMMON;
+            case RARE   -> AirdropConfig.RARE;
+            case EPIC   -> AirdropConfig.EPIC;
         };
 
         List<? extends String> entries = cfg.loot.get();
