@@ -1,0 +1,144 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:arrow",
+          "functions": [
+            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 32, "max": 64 } }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_golden_apple",
+          "functions": [
+            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2, "max": 3 } }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.7 } ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:totem_of_undying",
+          "functions": [
+            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1, "max": 2 } }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:netherite_sword",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": { "text": "King Slayer", "color": "gold", "italic": false, "bold": true }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "lore": [
+                { "text": "The blade that ends reigns.", "color": "dark_red", "italic": true },
+                { "text": "Only one may claim the throne.", "color": "dark_gray", "italic": true },
+                { "text": "Sharp V  |  Fire II  |  Unbreak III  |  Loot III  |  Sweep III", "color": "gray", "italic": false }
+              ],
+              "mode": "replace_all"
+            },
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "minecraft:sharpness": 5,
+                "minecraft:fire_aspect": 2,
+                "minecraft:unbreaking": 3,
+                "minecraft:looting": 3,
+                "minecraft:sweeping_edge": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:netherite_chestplate",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": { "text": "Aegis of the Fallen", "color": "gold", "italic": false, "bold": true }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "lore": [
+                { "text": "Worn by the last king.", "color": "dark_red", "italic": true },
+                { "text": "Prot IV  |  Thorns II  |  Unbreak III  |  Mending", "color": "gray", "italic": false }
+              ],
+              "mode": "replace_all"
+            },
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "minecraft:protection": 4,
+                "minecraft:thorns": 2,
+                "minecraft:unbreaking": 3,
+                "minecraft:mending": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.5 } ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "kcs_kingslayer:crown",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": { "text": "Crown of the Slayer", "color": "gold", "italic": false, "bold": true }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "lore": [
+                { "text": "Wear it. Earn it.", "color": "yellow", "italic": true }
+              ],
+              "mode": "replace_all"
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

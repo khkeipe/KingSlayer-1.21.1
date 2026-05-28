@@ -1,0 +1,145 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:arrow",
+          "functions": [
+            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 24, "max": 48 } }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.5 } ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_golden_apple",
+          "functions": [
+            { "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1, "max": 2 } }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.3 } ],
+      "entries": [
+        { "type": "minecraft:item", "name": "minecraft:totem_of_undying" }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.75 } ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond_chestplate",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": { "text": "Warplate", "color": "blue", "italic": false, "bold": true }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "lore": [
+                { "text": "Battles fought, battles won.", "color": "dark_blue", "italic": true },
+                { "text": "Worn by those who survive.", "color": "dark_gray", "italic": true }
+              ],
+              "mode": "replace_all"
+            },
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "minecraft:protection": 3,
+                "minecraft:unbreaking": 2,
+                "minecraft:blast_protection": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.8 } ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "kcs_kingslayer:slayer_sword",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": { "text": "Bladestorm", "color": "dark_purple", "italic": false, "bold": true }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "lore": [
+                { "text": "The storm does not ask permission.", "color": "dark_purple", "italic": true },
+                { "text": "Sharpness IV  |  Fire Aspect I  |  Unbreaking II", "color": "gray", "italic": false }
+              ],
+              "mode": "replace_all"
+            },
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "minecraft:sharpness": 4,
+                "minecraft:fire_aspect": 1,
+                "minecraft:unbreaking": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "rolls": 1,
+      "bonus_rolls": 0.0,
+      "conditions": [ { "condition": "minecraft:random_chance", "probability": 0.4 } ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:crossbow",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": { "text": "Siege Caster", "color": "blue", "italic": false }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "lore": [
+                { "text": "No reloads. No mercy.", "color": "dark_gray", "italic": true }
+              ],
+              "mode": "replace_all"
+            },
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "minecraft:quick_charge": 2,
+                "minecraft:multishot": 1,
+                "minecraft:unbreaking": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

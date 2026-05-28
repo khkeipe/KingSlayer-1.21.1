@@ -2,14 +2,13 @@ package com.koreykeipe.kingslayer.airdrop;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.List;
-
 /**
  * Server-side config for the KingSlayer airdrop system.
  * Loaded from {@code config/kcs_kingslayer-server.toml}.
  *
- * <p>Loot entries use the format: {@code "namespace:item_id chance min max"}<br>
- * Example: {@code "minecraft:golden_apple 0.8 1 2"}</p>
+ * <p>Loot is defined in JSON loot tables at
+ * {@code data/kcs_kingslayer/loot_tables/airdrops/<tier>.json}.
+ * Override any tier's table at runtime with a datapack — no recompile needed.</p>
  */
 public class AirdropConfig {
 
@@ -84,41 +83,13 @@ public class AirdropConfig {
 
         // repeat_interval_ticks defaults (0 = fire once and stop):
         //   6000  =  5 min  |  9000  = 7.5 min  |  12000 = 10 min  |  18000 = 15 min
-        BROKEN = new TierConfig(BUILDER, "broken", 0.15, 6000, 75, 12000,
-                List.of(
-                        "minecraft:golden_apple 0.9 1 2",
-                        "minecraft:bow 0.6 1 1",
-                        "minecraft:arrow 1.0 8 24",
-                        "minecraft:cooked_beef 0.8 3 6",
-                        "minecraft:iron_ingot 0.7 2 4"
-                ));
+        BROKEN = new TierConfig(BUILDER, "broken", 0.15, 6000, 75, 12000);
 
-        COMMON = new TierConfig(BUILDER, "common", 0.35, 9000, 100, 15000,
-                List.of(
-                        "minecraft:enchanted_golden_apple 0.2 1 1",
-                        "minecraft:diamond_sword 0.5 1 1",
-                        "minecraft:arrow 1.0 16 32",
-                        "minecraft:golden_apple 0.8 2 4",
-                        "minecraft:iron_chestplate 0.6 1 1"
-                ));
+        COMMON = new TierConfig(BUILDER, "common", 0.35, 9000, 100, 15000);
 
-        RARE = new TierConfig(BUILDER, "rare", 0.60, 12000, 125, 18000,
-                List.of(
-                        "minecraft:enchanted_golden_apple 0.5 1 2",
-                        "minecraft:diamond_chestplate 0.6 1 1",
-                        "minecraft:diamond_sword 0.8 1 1",
-                        "minecraft:totem_of_undying 0.3 1 1",
-                        "minecraft:arrow 1.0 24 48"
-                ));
+        RARE = new TierConfig(BUILDER, "rare", 0.60, 12000, 125, 18000);
 
-        EPIC = new TierConfig(BUILDER, "epic", 0.85, 18000, 150, 24000,
-                List.of(
-                        "minecraft:enchanted_golden_apple 1.0 2 3",
-                        "minecraft:netherite_sword 0.8 1 1",
-                        "minecraft:netherite_chestplate 0.7 1 1",
-                        "minecraft:totem_of_undying 0.7 1 2",
-                        "minecraft:arrow 1.0 32 64"
-                ));
+        EPIC = new TierConfig(BUILDER, "epic", 0.85, 18000, 150, 24000);
     }
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
@@ -154,15 +125,8 @@ public class AirdropConfig {
          */
         public final ForgeConfigSpec.IntValue borderShrinkSeconds;
 
-        /**
-         * Loot entries. Each string: {@code "namespace:item chance min max"}.
-         * All four fields are required. Invalid entries are silently skipped.
-         */
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> loot;
-
         TierConfig(ForgeConfigSpec.Builder builder, String name, double defaultThreshold,
-                   int defaultRepeatInterval, int defaultShrinkRadius, int defaultShrinkSeconds,
-                   List<String> defaultLoot) {
+                   int defaultRepeatInterval, int defaultShrinkRadius, int defaultShrinkSeconds) {
             builder.push("tiers").push(name);
 
             thresholdPercent = builder
@@ -182,22 +146,6 @@ public class AirdropConfig {
             borderShrinkSeconds = builder
                     .comment("Duration of the border shrink transition in seconds.")
                     .defineInRange("border_shrink_seconds", defaultShrinkSeconds, 1, 3600);
-
-            loot = builder
-                    .comment("Loot list. Format: \"namespace:item_id chance min max\"  (chance = 0.0–1.0).")
-                    .defineListAllowEmpty("loot", defaultLoot, obj -> {
-                        if (!(obj instanceof String s)) return false;
-                        String[] p = s.trim().split("\\s+");
-                        if (p.length != 4) return false;
-                        try {
-                            Double.parseDouble(p[1]);
-                            Integer.parseInt(p[2]);
-                            Integer.parseInt(p[3]);
-                            return true;
-                        } catch (NumberFormatException e) {
-                            return false;
-                        }
-                    });
 
             builder.pop().pop();
         }

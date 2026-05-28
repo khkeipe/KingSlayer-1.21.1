@@ -152,10 +152,10 @@ public class BorderManager {
 
     private AirdropConfig.TierConfig configFor(AirdropTier tier) {
         return switch (tier) {
-            case COMMON    -> AirdropConfig.COMMON;
-            case RARE      -> AirdropConfig.RARE;
-            case EPIC      -> AirdropConfig.EPIC;
-            case LEGENDARY -> AirdropConfig.LEGENDARY;
+            case BROKEN -> AirdropConfig.BROKEN;
+            case COMMON -> AirdropConfig.COMMON;
+            case RARE   -> AirdropConfig.RARE;
+            case EPIC   -> AirdropConfig.EPIC;
         };
     }
 }

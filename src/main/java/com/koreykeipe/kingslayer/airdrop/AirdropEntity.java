@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +24,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.FireworkExplosion;
@@ -33,7 +34,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.CampfireBlock;
@@ -218,7 +223,7 @@ public class AirdropEntity extends Entity {
             be.loadWithComponents(nameTag, level.registryAccess());
 
             if (be instanceof ChestBlockEntity chest) {
-                fillChest(chest);
+                fillChest(chest, level, chestPos);
             }
         }
 
@@ -283,8 +288,8 @@ public class AirdropEntity extends Entity {
         ItemStack rocketItem = new ItemStack(Items.FIREWORK_ROCKET);
         rocketItem.set(DataComponents.FIREWORKS, new Fireworks(1, List.of(explosion)));
 
-        // Launch 4 rockets in a small spread
-        for (int i = 0; i < 4; i++) {
+        // Launch 6 rockets in a small spread
+        for (int i = 0; i < 6; i++) {
             double ox = (this.random.nextDouble() - 0.5) * 1.2;
             double oz = (this.random.nextDouble() - 0.5) * 1.2;
             FireworkRocketEntity rocket = new FireworkRocketEntity(
@@ -309,13 +314,16 @@ public class AirdropEntity extends Entity {
     // -------------------------------------------------------------------------
 
     private void spawnGlowMarker(ServerLevel level, BlockPos chestPos, @Nullable BlockPos campfirePos) {
-        // A size-2 Slime has a ~1×1×1 block hitbox — the glow outline fits the chest
-        // far better than an ArmorStand's tall/narrow humanoid silhouette.
-        // It's invisible, has AI disabled, and can't be targeted or damaged.
+        // A size-1 (tiny) Slime has a ~0.51×0.51 hitbox — small enough that players can
+        // click the chest block faces around it freely, while the GLOWING outline still
+        // provides a visible beacon. Size 2 (~1.02×1.02) overlaps all chest faces and
+        // blocks interaction until the glow expires, so we stay at size 1.
         Slime marker = new Slime(EntityType.SLIME, level);
-        marker.setSize(2, false);
-        // Centre the slime's hitbox over the chest block
-        marker.setPos(chestPos.getX() + 0.5, chestPos.getY(), chestPos.getZ() + 0.5);
+        marker.setSize(1, false);
+        // Centre the slime vertically and horizontally inside the chest block so the
+        // glow outline is evenly framed. Offset +0.25 Y centres the 0.51-tall hitbox
+        // in the 1-block-tall chest space (spans ~Y+0.25 to Y+0.76).
+        marker.setPos(chestPos.getX() + 0.5, chestPos.getY() + 0.25, chestPos.getZ() + 0.5);
         marker.setInvisible(true);
         marker.setNoGravity(true);
         marker.setInvulnerable(true);
@@ -360,38 +368,21 @@ public class AirdropEntity extends Entity {
         return pos; // topmost water block; pos.above() is air (or build-height cap)
     }
 
-    private void fillChest(ChestBlockEntity chest) {
-        AirdropConfig.TierConfig cfg = switch (getTier()) {
-            case BROKEN -> AirdropConfig.BROKEN;
-            case COMMON -> AirdropConfig.COMMON;
-            case RARE   -> AirdropConfig.RARE;
-            case EPIC   -> AirdropConfig.EPIC;
-        };
+    /**
+     * Fills the chest by running the tier's loot table.
+     * Tables live at {@code data/kcs_kingslayer/loot_tables/airdrops/<tier>.json}
+     * and can be overridden at runtime via a datapack without recompiling the mod.
+     */
+    private void fillChest(ChestBlockEntity chest, ServerLevel level, BlockPos chestPos) {
+        ResourceLocation tableId = ResourceLocation.fromNamespaceAndPath(
+                KingSlayer.MOD_ID, "airdrops/" + getTier().name().toLowerCase());
+        ResourceKey<LootTable> tableKey = ResourceKey.create(Registries.LOOT_TABLE, tableId);
+        LootTable table = level.getServer().reloadableRegistries().getLootTable(tableKey);
 
-        List<? extends String> entries = cfg.loot.get();
-        int slot = 0;
+        LootParams params = new LootParams.Builder(level)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(chestPos))
+                .create(LootContextParamSets.CHEST);
 
-        for (String entry : entries) {
-            if (slot >= chest.getContainerSize()) break;
-            String[] parts = entry.trim().split("\\s+");
-            if (parts.length != 4) continue;
-
-            try {
-                ResourceLocation id = ResourceLocation.tryParse(parts[0]);
-                double chance       = Double.parseDouble(parts[1]);
-                int    min          = Integer.parseInt(parts[2]);
-                int    max          = Integer.parseInt(parts[3]);
-
-                if (this.random.nextDouble() < chance) {
-                    Item item = ForgeRegistries.ITEMS.getValue(id);
-                    if (item != null && item != Items.AIR) {
-                        int count = (max <= min) ? min : min + this.random.nextInt(max - min + 1);
-                        chest.setItem(slot++, new ItemStack(item, count));
-                    }
-                }
-            } catch (NumberFormatException e) {
-                KingSlayer.LOGGER.warn("AirdropEntity: malformed loot entry '{}' — skipping.", entry);
-            }
-        }
+        table.fill(chest, params, level.random.nextLong());
     }
 }
