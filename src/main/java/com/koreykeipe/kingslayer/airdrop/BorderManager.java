@@ -1,6 +1,7 @@
 package com.koreykeipe.kingslayer.airdrop;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.border.WorldBorder;
 
@@ -94,6 +95,16 @@ public class BorderManager {
      */
     public void onNewPlayerFirstJoin(MinecraftServer server) {
         if (!AirdropConfig.BORDER_ENABLED.get()) return;
+
+        // On the very first player ever, anchor the border center to world spawn
+        // so the spawn area always falls inside the border regardless of where
+        // Minecraft placed the spawn (which is often well away from 0,0).
+        if (targetDiameter == 0.0) {
+            BlockPos spawn = server.overworld().getSharedSpawnPos();
+            server.overworld().getWorldBorder().setCenter(spawn.getX(), spawn.getZ());
+            KingSlayer.LOGGER.info("KingSlayer Border: anchored border center to world spawn ({}, {})",
+                    spawn.getX(), spawn.getZ());
+        }
 
         int blocksPerPlayer = AirdropConfig.INITIAL_BLOCKS_PER_PLAYER.get();
         targetDiameter += blocksPerPlayer * 2.0;

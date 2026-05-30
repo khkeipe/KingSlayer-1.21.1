@@ -8,7 +8,7 @@
           "data": {
             "Name": "kcs_kingslayer:broken_crate"
           },
-          "weight": 3
+          "weight": 2
         },
         {
           "data": {
@@ -27,12 +27,6 @@
             "Name": "minecraft:stone"
           },
           "weight": 4
-        },
-        {
-          "data": {
-            "Name": "minecraft:stone"
-          },
-          "weight": 10
         }
       ]
     }

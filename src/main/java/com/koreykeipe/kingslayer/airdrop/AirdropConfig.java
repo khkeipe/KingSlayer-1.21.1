@@ -59,14 +59,14 @@ public class AirdropConfig {
                 .define("enabled", true);
         SPAWN_HEIGHT = BUILDER
                 .comment("How many blocks above the surface the airdrop spawns before falling.")
-                .defineInRange("spawn_height", 150, 10, 256);
+                .defineInRange("spawn_height", 150, 50, 256);
         FALL_SPEED = BUILDER
                 .comment("Terminal fall velocity in blocks/tick (acceleration is fixed at 0.04 b/t²). "
                         + "0.5 = slow/cinematic (~5s from 60 blocks), 1.5 = default (~3s), 3.0 = fast (~2s).")
-                .defineInRange("fall_speed", 0.1, 0.1, 5.0);
+                .defineInRange("fall_speed", 0.5, 0.1, 5.0);
         GLOW_DURATION = BUILDER
                 .comment("How many ticks the chest glows after landing. 200 = 10 seconds.")
-                .defineInRange("glow_duration_ticks", 500, 20, 6000);
+                .defineInRange("glow_duration_ticks", 1500, 20, 6000);
 
         BORDER_ENABLED = BUILDER
                 .comment("Set to false to leave the world border unmanaged by the airdrop system.")

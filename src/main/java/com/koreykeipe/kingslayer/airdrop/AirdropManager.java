@@ -4,6 +4,7 @@ import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.game.GameManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -16,19 +17,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-import javax.annotation.Nullable;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Singleton that tracks which airdrop tiers have fired and handles both
@@ -68,17 +65,11 @@ public class AirdropManager {
     private boolean initialized = false;
 
     /**
-     * UUID → expiry server-tick for temporary glowing Slime markers placed over chests.
-     * Populated by {@link #trackGlowMarker} and cleaned up each tick.
+     * Chest block position → server tick at which the smoke column should stop.
+     * Populated by {@link #trackChest} on landing; entries expire naturally each tick.
+     * No in-world entity is needed — AirdropManager already ticks every server tick.
      */
-    private final Map<UUID, Integer> glowMarkers = new HashMap<>();
-
-    /**
-     * UUID of glow-marker entity → campfire block position.
-     * Only populated for land landings; absent (never put) for water landings.
-     * The campfire is removed from the world when the associated glow marker expires.
-     */
-    private final Map<UUID, BlockPos> campfirePositions = new HashMap<>();
+    private final Map<BlockPos, Integer> activeChests = new HashMap<>();
 
     private AirdropManager() {}
 
@@ -92,8 +83,7 @@ public class AirdropManager {
     public void onServerStarted(MinecraftServer server) {
         triggeredTiers.clear();
         lastFireTick.clear();
-        glowMarkers.clear();
-        campfirePositions.clear();
+        activeChests.clear();
         initialized = false;
     }
 
@@ -158,28 +148,27 @@ public class AirdropManager {
             }
         }
 
-        // Expire glowing chest markers
-        if (!glowMarkers.isEmpty()) {
-            Iterator<Map.Entry<UUID, Integer>> it = glowMarkers.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<UUID, Integer> entry = it.next();
-                if (currentTick >= entry.getValue()) {
-                    it.remove();
-                    // Remove the campfire smoke beacon (always in the overworld; no-op if already mined)
-                    BlockPos campfire = campfirePositions.remove(entry.getKey());
-                    if (campfire != null) {
-                        server.overworld().removeBlock(campfire, false);
-                    }
-                    // Discard the glow-marker entity (search all levels for safety)
-                    for (ServerLevel level : server.getAllLevels()) {
-                        Entity entity = level.getEntity(entry.getKey());
-                        if (entity != null) {
-                            entity.discard();
-                            break;
-                        }
-                    }
+        // Emit a rising smoke column above each active chest (every 8 ticks ≈ 2.5 puffs/second)
+        if (!activeChests.isEmpty() && currentTick % 8 == 0) {
+            ServerLevel overworld = server.overworld();
+            for (Map.Entry<BlockPos, Integer> entry : activeChests.entrySet()) {
+                if (currentTick >= entry.getValue()) continue; // expired — skip, removed below
+                BlockPos pos = entry.getKey();
+                // Two offset puffs per interval for a natural-looking column
+                for (int i = 0; i < 2; i++) {
+                    double ox = (overworld.random.nextFloat() - 0.5f) * 0.25;
+                    double oz = (overworld.random.nextFloat() - 0.5f) * 0.25;
+                    // count=0 mode: xDist/yDist/zDist are treated as the velocity vector
+                    overworld.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+                            pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5,
+                            0, ox * 0.05, 0.12, oz * 0.05, 1.0);
                 }
             }
+        }
+
+        // Remove expired chest entries (no entity to clean up — the map IS the timer)
+        if (!activeChests.isEmpty()) {
+            activeChests.entrySet().removeIf(entry -> currentTick >= entry.getValue());
         }
     }
 
@@ -188,17 +177,12 @@ public class AirdropManager {
     // -------------------------------------------------------------------------
 
     /**
-     * Registers a glowing Slime marker (and optional campfire) to be cleaned up after
-     * {@code GLOW_DURATION} ticks. Called by {@link AirdropEntity} on landing.
-     *
-     * @param campfirePos  Position of the signal campfire placed under the chest,
-     *                     or {@code null} for water landings where no campfire is used.
+     * Registers a chest position for smoke-particle emission for {@link AirdropConfig#GLOW_DURATION}
+     * ticks. Called by {@link AirdropEntity} immediately after the chest is placed on landing.
+     * No in-world entity is needed — the expiry is tracked entirely in this map.
      */
-    public void trackGlowMarker(UUID entityId, MinecraftServer server, @Nullable BlockPos campfirePos) {
-        glowMarkers.put(entityId, server.getTickCount() + AirdropConfig.GLOW_DURATION.get());
-        if (campfirePos != null) {
-            campfirePositions.put(entityId, campfirePos);
-        }
+    public void trackChest(BlockPos chestPos, MinecraftServer server) {
+        activeChests.put(chestPos, server.getTickCount() + AirdropConfig.GLOW_DURATION.get());
     }
 
     /**
@@ -222,7 +206,7 @@ public class AirdropManager {
      * @param label  Non-null on the first fire of a tier (e.g. {@code "35% progress"}
      *               or {@code "manual"}); {@code null} for silent repeat drops.
      */
-    private void spawnAirdrop(MinecraftServer server, AirdropTier tier, @Nullable String label) {
+    private void spawnAirdrop(MinecraftServer server, AirdropTier tier, String label) {
         ServerLevel overworld = server.overworld();
 
         // Pick a random surface position inside the current world border (8-block inset
@@ -282,13 +266,9 @@ public class AirdropManager {
             player.connection.send(new ClientboundSetTitleTextPacket(title));
             player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
             // Challenge-complete ding — sent directly so every player hears it
-            player.connection.send(new ClientboundSoundPacket(
-                    BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE),
-                    SoundSource.MASTER,
-                    player.getX(), player.getY(), player.getZ(),
-                    1.0f, 1.0f, player.getRandom().nextLong()
-            ));
+            server.overworld().getLevel().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.RAID_HORN, SoundSource.AMBIENT, 1.5f, 1.6f);
         }
+
     }
 
     // -------------------------------------------------------------------------

@@ -3,7 +3,6 @@ package com.koreykeipe.kingslayer.airdrop;
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.entity.ModEntityTypes;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -12,9 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -22,34 +18,21 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.Vec3;
-
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.block.CampfireBlock;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * A falling entity that descends from the sky, trailing smoke and flame particles,
- * then places a named loot chest on landing, spawns fireworks, and leaves a glowing
- * Slime marker over the chest for a configurable duration.
+ * then places the tier-appropriate crate block on landing and spawns fireworks.
+ * A rising smoke column is emitted from the crate position by {@link AirdropManager}
+ * for {@link AirdropConfig#GLOW_DURATION} ticks after landing.
  */
 public class AirdropEntity extends Entity {
 
@@ -157,7 +140,7 @@ public class AirdropEntity extends Entity {
             // Periodic whoosh sound broadcast to nearby players
             if (this.tickCount % 40 == 0) {
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                        SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.NEUTRAL, 1.2f, 0.7f);
+                        SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.AMBIENT, 1.0f, 0.7f);
             }
 
             // Water landing — catch the entity the moment it enters any fluid so it
@@ -185,58 +168,36 @@ public class AirdropEntity extends Entity {
         // Determine whether this is a water landing (entity entered fluid before hitting the floor)
         boolean waterLanding = level.getFluidState(landPos).is(FluidTags.WATER);
 
-        BlockPos campfirePos = null; // non-null for land landings; null for water landings
         BlockPos chestPos;
 
         if (waterLanding) {
-            // Float the chest just above the water surface — no campfire in water
+            // Float the chest just above the water surface
             chestPos = landPos.above();
         } else {
-            // Land: campfire at the placement slot, chest sits on top of it
-            campfirePos = findPlacementPos(level, landPos);
-            if (campfirePos == null) {
+            // Find the first clear surface position (needs 2 free blocks so the chest has headroom)
+            BlockPos placementPos = findPlacementPos(level, landPos);
+            if (placementPos == null) {
                 KingSlayer.LOGGER.warn("AirdropEntity: no valid placement position near {} — skipping chest.", landPos);
                 return;
             }
-            chestPos = campfirePos.above();
+            chestPos = placementPos;
         }
 
         AirdropTier tier = getTier();
 
-        // 1 — Place a lit signal campfire (land landings only — produces tall smoke beacon)
-        if (campfirePos != null) {
-            level.setBlockAndUpdate(campfirePos,
-                    Blocks.CAMPFIRE.defaultBlockState()
-                            .setValue(CampfireBlock.SIGNAL_FIRE, true));
-        }
+        // 1 — Place the tier-appropriate crate block; loot is handled by its datagen loot table.
+        level.setBlock(chestPos, tier.getCrate().get().defaultBlockState(), 3);
 
-        // 2 — Place and name the chest.
-        // setCustomName is inaccessible in 1.21.1 through the public API, so we write
-        // the custom name the same way the game itself does it: via NBT load.
-        // This is called before fillChest so the empty-items load is harmless.
-        level.setBlockAndUpdate(chestPos, Blocks.CHEST.defaultBlockState());
-        BlockEntity be = level.getBlockEntity(chestPos);
-        if (be != null) {
-            CompoundTag nameTag = new CompoundTag();
-            nameTag.putString("CustomName",
-                    Component.Serializer.toJson(buildChestName(tier), level.registryAccess()));
-            be.loadWithComponents(nameTag, level.registryAccess());
-
-            if (be instanceof ChestBlockEntity chest) {
-                fillChest(chest, level, chestPos);
-            }
-        }
-
-        // 3 — Landing thud
+        // 2 — Landing thud
         level.playSound(null, chestPos, SoundEvents.ANVIL_LAND, SoundSource.NEUTRAL, 1.5f, 0.6f);
 
-        // 4 — Firework burst (4 rockets, slight random spread)
+        // 3 — Firework burst
         spawnFireworks(level, chestPos, tier);
 
-        // 5 — Glowing Slime marker (invisible, cube hitbox fits the chest)
-        spawnGlowMarker(level, chestPos, campfirePos);
+        // 4 — Register chest for smoke-particle column (no in-world entity needed)
+        AirdropManager.get().trackChest(chestPos, level.getServer());
 
-        // 6 — Announce landing coordinates
+        // 5 — Announce landing coordinates
         String msg = "§6§l☆ " + tier.coloredName()
                 + " §ehas landed at §f("
                 + chestPos.getX() + ", " + chestPos.getY() + ", " + chestPos.getZ()
@@ -246,23 +207,6 @@ public class AirdropEntity extends Entity {
         }
 
         KingSlayer.LOGGER.info("KingSlayer Airdrop: {} landed at {}", tier.getDisplayName(), chestPos);
-    }
-
-    // -------------------------------------------------------------------------
-    // Chest naming
-    // -------------------------------------------------------------------------
-
-    /** Builds a styled chest title shown when the player opens it. */
-    private static Component buildChestName(AirdropTier tier) {
-        ChatFormatting color = switch (tier) {
-            case BROKEN -> ChatFormatting.GRAY;
-            case COMMON -> ChatFormatting.GREEN;
-            case RARE   -> ChatFormatting.BLUE;
-            case EPIC   -> ChatFormatting.DARK_PURPLE;
-        };
-        boolean bold = (tier == AirdropTier.EPIC);
-        return Component.literal("✦ " + tier.getDisplayName() + " Airdrop")
-                .withStyle(style -> style.withColor(color).withBold(bold).withItalic(false));
     }
 
     // -------------------------------------------------------------------------
@@ -310,36 +254,6 @@ public class AirdropEntity extends Entity {
     }
 
     // -------------------------------------------------------------------------
-    // Glow marker
-    // -------------------------------------------------------------------------
-
-    private void spawnGlowMarker(ServerLevel level, BlockPos chestPos, @Nullable BlockPos campfirePos) {
-        // A size-1 (tiny) Slime has a ~0.51×0.51 hitbox — small enough that players can
-        // click the chest block faces around it freely, while the GLOWING outline still
-        // provides a visible beacon. Size 2 (~1.02×1.02) overlaps all chest faces and
-        // blocks interaction until the glow expires, so we stay at size 1.
-        Slime marker = new Slime(EntityType.SLIME, level);
-        marker.setSize(1, false);
-        // Centre the slime vertically and horizontally inside the chest block so the
-        // glow outline is evenly framed. Offset +0.25 Y centres the 0.51-tall hitbox
-        // in the 1-block-tall chest space (spans ~Y+0.25 to Y+0.76).
-        marker.setPos(chestPos.getX() + 0.5, chestPos.getY() + 0.25, chestPos.getZ() + 0.5);
-        marker.setInvisible(true);
-        marker.setNoGravity(true);
-        marker.setInvulnerable(true);
-        marker.setSilent(true);
-        marker.setNoAi(true);
-        // Prevent natural despawn — AirdropManager will explicitly discard it after GLOW_DURATION
-        marker.setPersistenceRequired();
-        // setGlowing() is inaccessible in 1.21.1; MobEffects.GLOWING achieves the same result.
-        marker.addEffect(new MobEffectInstance(
-                MobEffects.GLOWING, AirdropConfig.GLOW_DURATION.get(), 0, false, false));
-        level.addFreshEntity(marker);
-
-        AirdropManager.get().trackGlowMarker(marker.getUUID(), level.getServer(), campfirePos);
-    }
-
-    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 
@@ -368,21 +282,4 @@ public class AirdropEntity extends Entity {
         return pos; // topmost water block; pos.above() is air (or build-height cap)
     }
 
-    /**
-     * Fills the chest by running the tier's loot table.
-     * Tables live at {@code data/kcs_kingslayer/loot_tables/airdrops/<tier>.json}
-     * and can be overridden at runtime via a datapack without recompiling the mod.
-     */
-    private void fillChest(ChestBlockEntity chest, ServerLevel level, BlockPos chestPos) {
-        ResourceLocation tableId = ResourceLocation.fromNamespaceAndPath(
-                KingSlayer.MOD_ID, "airdrops/" + getTier().name().toLowerCase());
-        ResourceKey<LootTable> tableKey = ResourceKey.create(Registries.LOOT_TABLE, tableId);
-        LootTable table = level.getServer().reloadableRegistries().getLootTable(tableKey);
-
-        LootParams params = new LootParams.Builder(level)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(chestPos))
-                .create(LootContextParamSets.CHEST);
-
-        table.fill(chest, params, level.random.nextLong());
-    }
 }
