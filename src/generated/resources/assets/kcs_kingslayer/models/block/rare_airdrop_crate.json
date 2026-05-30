@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "kcs_kingslayer:block/rare_airdrop_crate"
+  }
+}

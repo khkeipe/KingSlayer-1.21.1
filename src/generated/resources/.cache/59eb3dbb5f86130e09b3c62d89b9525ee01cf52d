@@ -1,5 +1,9 @@
-// 1.21.1	2026-05-26T18:23:40.5815178	Loot Tables
+// 1.21.1	2026-05-29T19:07:57.4702739	Loot Tables
+804baa78a623437ac6ab85723f2c98810fda3447 data/kcs_kingslayer/loot_table/blocks/broken_airdrop_crate.json
 171ad9ce5ba9423a18ecacdf3807a517778cee32 data/kcs_kingslayer/loot_table/blocks/broken_crate.json
+83a8f42de930a6c51816e4b14b056b5ee003af79 data/kcs_kingslayer/loot_table/blocks/common_airdrop_crate.json
 637a11670caef2e5e221968442582cdb9fdf6157 data/kcs_kingslayer/loot_table/blocks/common_crate.json
+7ee320cd2fcd258d5400dd8d4dc70057a6cc9beb data/kcs_kingslayer/loot_table/blocks/epic_airdrop_crate.json
 eb24562c8578250ec8538a57c5f4c76a46f98781 data/kcs_kingslayer/loot_table/blocks/epic_crate.json
+d956c8a2e77fa3d66abd86651e895c73e824bdc4 data/kcs_kingslayer/loot_table/blocks/rare_airdrop_crate.json
 15f7e68b9d7f556e088b6e59bf58a1d04e31cc19 data/kcs_kingslayer/loot_table/blocks/rare_crate.json

@@ -266,7 +266,8 @@ public class AirdropManager {
             player.connection.send(new ClientboundSetTitleTextPacket(title));
             player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
             // Challenge-complete ding — sent directly so every player hears it
-            server.overworld().getLevel().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.RAID_HORN, SoundSource.AMBIENT, 1.5f, 1.6f);
+            server.overworld().getLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.AMBIENT, 1.0f, 0.7f);
         }
 
     }

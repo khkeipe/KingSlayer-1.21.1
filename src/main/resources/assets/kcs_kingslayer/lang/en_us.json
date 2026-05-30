@@ -13,5 +13,10 @@
   "block.kcs_kingslayer.rare_crate":"Rare Crate",
   "block.kcs_kingslayer.epic_crate":"Epic Crate",
 
+  "block.kcs_kingslayer.broken_airdrop_crate":"Broken AirDrop Crate",
+  "block.kcs_kingslayer.common_airdrop_crate":"Common AirDrop Crate",
+  "block.kcs_kingslayer.rare_airdrop_crate":"Rare AirDrop Crate",
+  "block.kcs_kingslayer.epic_airdrop_crate":"Epic AirDrop Crate",
+
   "creativetab.kcs_kingslayer.kingslayer_items": "King Slayer"
 }

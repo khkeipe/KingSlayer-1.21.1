@@ -10,9 +10,9 @@ import net.minecraftforge.registries.RegistryObject;
  */
 public enum AirdropTier {
     BROKEN ("Broken", "§7",    ModBlocks.BROKEN_AD_CRATE),
-    COMMON ("Common", "§a",    ModBlocks.COMMON_CRATE),
-    RARE   ("Rare",   "§9",    ModBlocks.RARE_CRATE),
-    EPIC   ("Epic",   "§5§l",  ModBlocks.EPIC_CRATE);
+    COMMON ("Common", "§a",    ModBlocks.COMMON_AD_CRATE),
+    RARE   ("Rare",   "§9",    ModBlocks.RARE_AD_CRATE),
+    EPIC   ("Epic",   "§5§l",  ModBlocks.EPIC_AD_CRATE);
 
     private final String displayName;
     private final String color;        // chat format prefix

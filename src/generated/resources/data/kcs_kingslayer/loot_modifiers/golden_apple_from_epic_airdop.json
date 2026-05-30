@@ -2,7 +2,7 @@
   "type": "kcs_kingslayer:add_item",
   "conditions": [
     {
-      "block": "kcs_kingslayer:broken_airdrop_crate",
+      "block": "kcs_kingslayer:epic_airdrop_crate",
       "condition": "minecraft:block_state_property"
     },
     {
@@ -10,6 +10,7 @@
       "condition": "minecraft:random_chance"
     }
   ],
-  "item": "minecraft:golden_apple",
-  "max_count": 3
+  "item": "minecraft:enchanted_golden_apple",
+  "max_count": 5,
+  "min_count": 3
 }
