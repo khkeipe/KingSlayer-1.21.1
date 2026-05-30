@@ -5,7 +5,8 @@
     "kcs_kingslayer:slayer_shovel_from_crate",
     "kcs_kingslayer:slayer_axe_from_crate",
     "kcs_kingslayer:crown_from_zombie",
-    "kcs_kingslayer:slayer_hoe_from_crate"
+    "kcs_kingslayer:slayer_hoe_from_crate",
+    "kcs_kingslayer:golden_apple_from_broken_airdop"
   ],
   "replace": false
 }

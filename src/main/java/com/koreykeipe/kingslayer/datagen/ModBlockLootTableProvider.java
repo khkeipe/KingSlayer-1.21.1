@@ -30,6 +30,11 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         this.add(ModBlocks.COMMON_CRATE.get(), block -> noDrop());
         this.add(ModBlocks.RARE_CRATE.get(), block -> noDrop());
         this.add(ModBlocks.EPIC_CRATE.get(), block -> noDrop());
+
+        this.add(ModBlocks.BROKEN_AD_CRATE.get(), block -> noDrop());
+        this.add(ModBlocks.COMMON_AD_CRATE.get(), block -> noDrop());
+        this.add(ModBlocks.RARE_AD_CRATE.get(), block -> noDrop());
+        this.add(ModBlocks.EPIC_AD_CRATE.get(), block -> noDrop());
     }
 
     protected LootTable.Builder createMultipleOreDrops(Block pBlock, Item item, float minDrops, float maxDrops) {

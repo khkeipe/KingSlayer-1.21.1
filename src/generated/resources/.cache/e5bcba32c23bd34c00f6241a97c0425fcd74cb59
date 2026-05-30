@@ -1,6 +1,7 @@
-// 1.21.1	2026-05-27T20:48:39.8182225	Global Loot Modifiers : kcs_kingslayer
-7c2bf4412ea853e43ac8f50be03a8a292e32d691 data/forge/loot_modifiers/global_loot_modifiers.json
+// 1.21.1	2026-05-29T18:42:08.2960888	Global Loot Modifiers : kcs_kingslayer
+21b85c4d7ffc6a1c43b9032bf90bbb06528f6bc4 data/forge/loot_modifiers/global_loot_modifiers.json
 09c7613cf2379986d876e7340655ca5f1f0a4256 data/kcs_kingslayer/loot_modifiers/crown_from_zombie.json
+a109d2b6dbcec456b85e676874e447dacbbf558b data/kcs_kingslayer/loot_modifiers/golden_apple_from_broken_airdop.json
 bc07852eac8aa38e063fd876f5c53fa6cc9b08c0 data/kcs_kingslayer/loot_modifiers/slayer_axe_from_crate.json
 bccaf947407da3603dbf2079da0a9e2bf395cefd data/kcs_kingslayer/loot_modifiers/slayer_hoe_from_crate.json
 f0c836edf76749b7177af27a28eec01f22004213 data/kcs_kingslayer/loot_modifiers/slayer_pickaxe_from_crate.json

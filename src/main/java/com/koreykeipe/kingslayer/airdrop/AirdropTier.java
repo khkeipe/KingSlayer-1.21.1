@@ -9,7 +9,7 @@ import net.minecraftforge.registries.RegistryObject;
  * used for the falling entity renderer.
  */
 public enum AirdropTier {
-    BROKEN ("Broken", "§7",    ModBlocks.BROKEN_CRATE),
+    BROKEN ("Broken", "§7",    ModBlocks.BROKEN_AD_CRATE),
     COMMON ("Common", "§a",    ModBlocks.COMMON_CRATE),
     RARE   ("Rare",   "§9",    ModBlocks.RARE_CRATE),
     EPIC   ("Epic",   "§5§l",  ModBlocks.EPIC_CRATE);
