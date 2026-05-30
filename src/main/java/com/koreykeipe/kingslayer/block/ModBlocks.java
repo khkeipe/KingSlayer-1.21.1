@@ -27,7 +27,7 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> COMMON_CRATE = registerBlock("common_crate",
         () -> new DropExperienceBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
-            .strength(0.8f).sound(SoundType.AMETHYST)));
+            .strength(0.8f).sound(SoundType.CHAIN)));
 
     public static final RegistryObject<Block> RARE_CRATE = registerBlock("rare_crate",
         () -> new DropExperienceBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
@@ -43,7 +43,7 @@ public class ModBlocks {
                     .strength(0.4f).sound(SoundType.WOOD)));
     public static final RegistryObject<Block> COMMON_AD_CRATE = registerBlock("common_airdrop_crate",
             () -> new DropExperienceBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
-                    .strength(0.8f).sound(SoundType.AMETHYST)));
+                    .strength(0.8f).sound(SoundType.METAL)));
 
     public static final RegistryObject<Block> RARE_AD_CRATE = registerBlock("rare_airdrop_crate",
             () -> new DropExperienceBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
