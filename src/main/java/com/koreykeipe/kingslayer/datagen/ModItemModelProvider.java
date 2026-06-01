@@ -25,6 +25,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         handheldItem(ModItems.SLAYER_SHOVEL);
         handheldItem(ModItems.SLAYER_AXE);
         handheldItem(ModItems.SLAYER_HOE);
+        handheldItem(ModItems.SLAYER_BAT);
     }
 
     private ItemModelBuilder handheldItem(RegistryObject<Item> item) {

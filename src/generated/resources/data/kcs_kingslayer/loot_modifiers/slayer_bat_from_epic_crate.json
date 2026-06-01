@@ -1,0 +1,17 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:epic_airdrop_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.3,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "enchantments": {
+    "minecraft:knockback": 4
+  },
+  "item": "kcs_kingslayer:slayer_bat"
+}
