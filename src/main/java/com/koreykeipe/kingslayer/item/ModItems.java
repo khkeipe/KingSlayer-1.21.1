@@ -34,7 +34,6 @@ public class ModItems {
             () -> new SlayerBatItem(Tiers.WOOD, new Item.Properties()
                     .attributes(SwordItem.createAttributes(ModToolTeirs.SLAYER, 1, -1.5f))));
 
-
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
