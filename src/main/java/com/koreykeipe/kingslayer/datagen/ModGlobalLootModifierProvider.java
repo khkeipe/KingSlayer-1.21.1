@@ -8,7 +8,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
@@ -89,10 +91,18 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         this.add("slayer_bat_from_epic_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_AD_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(0.3f).build()
+                        LootItemRandomChanceCondition.randomChance(0.8f).build()
                 }, ModItems.SLAYER_BAT.get(), 1, 1,
                         Map.of(
                                 ResourceLocation.withDefaultNamespace("knockback"), 4
+                        )));
+        this.add("slayer_shield_from_epic_crate",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_AD_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(1f).build()
+                }, Items.SHIELD, 1, 1,
+                        Map.of(
+                                ResourceLocation.withDefaultNamespace("knockback_resistance"), 4
                         )));
 
         add("crown_from_zombie", new AddItemModifier(new LootItemCondition[] {

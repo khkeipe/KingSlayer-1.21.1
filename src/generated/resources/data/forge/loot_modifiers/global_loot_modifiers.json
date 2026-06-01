@@ -10,7 +10,8 @@
     "kcs_kingslayer:golden_apple_from_epic_airdop",
     "kcs_kingslayer:slayer_hoe_from_crate",
     "kcs_kingslayer:golden_apple_from_broken_airdop",
-    "kcs_kingslayer:golden_apple_from_rare_airdop"
+    "kcs_kingslayer:golden_apple_from_rare_airdop",
+    "kcs_kingslayer:slayer_shield_from_epic_crate"
   ],
   "replace": false
 }

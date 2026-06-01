@@ -32,7 +32,7 @@ public class ModItems {
 
     public static final RegistryObject<Item> SLAYER_BAT = ITEMS.register("slayer_bat",
             () -> new SlayerBatItem(Tiers.WOOD, new Item.Properties()
-                    .attributes(SwordItem.createAttributes(ModToolTeirs.SLAYER, 1, -1.5f))));
+                    .attributes(SwordItem.createAttributes(Tiers.WOOD, 1, -1.5f))));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

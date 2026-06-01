@@ -6,12 +6,12 @@
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.8,
+      "chance": 1.0,
       "condition": "minecraft:random_chance"
     }
   ],
   "enchantments": {
-    "minecraft:knockback": 4
+    "minecraft:knockback_resistance": 4
   },
-  "item": "kcs_kingslayer:slayer_bat"
+  "item": "minecraft:shield"
 }
