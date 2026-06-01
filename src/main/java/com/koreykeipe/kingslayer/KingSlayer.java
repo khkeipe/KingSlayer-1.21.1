@@ -11,6 +11,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
@@ -130,5 +131,6 @@ public class KingSlayer
             // Register renderer for the falling airdrop entity
             EntityRenderers.register(ModEntityTypes.AIRDROP.get(), AirdropEntityRenderer::new);
         }
+
     }
 }
