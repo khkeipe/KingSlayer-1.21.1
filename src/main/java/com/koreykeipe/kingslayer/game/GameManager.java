@@ -219,7 +219,7 @@ public class GameManager {
 
         UUID newMarked = threatScores.entrySet().stream()
                 .filter(e -> alivePlayers.contains(e.getKey()))
-                .filter(e -> e.getValue() > 0)
+                .filter(e -> e.getValue() > 5)
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(null);
