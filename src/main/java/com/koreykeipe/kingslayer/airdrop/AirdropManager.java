@@ -173,6 +173,15 @@ public class AirdropManager {
     }
 
     // -------------------------------------------------------------------------
+    // Phase queries — used by other systems to gate behaviour on tier progress
+    // -------------------------------------------------------------------------
+
+    /** Returns true if the given tier has been triggered at least once this session. */
+    public boolean isTierTriggered(AirdropTier tier) {
+        return triggeredTiers.contains(tier);
+    }
+
+    // -------------------------------------------------------------------------
     // Manual trigger (operator command)
     // -------------------------------------------------------------------------
 
@@ -201,10 +210,8 @@ public class AirdropManager {
 
     /**
      * Picks a random surface location inside the current world border, announces
-     * the drop via screen title + sound (first-fires only), and spawns the entity.
-     *
-     * @param label  Non-null on the first fire of a tier (e.g. {@code "35% progress"}
-     *               or {@code "manual"}); {@code null} for silent repeat drops.
+     * the drop via screen title + sound, and spawns the entity.
+     * The title fires on every drop — first fires and repeating intervals alike.
      */
     private void spawnAirdrop(MinecraftServer server, AirdropTier tier, String label) {
         ServerLevel overworld = server.overworld();
@@ -229,10 +236,8 @@ public class AirdropManager {
         // Record fire time before spawning so the interval is measured from this moment
         lastFireTick.put(tier, server.getTickCount());
 
-        // Announce via screen title + sound (first-fire only; repeats are silent)
-        if (label != null) {
-            announceIncoming(server, tier);
-        }
+        // Announce via screen title + sound on every drop
+        announceIncoming(server, tier);
 
         // Spawn entity
         AirdropEntity entity = new AirdropEntity(tier, overworld, x + 0.5, spawnY, z + 0.5);
