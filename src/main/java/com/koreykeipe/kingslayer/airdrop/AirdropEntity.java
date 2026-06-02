@@ -199,9 +199,9 @@ public class AirdropEntity extends Entity {
 
         // 5 — Announce landing coordinates
         String msg = "§6§l☆ " + tier.coloredName()
-                + " §ehas landed at §f("
-                + chestPos.getX() + ", " + chestPos.getY() + ", " + chestPos.getZ()
-                + ")§e!";
+                + " §ehas landed nearby §f"
+                + "look for the smoke at the drop zone"
+                + "§e!";
         for (ServerPlayer player : level.players()) {
             player.sendSystemMessage(Component.literal(msg));
         }

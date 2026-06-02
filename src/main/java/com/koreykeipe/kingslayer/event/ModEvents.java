@@ -6,6 +6,7 @@ import com.koreykeipe.kingslayer.airdrop.BorderManager;
 import com.koreykeipe.kingslayer.command.AirdropCommand;
 import com.koreykeipe.kingslayer.command.DeathCommand;
 import com.koreykeipe.kingslayer.game.CombatTracker;
+import com.koreykeipe.kingslayer.event.KnightSpawnHandler;
 import com.koreykeipe.kingslayer.game.GameManager;
 import com.koreykeipe.kingslayer.game.TrapTracker;
 import net.minecraft.ChatFormatting;
@@ -195,8 +196,21 @@ public class ModEvents {
         UUID directKillerUUID = directKiller instanceof ServerPlayer sp ? sp.getUUID() : null;
         String directKillerName = directKiller instanceof ServerPlayer sp ? sp.getName().getString() : null;
 
+        // If a Knight mob landed the killing blow, use its display name as the cause
+        // so the kill feed reads "died to King's Champion" rather than "died to mob".
+        String cause = source.getMsgId();
+        if (directKiller instanceof net.minecraft.world.entity.Mob mob
+                && KnightSpawnHandler.isKnight(mob)) {
+            cause = switch (KnightSpawnHandler.getKnightTier(mob)) {
+                case "FOOTSOLDIER" -> "King's Footsoldier";
+                case "CHAMPION"    -> "King's Champion";
+                case "GUARD"       -> "King's Guard";
+                default            -> "a King's Knight";
+            };
+        }
+
         CombatTracker.KillAttribution attribution = CombatTracker.resolveKill(
-            victim.getUUID(), directKillerUUID, directKillerName, source.getMsgId()
+            victim.getUUID(), directKillerUUID, directKillerName, cause
         );
 
         CombatTracker.clearPlayer(victim.getUUID());
