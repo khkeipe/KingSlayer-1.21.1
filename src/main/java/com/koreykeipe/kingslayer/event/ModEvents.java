@@ -168,6 +168,11 @@ public class ModEvents {
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         AirdropManager.get().onServerTick(event.getServer());
+
+        // Leaderboard broadcast every 3 600 ticks (3 minutes)
+        if (event.getServer().getTickCount() % 3600 == 0) {
+            GameManager.get().broadcastLeaderboard();
+        }
     }
 
     @SubscribeEvent

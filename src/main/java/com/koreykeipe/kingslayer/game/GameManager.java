@@ -3,14 +3,27 @@ package com.koreykeipe.kingslayer.game;
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.airdrop.AirdropEntity;
 import com.koreykeipe.kingslayer.airdrop.AirdropTier;
+import com.koreykeipe.kingslayer.item.ModItems;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.component.Fireworks;
+import net.minecraftforge.client.event.sound.SoundEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -25,21 +38,20 @@ public class GameManager {
     private boolean gameActive = false;
 
     // -------------------------------------------------------------------------
-    // Kill tracking (task 2)
+    // Kill tracking
     // -------------------------------------------------------------------------
 
     /** Total player kills credited to each UUID this session. */
     private final Map<UUID, Integer> killCounts   = new HashMap<>();
 
     /**
-     * Composite threat score used to elect The Marked.
-     * Player kill = 2 pts. Knight kills add 1 / 2 / 3 pts via
-     * {@link #awardThreatScore} from KnightSpawnHandler.
+     * Composite threat score driving The Marked election.
+     * Player kill = 2 pts. Knight kills add 1/2/3 via {@link #awardThreatScore}.
      */
     private final Map<UUID, Integer> threatScores = new HashMap<>();
 
     // -------------------------------------------------------------------------
-    // Marked / Bounty (task 3)
+    // Marked / Bounty
     // -------------------------------------------------------------------------
 
     @Nullable private UUID currentMarkedUUID = null;
@@ -86,7 +98,7 @@ public class GameManager {
         UUID uuid = victim.getUUID();
         if (!alivePlayers.contains(uuid) && !eliminatedPlayers.contains(uuid)) return;
 
-        // Task 1 — First blood: check before logKill so the list is still empty
+        // First blood — must check before logKill so the list is still empty
         boolean isFirstBlood = CombatLog.getEntries().isEmpty()
                 && attribution.killerName() != null;
 
@@ -104,16 +116,16 @@ public class GameManager {
             announceFirstBlood(attribution.killerName(), victim.getName().getString());
         }
 
-        // Task 3 — if The Marked was just killed, pay out the bounty before re-electing
+        // If The Marked was just killed, pay out the bounty before re-electing
         if (uuid.equals(currentMarkedUUID)) {
             currentMarkedUUID = null;
             handleMarkedKilled(attribution.killerUUID(), attribution.killerName());
         }
 
-        // Task 2 — credit the kill and re-evaluate The Marked
+        // Credit the kill and re-evaluate The Marked
         if (attribution.killerUUID() != null) {
             killCounts.merge(attribution.killerUUID(), 1, Integer::sum);
-            threatScores.merge(attribution.killerUUID(), 2, Integer::sum); // player kill = 2 pts
+            threatScores.merge(attribution.killerUUID(), 2, Integer::sum);
             computeMarked();
         }
     }
@@ -128,24 +140,34 @@ public class GameManager {
         if (!alivePlayers.remove(uuid)) return;
         eliminatedPlayers.add(uuid);
 
-        // Clear marked status so the next kill re-elects a new target
         if (uuid.equals(currentMarkedUUID)) {
             currentMarkedUUID = null;
         }
 
         int remaining = alivePlayers.size();
+
         if (remaining == 1) {
             UUID winnerId = alivePlayers.iterator().next();
             ServerPlayer winner = server.getPlayerList().getPlayer(winnerId);
             String winnerName = winner != null ? winner.getName().getString() : "Unknown";
-            broadcast("§6KingSlayer §a§l" + winnerName + " §r§ewins the KingSlayer! §7("
-                    + CombatLog.getEntries().size() + " kills total)");
+            announceVictory(winner, winnerName);
             gameActive = false;
+
         } else if (remaining == 0) {
-            broadcast("§6KingSlayer §cNo survivors! It's a draw!");
+            broadcast("§6KingSlayer §cNo survivors — it's a draw!");
             gameActive = false;
+
         } else {
             broadcast("§7" + remaining + " players remain.");
+
+            // Milestone title broadcasts
+            if (remaining == 5) {
+                announceMilestone("FINAL FIVE",      "Only 5 players remain!");
+            } else if (remaining == 3) {
+                announceMilestone("FINAL THREE",     "Only 3 players remain!");
+            } else if (remaining == 2) {
+                announceMilestone("FINAL SHOWDOWN",  "Only 2 players remain — fight to the end!");
+            }
         }
     }
 
@@ -155,10 +177,7 @@ public class GameManager {
 
     /**
      * Awards threat-score points to a player and re-evaluates The Marked.
-     * Called from {@code KnightSpawnHandler} when a knight is killed.
-     *
-     * <p>Point guide: Footsoldier = 1 pt, Champion = 2 pts, Guard = 3 pts.
-     * Player kills award 2 pts internally via {@link #onPlayerKilled}.</p>
+     * Point guide: Footsoldier = 1, Champion = 2, Guard = 3, player kill = 2 (internal).
      */
     public void awardThreatScore(UUID playerUUID, int points) {
         if (!gameActive) return;
@@ -167,13 +186,34 @@ public class GameManager {
     }
 
     // -------------------------------------------------------------------------
+    // Leaderboard — called every 3 min from ModEvents (task 12)
+    // -------------------------------------------------------------------------
+
+    public void broadcastLeaderboard() {
+        if (!gameActive || killCounts.isEmpty()) return;
+
+        List<Map.Entry<UUID, Integer>> top = killCounts.entrySet().stream()
+                .sorted(Map.Entry.<UUID, Integer>comparingByValue().reversed())
+                .limit(3)
+                .toList();
+
+        broadcast("§6======= KingSlayer Standings =======");
+        int rank = 1;
+        for (Map.Entry<UUID, Integer> e : top) {
+            ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
+            String name  = p != null ? p.getName().getString() : "Unknown";
+            int    score = threatScores.getOrDefault(e.getKey(), 0);
+            broadcast("  §e" + rank++ + ". §a" + name
+                    + " §7— " + e.getValue() + " kills  §8(threat: " + score + ")");
+        }
+        broadcast("  §7" + alivePlayers.size() + " players remain.");
+        broadcast("§6=====================================");
+    }
+
+    // -------------------------------------------------------------------------
     // Marked / Bounty — internal
     // -------------------------------------------------------------------------
 
-    /**
-     * Finds the alive player with the highest threat score. If they differ from
-     * the current marked player, announces the shift to everyone.
-     */
     private void computeMarked() {
         if (server == null) return;
 
@@ -202,11 +242,10 @@ public class GameManager {
                     Component.literal(name + " is now THE MARKED")
                             .withStyle(s -> s.withColor(ChatFormatting.RED).withItalic(false))));
         }
-        broadcast("§c☠ §e" + name + " §cis THE MARKED §7(threat score: "
-                + score + ")§c — kill them for a bonus airdrop!");
+        broadcast("§c☠ §e" + name + " §cis THE MARKED §7(threat: "
+                + score + ") §c— kill them for a bonus airdrop!");
     }
 
-    /** Fires when The Marked is killed — announces and drops a bonus BROKEN airdrop on the killer. */
     private void handleMarkedKilled(@Nullable UUID killerUUID, @Nullable String killerName) {
         if (killerName == null) return;
 
@@ -221,7 +260,6 @@ public class GameManager {
         }
         broadcast("§6⚔ §a" + killerName + " §ehas slain THE MARKED and claimed the bounty!");
 
-        // Spawn a bonus BROKEN airdrop above the killer's current position
         if (killerUUID != null) {
             ServerPlayer killer = server.getPlayerList().getPlayer(killerUUID);
             if (killer != null) {
@@ -235,7 +273,7 @@ public class GameManager {
     }
 
     // -------------------------------------------------------------------------
-    // First blood — internal (task 1)
+    // First blood
     // -------------------------------------------------------------------------
 
     private void announceFirstBlood(String killerName, String victimName) {
@@ -249,7 +287,115 @@ public class GameManager {
                             .withStyle(s -> s.withColor(ChatFormatting.RED).withItalic(false))));
         }
         broadcast("§4§lFIRST BLOOD! §r§c" + killerName
-                + " §7has drawn first blood on §c" + victimName + "§7!");
+                + " §7drew first blood on §c" + victimName + "§7!");
+    }
+
+    // -------------------------------------------------------------------------
+    // Milestone broadcasts (task 10)
+    // -------------------------------------------------------------------------
+
+    private void announceMilestone(String titleText, String subtitleText) {
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 70, 20));
+            p.connection.send(new ClientboundSetTitleTextPacket(
+                    Component.literal(titleText)
+                            .withStyle(s -> s.withColor(ChatFormatting.RED).withBold(true))));
+            p.connection.send(new ClientboundSetSubtitleTextPacket(
+                    Component.literal(subtitleText)
+                            .withStyle(s -> s.withColor(ChatFormatting.YELLOW).withItalic(false))));
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Victory ceremony (task 11)
+    // -------------------------------------------------------------------------
+
+    private void announceVictory(@Nullable ServerPlayer winner, String winnerName) {
+        // Title screen to all players
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            p.connection.send(new ClientboundSetTitlesAnimationPacket(20, 120, 40));
+            p.connection.send(new ClientboundSetTitleTextPacket(
+                    Component.literal("WINNER")
+                            .withStyle(s -> s.withColor(ChatFormatting.GOLD).withBold(true))));
+            p.connection.send(new ClientboundSetSubtitleTextPacket(
+                    Component.literal(winnerName + " is the KingSlayer!")
+                            .withStyle(s -> s.withColor(ChatFormatting.YELLOW).withItalic(false))));
+            // Raid horn at every player's location so everyone hears it
+            p.connection.send(new ClientboundSoundPacket(
+                    SoundEvents.RAID_HORN,
+                    SoundSource.AMBIENT,
+                    p.getX(), p.getY(), p.getZ(),
+                    2.0f, 1.0f, p.getRandom().nextLong()));
+        }
+
+        // Fireworks at winner's location and Crown item drop
+        if (winner != null) {
+            spawnVictoryFireworks(winner.serverLevel(), winner);
+            winner.drop(new ItemStack(ModItems.CROWN.get()), false);
+        }
+
+        // Final stats block in chat
+        broadcastFinalStats(winnerName);
+    }
+
+    private static void spawnVictoryFireworks(ServerLevel level, ServerPlayer winner) {
+        FireworkExplosion explosion = new FireworkExplosion(
+                FireworkExplosion.Shape.LARGE_BALL,
+                IntArrayList.of(0xFFD700, 0xFFFFFF), // gold + white
+                new IntArrayList(),
+                true,   // trail
+                true    // twinkle
+        );
+        ItemStack rocket = new ItemStack(Items.FIREWORK_ROCKET);
+        rocket.set(DataComponents.FIREWORKS, new Fireworks(1, List.of(explosion)));
+
+        for (int i = 0; i < 12; i++) {
+            double ox = (level.random.nextDouble() - 0.5) * 3.0;
+            double oz = (level.random.nextDouble() - 0.5) * 3.0;
+            FireworkRocketEntity fw = new FireworkRocketEntity(
+                    level,
+                    winner.getX() + ox,
+                    winner.getY(),
+                    winner.getZ() + oz,
+                    rocket.copy());
+            fw.setDeltaMovement(ox * 0.06,
+                    0.4 + level.random.nextDouble() * 0.5,
+                    oz * 0.06);
+            level.addFreshEntity(fw);
+        }
+    }
+
+    private void broadcastFinalStats(String winnerName) {
+        int totalKills = CombatLog.getEntries().size();
+
+        // Top killer by kill count
+        String topKiller = killCounts.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(e -> {
+                    ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
+                    String name = p != null ? p.getName().getString() : "Unknown";
+                    return name + " (" + e.getValue() + ")";
+                })
+                .orElse("—");
+
+        // Top assist player — count appearances across all kill entries
+        Map<String, Integer> assistTotals = new HashMap<>();
+        for (KillEntry ke : CombatLog.getEntries()) {
+            for (AssistEntry ae : ke.assists()) {
+                assistTotals.merge(ae.playerName(), 1, Integer::sum);
+            }
+        }
+        String topAssist = assistTotals.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(e -> e.getKey() + " (" + e.getValue() + ")")
+                .orElse("—");
+
+        broadcast("§6======= KingSlayer Final Stats =======");
+        broadcast("  §6§lWinner:       §r§a" + winnerName);
+        broadcast("  §6Most Kills:   §e" + topKiller);
+        broadcast("  §6Most Assists: §e" + topAssist);
+        broadcast("  §6Total Kills:  §e" + totalKills);
+        broadcast("§6=====================================");
     }
 
     // -------------------------------------------------------------------------
@@ -262,10 +408,10 @@ public class GameManager {
         }
     }
 
-    public boolean isGameActive()    { return gameActive; }
+    public boolean isGameActive()      { return gameActive; }
     public MinecraftServer getServer() { return server; }
 
-    public Set<UUID>           getAlivePlayers() { return Collections.unmodifiableSet(alivePlayers); }
-    public Map<UUID, Integer>  getKillCounts()   { return Collections.unmodifiableMap(killCounts); }
-    public Map<UUID, Integer>  getThreatScores() { return Collections.unmodifiableMap(threatScores); }
+    public Set<UUID>          getAlivePlayers() { return Collections.unmodifiableSet(alivePlayers); }
+    public Map<UUID, Integer> getKillCounts()   { return Collections.unmodifiableMap(killCounts); }
+    public Map<UUID, Integer> getThreatScores() { return Collections.unmodifiableMap(threatScores); }
 }
