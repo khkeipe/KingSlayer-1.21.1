@@ -156,7 +156,13 @@ public class KnightSpawnHandler {
             GameManager.get().broadcast(
                     "§6⚔ §a" + killer.getName().getString()
                     + " §ehas slain the " + display + "§e!");
-            // Future: award threat score points, drop special items
+            // Award threat score: Footsoldier=1, Champion=2, Guard=3
+            int points = switch (tier) {
+                case "CHAMPION" -> 2;
+                case "GUARD"    -> 3;
+                default         -> 1; // FOOTSOLDIER
+            };
+            GameManager.get().awardThreatScore(killer.getUUID(), points);
         } else {
             // Killed by environment or another mob — still announce
             GameManager.get().broadcast("§7The " + display + " §7has been slain.");

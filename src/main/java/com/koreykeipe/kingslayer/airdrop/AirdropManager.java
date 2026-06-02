@@ -236,8 +236,8 @@ public class AirdropManager {
         // Record fire time before spawning so the interval is measured from this moment
         lastFireTick.put(tier, server.getTickCount());
 
-        // Announce via screen title + sound on every drop
-        announceIncoming(server, tier);
+        // First fires show the narrative lore title; repeats show the standard airdrop title
+        announceIncoming(server, tier, label != null);
 
         // Spawn entity
         AirdropEntity entity = new AirdropEntity(tier, overworld, x + 0.5, spawnY, z + 0.5);
@@ -249,10 +249,13 @@ public class AirdropManager {
 
     /**
      * Sends a screen title, subtitle, and notification sound to every online player.
-     * The sound is sent directly as a packet at each player's location so it is
-     * guaranteed audible regardless of world-border size or player spread.
+     *
+     * <p>On a tier's <em>first</em> fire ({@code isFirstFire = true}), the title shows
+     * the narrative lore line for that tier instead of the generic "AIRDROP" heading.
+     * Subsequent repeat drops show the standard heading so players always know an
+     * airdrop is coming regardless of which fire it is.</p>
      */
-    private void announceIncoming(MinecraftServer server, AirdropTier tier) {
+    private void announceIncoming(MinecraftServer server, AirdropTier tier, boolean isFirstFire) {
         ChatFormatting tierColor = switch (tier) {
             case BROKEN -> ChatFormatting.GRAY;
             case COMMON -> ChatFormatting.GREEN;
@@ -260,8 +263,21 @@ public class AirdropManager {
             case EPIC   -> ChatFormatting.DARK_PURPLE;
         };
 
-        Component title = Component.literal("✦  AIRDROP  ✦")
-                .withStyle(style -> style.withColor(ChatFormatting.GOLD).withBold(true));
+        Component title;
+        if (isFirstFire) {
+            String lore = switch (tier) {
+                case BROKEN -> "The King Stirs...";
+                case COMMON -> "The King's Decree";
+                case RARE   -> "The Gates Open";
+                case EPIC   -> "The Final Siege";
+            };
+            title = Component.literal("⚔  " + lore + "  ⚔")
+                    .withStyle(style -> style.withColor(ChatFormatting.DARK_RED).withBold(true));
+        } else {
+            title = Component.literal("✦  AIRDROP  ✦")
+                    .withStyle(style -> style.withColor(ChatFormatting.GOLD).withBold(true));
+        }
+
         Component subtitle = Component.literal(tier.getDisplayName() + " Airdrop is incoming!")
                 .withStyle(style -> style.withColor(tierColor).withBold(false).withItalic(false));
 
