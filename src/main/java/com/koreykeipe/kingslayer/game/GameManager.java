@@ -1,8 +1,7 @@
 package com.koreykeipe.kingslayer.game;
 
 import com.koreykeipe.kingslayer.KingSlayer;
-import com.koreykeipe.kingslayer.airdrop.AirdropEntity;
-import com.koreykeipe.kingslayer.airdrop.AirdropTier;
+import com.koreykeipe.kingslayer.block.ModBlocks;
 import com.koreykeipe.kingslayer.item.ModItems;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.ChatFormatting;
@@ -263,11 +262,14 @@ public class GameManager {
         if (killerUUID != null) {
             ServerPlayer killer = server.getPlayerList().getPlayer(killerUUID);
             if (killer != null) {
-                ServerLevel level = killer.serverLevel();
-                AirdropEntity bonus = new AirdropEntity(
-                        AirdropTier.BROKEN, level,
-                        killer.getX(), killer.getY() + 80, killer.getZ());
-                level.addFreshEntity(bonus);
+                // Hand the Bounty Crate straight to the earner so the reward can't be
+                // stolen — they place it and break it to claim the loot, wherever they choose.
+                ItemStack crate = new ItemStack(ModBlocks.BOUNTY_CRATE.get());
+                if (!killer.getInventory().add(crate)) {
+                    killer.drop(crate, false); // inventory full — drop at their feet
+                }
+                killer.sendSystemMessage(Component.literal(
+                        "§6⚔ §eYou received a §6§lBounty Crate§r§e — place it and break it to claim your reward!"));
             }
         }
     }

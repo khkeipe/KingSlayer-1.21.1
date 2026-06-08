@@ -109,5 +109,56 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new LootTableIdCondition.Builder(ResourceLocation.withDefaultNamespace("entities/zombie"))
                         .and(LootItemRandomChanceCondition.randomChance(0.8f)).build() }, // modified by the creeper's own loot table
                 ModItems.CROWN.get()));
+
+        // ------------------------------------------------------------------
+        // Bounty Crate Loot — the special reward for slaying THE MARKED.
+        // Handed straight to the killer's inventory; they place + break it to claim.
+        // This is the richest crate in the game. Tweak chances / items / counts freely.
+        // ------------------------------------------------------------------
+
+        // Guaranteed sustenance package
+
+        this.add("golden_apple_from_bounty",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, Items.GOLDEN_APPLE, 2, 4));
+        this.add("golden_carrot_from_bounty",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(1f).build() }, Items.GOLDEN_CARROT, 4, 8));
+
+        // 85% — top-tier enchanted Slayer Sword
+        this.add("slayer_sword_from_bounty",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.85f).build()
+                }, ModItems.SLAYER_SWORD.get(), 1, 1,
+                        Map.of(
+                                ResourceLocation.withDefaultNamespace("sharpness"), 4,
+                                ResourceLocation.withDefaultNamespace("fire_aspect"), 2,
+                                ResourceLocation.withDefaultNamespace("unbreaking"), 3
+                        )));
+
+        // 60% — enchanted Slayer Bat
+        this.add("slayer_bat_from_bounty",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.6f).build()
+                }, ModItems.SLAYER_BAT.get(), 1, 1,
+                        Map.of(
+                                ResourceLocation.withDefaultNamespace("knockback"), 5,
+                                ResourceLocation.withDefaultNamespace("unbreaking"), 3
+                        )));
+
+        // 70% — enchanted diamond chestplate
+        this.add("diamond_chestplate_from_bounty",
+                new AddItemModifier(new LootItemCondition[] {
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
+                        LootItemRandomChanceCondition.randomChance(0.7f).build()
+                }, Items.DIAMOND_CHESTPLATE, 1, 1,
+                        Map.of(
+                                ResourceLocation.withDefaultNamespace("protection"), 4,
+                                ResourceLocation.withDefaultNamespace("unbreaking"), 3
+                        )));
     }
 }

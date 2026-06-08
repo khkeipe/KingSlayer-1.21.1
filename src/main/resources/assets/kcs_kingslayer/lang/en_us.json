@@ -19,6 +19,8 @@
   "block.kcs_kingslayer.rare_airdrop_crate":"Rare AirDrop Crate",
   "block.kcs_kingslayer.epic_airdrop_crate":"Epic AirDrop Crate",
 
+  "block.kcs_kingslayer.bounty_crate":"Bounty Crate",
+
   "creativetab.kcs_kingslayer.kingslayer_items": "King Slayer",
 
   "death.attack.nether_gas": "%1$s choked on nether gas",

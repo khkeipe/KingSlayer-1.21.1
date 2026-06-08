@@ -24,6 +24,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.COMMON_AD_CRATE);
         blockWithItem(ModBlocks.RARE_AD_CRATE);
         blockWithItem(ModBlocks.EPIC_AD_CRATE);
+
+        blockWithItem(ModBlocks.BOUNTY_CRATE);
     }
 
     private void blockWithItem(RegistryObject<Block> blocksRegistryObject){

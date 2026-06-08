@@ -1,4 +1,5 @@
-// 1.21.1	2026-05-29T19:07:57.4717769	Block States: kcs_kingslayer
+// 1.21.1	2026-06-08T16:39:02.6532925	Block States: kcs_kingslayer
+378989da11acb0480dc15212f413aad3ffff3639 assets/kcs_kingslayer/blockstates/bounty_crate.json
 63180d80dbab7c8aef6d0cc3265edb1108dceb73 assets/kcs_kingslayer/blockstates/broken_airdrop_crate.json
 45b29594d66b02a2f5af4c57649a5053190b9b87 assets/kcs_kingslayer/blockstates/broken_crate.json
 248db4df5f0fe735cf391221eabeab2c527108de assets/kcs_kingslayer/blockstates/common_airdrop_crate.json
@@ -7,6 +8,7 @@ a46a8f33fe664940587d141f39fa8c954bcb3e7f assets/kcs_kingslayer/blockstates/commo
 9e55fa5dd9c61c0fdbeda200f4e64f7ca21a9a51 assets/kcs_kingslayer/blockstates/epic_crate.json
 a5d5fd38078b9af03fc88f69c89b67b6cbc89757 assets/kcs_kingslayer/blockstates/rare_airdrop_crate.json
 1951ac6e9cb6a52ee5f5e4d2af44e8d673ca9360 assets/kcs_kingslayer/blockstates/rare_crate.json
+5a23ebd1a3e4d78071a8b7cb8e67bc514f0dff4b assets/kcs_kingslayer/models/block/bounty_crate.json
 379c3c3dae220e9418b14b1b184385491dc1ec99 assets/kcs_kingslayer/models/block/broken_airdrop_crate.json
 6f3d1d149fc35bb94ffa653b0f58b1bf920b17f9 assets/kcs_kingslayer/models/block/broken_crate.json
 2d2c2458d8646d64afe115f3ba3559b400ca7780 assets/kcs_kingslayer/models/block/common_airdrop_crate.json
@@ -15,6 +17,7 @@ a5d5fd38078b9af03fc88f69c89b67b6cbc89757 assets/kcs_kingslayer/blockstates/rare_
 630c104483233289263ab0fbb9d217d1b00de920 assets/kcs_kingslayer/models/block/epic_crate.json
 a8b0f5a3d6627915a61d8cd14e9edbd7d16e76a4 assets/kcs_kingslayer/models/block/rare_airdrop_crate.json
 cc97204dcbdab65fe810b82aa5624e4ec3fc4af8 assets/kcs_kingslayer/models/block/rare_crate.json
+7ef42503ffebee2e8ba0dc432e4a4cff6f472796 assets/kcs_kingslayer/models/item/bounty_crate.json
 661fb01c4f645238970396359bebec37f84ed2b5 assets/kcs_kingslayer/models/item/broken_airdrop_crate.json
 53f0d69fc207d68a09f6c603fe9f2755dd4f58c5 assets/kcs_kingslayer/models/item/broken_crate.json
 cfcb11de63a9d4151af0e3ea9bc29a5d7da2e7c0 assets/kcs_kingslayer/models/item/common_airdrop_crate.json

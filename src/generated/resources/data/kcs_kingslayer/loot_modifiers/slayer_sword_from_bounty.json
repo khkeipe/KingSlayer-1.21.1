@@ -1,0 +1,19 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:bounty_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.85,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "enchantments": {
+    "minecraft:fire_aspect": 2,
+    "minecraft:sharpness": 4,
+    "minecraft:unbreaking": 3
+  },
+  "item": "kcs_kingslayer:slayer_sword"
+}

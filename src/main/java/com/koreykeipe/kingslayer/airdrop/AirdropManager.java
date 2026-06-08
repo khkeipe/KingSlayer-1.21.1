@@ -52,8 +52,29 @@ public class AirdropManager {
 
     private static final AirdropManager INSTANCE = new AirdropManager();
 
+    /**
+     * Delay (in server ticks) between a threshold being crossed and the airdrop
+     * actually spawning + announcing. This gives a player who just died — and
+     * whose death may be the very one that crossed the threshold — time to click
+     * through the respawn screen and get back into the world before the title
+     * pops and the crate falls, so everyone has a fair shot at reaching it.
+     * 20 ticks = 1 second, so 1200 ticks = 60 seconds.
+     * Only applies to threshold first-fires; manual triggers and repeat-interval
+     * drops are unaffected and fire immediately.
+     */
+    private static final int THRESHOLD_SPAWN_DELAY_TICKS = 1200;
+
     /** Tiers that have been unlocked (threshold crossed or manually triggered). */
     private final Set<AirdropTier> triggeredTiers = EnumSet.noneOf(AirdropTier.class);
+
+    /**
+     * Threshold-crossed tiers awaiting their delayed first-fire.
+     * Maps tier → the server tick at which it should spawn (crossing tick +
+     * {@link #THRESHOLD_SPAWN_DELAY_TICKS}). Drained by {@link #onServerTick}.
+     * A tier sits here <em>before</em> it joins {@link #triggeredTiers}, so the
+     * repeat-interval loop can't fire it early.
+     */
+    private final Map<AirdropTier, Integer> pendingTierSpawns = new EnumMap<>(AirdropTier.class);
 
     /**
      * Server tick ({@link MinecraftServer#getTickCount()}) when each tier last fired a drop.
@@ -83,6 +104,7 @@ public class AirdropManager {
     public void onServerStarted(MinecraftServer server) {
         triggeredTiers.clear();
         lastFireTick.clear();
+        pendingTierSpawns.clear();
         activeChests.clear();
         initialized = false;
     }
@@ -114,13 +136,19 @@ public class AirdropManager {
             return;
         }
 
-        // Fire drops for any newly-crossed thresholds
+        // Queue drops for any newly-crossed thresholds. The actual spawn +
+        // announcement is delayed by THRESHOLD_SPAWN_DELAY_TICKS (drained in
+        // onServerTick) so the just-died player has time to respawn first.
+        int currentTick = server.getTickCount();
         for (AirdropTier tier : AirdropTier.values()) {
-            if (triggeredTiers.contains(tier)) continue;
+            if (triggeredTiers.contains(tier)) continue;       // already fired
+            if (pendingTierSpawns.containsKey(tier)) continue; // already queued
             if (progress >= configFor(tier).thresholdPercent.get()) {
-                triggeredTiers.add(tier);
-                spawnAirdrop(server, tier, String.format("%.0f%% progress", progress * 100));
-                BorderManager.get().onTierTriggered(server, tier);
+                pendingTierSpawns.put(tier, currentTick + THRESHOLD_SPAWN_DELAY_TICKS);
+                KingSlayer.LOGGER.info(
+                        "KingSlayer Airdrop: {} threshold crossed at {} — spawning in {} ticks.",
+                        tier.getDisplayName(), String.format("%.0f%%", progress * 100),
+                        THRESHOLD_SPAWN_DELAY_TICKS);
             }
         }
     }
@@ -132,9 +160,27 @@ public class AirdropManager {
     public void onServerTick(MinecraftServer server) {
         if (!AirdropConfig.ENABLED.get()) return;
         if (!GameManager.get().isGameActive()) return;
-        if (triggeredTiers.isEmpty()) return; // cheap early exit before any tier is unlocked
+        // Cheap early exit only when there's genuinely nothing to do this tick.
+        if (triggeredTiers.isEmpty() && pendingTierSpawns.isEmpty() && activeChests.isEmpty()) return;
 
         int currentTick = server.getTickCount();
+
+        // Drain any threshold-crossed tiers whose delay has elapsed. This is where
+        // the delayed first-fire actually happens: the tier joins triggeredTiers
+        // here (so its repeat-interval timer starts now, not at crossing time).
+        if (!pendingTierSpawns.isEmpty()) {
+            var it = pendingTierSpawns.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<AirdropTier, Integer> entry = it.next();
+                if (currentTick < entry.getValue()) continue; // not ready yet
+                AirdropTier tier = entry.getKey();
+                it.remove();
+                triggeredTiers.add(tier);
+                double progress = calculateProgress(server);
+                spawnAirdrop(server, tier, String.format("%.0f%% progress", progress * 100));
+                BorderManager.get().onTierTriggered(server, tier);
+            }
+        }
 
         for (AirdropTier tier : AirdropTier.values()) {
             if (!triggeredTiers.contains(tier)) continue;

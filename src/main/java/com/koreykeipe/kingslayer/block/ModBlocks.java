@@ -53,6 +53,14 @@ public class ModBlocks {
             () -> new DropExperienceBlock(UniformInt.of(8, 16), BlockBehaviour.Properties.of()
                     .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
 
+    // Bounty Crate — the special reward for slaying THE MARKED. Not part of the
+    // airdrop-tier progression; it is handed directly to the killer's inventory
+    // (see GameManager#handleMarkedKilled), who places and breaks it to claim the
+    // richest loot table in the game.
+    public static final RegistryObject<Block> BOUNTY_CRATE = registerBlock("bounty_crate",
+            () -> new DropExperienceBlock(UniformInt.of(10, 20), BlockBehaviour.Properties.of()
+                    .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
+
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn);

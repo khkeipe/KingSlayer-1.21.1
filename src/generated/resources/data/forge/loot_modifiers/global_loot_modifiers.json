@@ -1,16 +1,22 @@
 {
   "entries": [
-    "kcs_kingslayer:slayer_pickaxe_from_crate",
+    "kcs_kingslayer:diamond_chestplate_from_bounty",
     "kcs_kingslayer:slayer_sword_from_crate",
-    "kcs_kingslayer:slayer_bat_from_epic_crate",
     "kcs_kingslayer:slayer_shovel_from_crate",
+    "kcs_kingslayer:slayer_sword_from_bounty",
+    "kcs_kingslayer:golden_apple_from_broken_airdop",
+    "kcs_kingslayer:slayer_bat_from_bounty",
+    "kcs_kingslayer:slayer_pickaxe_from_crate",
+    "kcs_kingslayer:slayer_bat_from_epic_crate",
     "kcs_kingslayer:slayer_axe_from_crate",
     "kcs_kingslayer:crown_from_zombie",
     "kcs_kingslayer:golden_apple_from_common_airdop",
     "kcs_kingslayer:golden_apple_from_epic_airdop",
+    "kcs_kingslayer:golden_apple_from_bounty",
+    "kcs_kingslayer:golden_carrot_from_bounty",
     "kcs_kingslayer:slayer_hoe_from_crate",
-    "kcs_kingslayer:golden_apple_from_broken_airdop",
     "kcs_kingslayer:golden_apple_from_rare_airdop",
+    "kcs_kingslayer:enchanted_golden_apple_from_bounty",
     "kcs_kingslayer:slayer_shield_from_epic_crate"
   ],
   "replace": false
