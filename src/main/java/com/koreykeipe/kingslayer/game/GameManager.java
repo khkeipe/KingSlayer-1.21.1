@@ -118,7 +118,7 @@ public class GameManager {
         // If The Marked was just killed, pay out the bounty before re-electing
         if (uuid.equals(currentMarkedUUID)) {
             currentMarkedUUID = null;
-            handleMarkedKilled(attribution.killerUUID(), attribution.killerName());
+            handleMarkedKilled(uuid, attribution.killerUUID(), attribution.killerName());
         }
 
         // Credit the kill and re-evaluate The Marked
@@ -233,20 +233,43 @@ public class GameManager {
         int    score = threatScores.getOrDefault(newMarked, 0);
 
         for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            boolean isTarget = p.getUUID().equals(newMarked);
             p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 60, 20));
-            p.connection.send(new ClientboundSetTitleTextPacket(
-                    Component.literal("☠  BOUNTY PLACED  ☠")
-                            .withStyle(s -> s.withColor(ChatFormatting.DARK_RED).withBold(true))));
-            p.connection.send(new ClientboundSetSubtitleTextPacket(
-                    Component.literal(name + " is now THE MARKED")
-                            .withStyle(s -> s.withColor(ChatFormatting.RED).withItalic(false))));
+            if (isTarget) {
+                // The hunted player gets a message aimed squarely at them.
+                p.connection.send(new ClientboundSetTitleTextPacket(
+                        Component.literal("☠  YOU ARE THE MARKED  ☠")
+                                .withStyle(s -> s.withColor(ChatFormatting.DARK_RED).withBold(true))));
+                p.connection.send(new ClientboundSetSubtitleTextPacket(
+                        Component.literal("Every player can hunt you — stay alive!")
+                                .withStyle(s -> s.withColor(ChatFormatting.RED).withItalic(false))));
+            } else {
+                p.connection.send(new ClientboundSetTitleTextPacket(
+                        Component.literal("☠  BOUNTY PLACED  ☠")
+                                .withStyle(s -> s.withColor(ChatFormatting.DARK_RED).withBold(true))));
+                p.connection.send(new ClientboundSetSubtitleTextPacket(
+                        Component.literal(name + " is now THE MARKED")
+                                .withStyle(s -> s.withColor(ChatFormatting.RED).withItalic(false))));
+            }
         }
+
+        // Everyone hears the hunt is on...
         broadcast("§c☠ §e" + name + " §cis THE MARKED §7(threat: "
-                + score + ") §c— kill them for a bonus airdrop!");
+                + score + ") §c— hunt them down for a Bounty Crate!");
+
+        // ...and The Marked gets a direct, personal warning in chat.
+        markedPlayer.sendSystemMessage(Component.literal(
+                "§4☠ §cA bounty has been placed on YOU! §7Every player can now hunt you for a Bounty Crate. §cStay alive!"));
     }
 
-    private void handleMarkedKilled(@Nullable UUID killerUUID, @Nullable String killerName) {
-        if (killerName == null) return;
+    private void handleMarkedKilled(UUID markedUUID, @Nullable UUID killerUUID, @Nullable String killerName) {
+        // No reward for suicides or environmental deaths — the bounty must be *earned*
+        // by another player. Self-kills (void, lava, /kill, fall, nether gas) leave it unclaimed.
+        if (killerUUID == null || killerUUID.equals(markedUUID)) {
+            broadcast("§7☠ §eThe Marked has fallen by their own hand — the bounty goes unclaimed.");
+            return;
+        }
+        if (killerName == null) return; // killed by a non-player with no credit
 
         for (ServerPlayer p : server.getPlayerList().getPlayers()) {
             p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 70, 20));

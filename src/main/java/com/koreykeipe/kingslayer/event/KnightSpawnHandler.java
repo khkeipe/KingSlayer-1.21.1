@@ -75,7 +75,7 @@ public class KnightSpawnHandler {
 
     /** Maximum knights within this many blocks of a player before skipping spawn. */
     private static final double MAX_KNIGHTS_SEARCH_RADIUS = 64.0;
-    private static final int    MAX_KNIGHTS_NEAR_PLAYER   = 3;
+    private static final int    MAX_KNIGHTS_NEAR_PLAYER   = 5;
 
     /** Minimum and maximum spawn distance from the target player (blocks). */
     private static final int SPAWN_DIST_MIN = 28;
@@ -85,7 +85,8 @@ public class KnightSpawnHandler {
     // Attribute overrides
     // ------------------------------------------------------------------
 
-    private static final double CHAMPION_MAX_HP = 40.0;
+    private static final double FOOTSOLDIER_MAX_HP = 50.0;
+    private static final double CHAMPION_MAX_HP = 50.0;
     private static final double GUARD_MAX_HP    = 60.0;
 
     // ------------------------------------------------------------------
@@ -213,6 +214,9 @@ public class KnightSpawnHandler {
                 z.setCustomName(Component.literal("King's Footsoldier")
                         .withStyle(s -> s.withColor(ChatFormatting.GRAY).withBold(false).withItalic(false)));
                 z.setCustomNameVisible(true);
+                AttributeInstance hp = z.getAttribute(Attributes.MAX_HEALTH);
+                if (hp != null) hp.setBaseValue(FOOTSOLDIER_MAX_HP);
+                z.setHealth((float) FOOTSOLDIER_MAX_HP);
                 z.setPersistenceRequired();
                 yield z;
             }
