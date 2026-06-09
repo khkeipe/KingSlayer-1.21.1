@@ -1,8 +1,7 @@
-// 1.21.1	2026-06-08T16:39:02.65429	Global Loot Modifiers : kcs_kingslayer
-e59999caa86cec0802e316ecd20019c8bcdccf18 data/forge/loot_modifiers/global_loot_modifiers.json
+// 1.21.1	2026-06-08T16:44:49.1233499	Global Loot Modifiers : kcs_kingslayer
+a6715e75f96a1aa4e6817a26b9ffc6cd8823e7e4 data/forge/loot_modifiers/global_loot_modifiers.json
 09c7613cf2379986d876e7340655ca5f1f0a4256 data/kcs_kingslayer/loot_modifiers/crown_from_zombie.json
 d3f357a2bf1d5bbf4b8fbf49e5b849d51625b54e data/kcs_kingslayer/loot_modifiers/diamond_chestplate_from_bounty.json
-34dbeda2c137457d9c0292dd4ac2d84ff82d06a5 data/kcs_kingslayer/loot_modifiers/enchanted_golden_apple_from_bounty.json
 e2de8d052e7f5847d59f5a7818004ef505e7af36 data/kcs_kingslayer/loot_modifiers/golden_apple_from_bounty.json
 6ff3d317d9546190007748f9f94d53b973edb0ab data/kcs_kingslayer/loot_modifiers/golden_apple_from_broken_airdop.json
 8918f32a5d4e0a2a37ccd81fa176a9c6755875c7 data/kcs_kingslayer/loot_modifiers/golden_apple_from_common_airdop.json
