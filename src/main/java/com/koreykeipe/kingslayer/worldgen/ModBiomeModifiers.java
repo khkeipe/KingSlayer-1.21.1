@@ -14,14 +14,22 @@ import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.common.world.ForgeBiomeModifiers;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 /**
- * Injects each crate tier's placed feature into the appropriate biomes.
+ * Injects each crate tier's placed feature into the biomes that gate it.
  *
- * <p>Surface tiers (broken/common) go into a broad set of gentle, common biomes so
- * they reliably appear inside the small, spawn-centered world border. The deeper
- * tiers (rare/epic) are added to those same biomes <em>plus</em> the vertical cave
- * biomes — their {@link GenerationStep.Decoration#UNDERGROUND_DECORATION} placement
- * and Y-band do the real gating, so "go deeper for better loot" holds in any border.</p>
+ * <p>All four tiers are surface features ({@link GenerationStep.Decoration#VEGETAL_DECORATION}).
+ * Difficulty is expressed through biome eligibility:</p>
+ * <ul>
+ *   <li><b>Broken</b> — every gated biome (gentle, dangerous and mountains) so basic resources are always nearby.</li>
+ *   <li><b>Common</b> — gentle, common, easy-to-reach biomes.</li>
+ *   <li><b>Rare</b> — "dangerous" biomes: jungles, swamps, badlands, dark forest, desert.</li>
+ *   <li><b>Epic</b> — mountains and peaks: the highest, hardest-to-reach terrain.</li>
+ * </ul>
+ * The ~4x smaller-biome worldgen override makes these gated biomes reliably appear
+ * inside the small world border.
  */
 public class ModBiomeModifiers {
 
@@ -34,59 +42,43 @@ public class ModBiomeModifiers {
         var placed = context.lookup(Registries.PLACED_FEATURE);
         var biomes = context.lookup(Registries.BIOME);
 
-        // Broad, common, generally-accessible surface biomes.
-        Holder<Biome> plains       = biomes.getOrThrow(Biomes.PLAINS);
-        Holder<Biome> forest       = biomes.getOrThrow(Biomes.FOREST);
-        Holder<Biome> birch        = biomes.getOrThrow(Biomes.BIRCH_FOREST);
-        Holder<Biome> darkForest   = biomes.getOrThrow(Biomes.DARK_FOREST);
-        Holder<Biome> flowerForest = biomes.getOrThrow(Biomes.FLOWER_FOREST);
-        Holder<Biome> meadow       = biomes.getOrThrow(Biomes.MEADOW);
-        Holder<Biome> taiga        = biomes.getOrThrow(Biomes.TAIGA);
-        Holder<Biome> snowyPlains  = biomes.getOrThrow(Biomes.SNOWY_PLAINS);
-        Holder<Biome> savanna      = biomes.getOrThrow(Biomes.SAVANNA);
-        Holder<Biome> swamp        = biomes.getOrThrow(Biomes.SWAMP);
-        Holder<Biome> jungle       = biomes.getOrThrow(Biomes.JUNGLE);
-        Holder<Biome> desert       = biomes.getOrThrow(Biomes.DESERT);
-        Holder<Biome> stonyShore   = biomes.getOrThrow(Biomes.STONY_SHORE);
+        // --- Gentle / common / easy-to-reach (Common) ---
+        List<ResourceKey<Biome>> gentle = List.of(
+                Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.BIRCH_FOREST,
+                Biomes.FLOWER_FOREST, Biomes.MEADOW, Biomes.TAIGA, Biomes.SNOWY_TAIGA,
+                Biomes.SNOWY_PLAINS, Biomes.SAVANNA, Biomes.BEACH, Biomes.STONY_SHORE);
 
-        // Vertical cave biomes — reliably present underground regardless of surface biome.
-        Holder<Biome> dripstone    = biomes.getOrThrow(Biomes.DRIPSTONE_CAVES);
-        Holder<Biome> lushCaves    = biomes.getOrThrow(Biomes.LUSH_CAVES);
-        Holder<Biome> deepDark     = biomes.getOrThrow(Biomes.DEEP_DARK);
+        // --- Dangerous surface biomes (Rare) ---
+        List<ResourceKey<Biome>> dangerous = List.of(
+                Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MANGROVE_SWAMP, Biomes.JUNGLE,
+                Biomes.BAMBOO_JUNGLE, Biomes.SPARSE_JUNGLE, Biomes.BADLANDS, Biomes.WOODED_BADLANDS,
+                Biomes.ERODED_BADLANDS, Biomes.WINDSWEPT_SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.DESERT);
 
-        HolderSet<Biome> surfaceBiomes = HolderSet.direct(
-                plains, forest, birch, darkForest, flowerForest, meadow, taiga,
-                snowyPlains, savanna, swamp, jungle, desert, stonyShore);
+        // --- Mountains / peaks — hardest to reach (Epic) ---
+        List<ResourceKey<Biome>> mountains = List.of(
+                Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_FOREST,
+                Biomes.SNOWY_SLOPES, Biomes.GROVE, Biomes.STONY_PEAKS, Biomes.JAGGED_PEAKS, Biomes.FROZEN_PEAKS);
 
-        HolderSet<Biome> rareBiomes = HolderSet.direct(
-                plains, forest, birch, darkForest, flowerForest, meadow, taiga,
-                snowyPlains, savanna, swamp, jungle, desert, stonyShore,
-                dripstone, lushCaves);
+        // Broken crates are everywhere — gentle, dangerous AND mountains — so basic
+        // resources are always close at hand no matter where a player lands.
+        List<ResourceKey<Biome>> everywhere =
+                Stream.of(gentle, dangerous, mountains).flatMap(List::stream).toList();
 
-        HolderSet<Biome> epicBiomes = HolderSet.direct(
-                plains, forest, birch, darkForest, flowerForest, meadow, taiga,
-                snowyPlains, savanna, swamp, jungle, desert, stonyShore,
-                dripstone, lushCaves, deepDark);
+        HolderSet<Biome> gentleBiomes    = HolderSet.direct(biomes::getOrThrow, gentle);
+        HolderSet<Biome> dangerousBiomes = HolderSet.direct(biomes::getOrThrow, dangerous);
+        HolderSet<Biome> mountainBiomes  = HolderSet.direct(biomes::getOrThrow, mountains);
+        HolderSet<Biome> allBiomes       = HolderSet.direct(biomes::getOrThrow, everywhere);
 
-        context.register(ADD_BROKEN_CRATE, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                surfaceBiomes,
-                HolderSet.direct(placed.getOrThrow(ModPlacedFeatures.BROKEN_CRATE_PLACED_KEY)),
-                GenerationStep.Decoration.VEGETAL_DECORATION));
+        register(context, ADD_BROKEN_CRATE, allBiomes,       placed.getOrThrow(ModPlacedFeatures.BROKEN_CRATE_PLACED_KEY));
+        register(context, ADD_COMMON_CRATE, gentleBiomes,    placed.getOrThrow(ModPlacedFeatures.COMMON_CRATE_PLACED_KEY));
+        register(context, ADD_RARE_CRATE,   dangerousBiomes, placed.getOrThrow(ModPlacedFeatures.RARE_CRATE_PLACED_KEY));
+        register(context, ADD_EPIC_CRATE,   mountainBiomes,  placed.getOrThrow(ModPlacedFeatures.EPIC_CRATE_PLACED_KEY));
+    }
 
-        context.register(ADD_COMMON_CRATE, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                surfaceBiomes,
-                HolderSet.direct(placed.getOrThrow(ModPlacedFeatures.COMMON_CRATE_PLACED_KEY)),
-                GenerationStep.Decoration.VEGETAL_DECORATION));
-
-        context.register(ADD_RARE_CRATE, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                rareBiomes,
-                HolderSet.direct(placed.getOrThrow(ModPlacedFeatures.RARE_CRATE_PLACED_KEY)),
-                GenerationStep.Decoration.UNDERGROUND_DECORATION));
-
-        context.register(ADD_EPIC_CRATE, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                epicBiomes,
-                HolderSet.direct(placed.getOrThrow(ModPlacedFeatures.EPIC_CRATE_PLACED_KEY)),
-                GenerationStep.Decoration.UNDERGROUND_DECORATION));
+    private static void register(BootstrapContext<BiomeModifier> context, ResourceKey<BiomeModifier> key,
+                                 HolderSet<Biome> biomes, Holder<net.minecraft.world.level.levelgen.placement.PlacedFeature> feature) {
+        context.register(key, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+                biomes, HolderSet.direct(feature), GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 
     private static ResourceKey<BiomeModifier> registerKey(String name) {

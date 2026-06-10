@@ -30,17 +30,18 @@ public class ModPlacedFeatures {
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var cf = context.lookup(Registries.CONFIGURED_FEATURE);
 
-        // Lower the rarity number = more common. Broken is the bulk of world crates.
+        // Lower the rarity number = more common. Crates are intentionally abundant so
+        // players start making crafting moments immediately instead of grinding.
         register(context, BROKEN_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BROKEN_CRATE_KEY),
-                onSurface(6));
+                onSurface(4));
         register(context, COMMON_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.COMMON_CRATE_KEY),
-                onSurface(12));
+                onSurface(6));
         // Rare/Epic appear only in their gated biomes (see ModBiomeModifiers), so a
         // modest rarity here still makes them scarce overall.
         register(context, RARE_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.RARE_CRATE_KEY),
-                onSurface(10));
+                onSurface(6));
         register(context, EPIC_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.EPIC_CRATE_KEY),
-                onSurface(14));
+                onSurface(9));
     }
 
     /**
