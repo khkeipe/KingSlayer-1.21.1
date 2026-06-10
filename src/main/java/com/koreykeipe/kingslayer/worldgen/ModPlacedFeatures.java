@@ -1,30 +1,24 @@
 package com.koreykeipe.kingslayer.worldgen;
 
 import com.koreykeipe.kingslayer.KingSlayer;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.valueproviders.ConstantInt;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.*;
 
 import java.util.List;
 
 /**
- * Placement rules for each crate tier — the "where / how rare / how deep" half of
- * the worldgen pipeline.
+ * Placement rules for each crate tier — the "how rare" half of the pipeline.
  *
- * <p>Border-aware design: because the KingSlayer world border is small and
- * spawn-centered, exotic <em>surface</em> biomes often never generate inside it.
- * Tiers are therefore gated by <strong>depth</strong> rather than rare biomes:
- * surface crates are common, and the prize crates are buried progressively deeper,
- * which is reliably reachable by caving in any border.</p>
+ * <p>All tiers are placed on the <strong>surface</strong> (top solid block, never
+ * floating on water). Tier difficulty is gated by <em>biome</em> rather than depth:
+ * {@link ModBiomeModifiers} restricts the higher tiers to dangerous biomes and
+ * mountain peaks, so the only thing changing here per tier is the spawn rarity.</p>
  */
 public class ModPlacedFeatures {
 
@@ -36,47 +30,30 @@ public class ModPlacedFeatures {
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var cf = context.lookup(Registries.CONFIGURED_FEATURE);
 
-        // BROKEN — abundant, on the surface. HEIGHTMAP_TOP_SOLID keeps it on solid
-        // ground; SurfaceWaterDepthFilter(0) stops it floating on lakes/oceans.
+        // Lower the rarity number = more common. Broken is the bulk of world crates.
         register(context, BROKEN_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BROKEN_CRATE_KEY),
-                List.of(RarityFilter.onAverageOnceEvery(8),
-                        InSquarePlacement.spread(),
-                        PlacementUtils.HEIGHTMAP_TOP_SOLID,
-                        SurfaceWaterDepthFilter.forMaxDepth(0),
-                        BiomeFilter.biome()));
-
-        // COMMON — same surface treatment, rarer.
+                onSurface(6));
         register(context, COMMON_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.COMMON_CRATE_KEY),
-                List.of(RarityFilter.onAverageOnceEvery(20),
-                        InSquarePlacement.spread(),
-                        PlacementUtils.HEIGHTMAP_TOP_SOLID,
-                        SurfaceWaterDepthFilter.forMaxDepth(0),
-                        BiomeFilter.biome()));
-
-        // RARE — mid-depth underground; rests on a cave/ground floor between Y 0 and 56.
+                onSurface(12));
+        // Rare/Epic appear only in their gated biomes (see ModBiomeModifiers), so a
+        // modest rarity here still makes them scarce overall.
         register(context, RARE_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.RARE_CRATE_KEY),
-                onCaveFloor(RarityFilter.onAverageOnceEvery(14),
-                        VerticalAnchor.absolute(0), VerticalAnchor.absolute(56)));
-
-        // EPIC — deep underground; rewards thorough caving. Y -50 to 16.
+                onSurface(10));
         register(context, EPIC_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.EPIC_CRATE_KEY),
-                onCaveFloor(RarityFilter.onAverageOnceEvery(24),
-                        VerticalAnchor.absolute(-50), VerticalAnchor.absolute(16)));
+                onSurface(14));
     }
 
     /**
-     * Shared placement recipe for underground crates: scatter within a vertical band,
-     * scan downward through air to find the floor, then step back up one block so the
-     * crate rests on top of it. Attempts that don't land in an air pocket are skipped.
+     * Standard surface placement: scatter once per N chunks, land on the topmost
+     * solid block, never on open water. Biome eligibility is decided by the biome
+     * modifier that injects this feature.
      */
-    private static List<PlacementModifier> onCaveFloor(RarityFilter rarity, VerticalAnchor min, VerticalAnchor max) {
+    private static List<PlacementModifier> onSurface(int rarity) {
         return List.of(
-                rarity,
+                RarityFilter.onAverageOnceEvery(rarity),
                 InSquarePlacement.spread(),
-                HeightRangePlacement.uniform(min, max),
-                EnvironmentScanPlacement.scanningFor(Direction.DOWN, BlockPredicate.solid(),
-                        BlockPredicate.ONLY_IN_AIR_PREDICATE, 12),
-                RandomOffsetPlacement.vertical(ConstantInt.of(1)),
+                PlacementUtils.HEIGHTMAP_TOP_SOLID,
+                SurfaceWaterDepthFilter.forMaxDepth(0),
                 BiomeFilter.biome());
     }
 
