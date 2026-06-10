@@ -1,0 +1,15 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:rare_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.6,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "minecraft:beef",
+  "max_count": 5
+}

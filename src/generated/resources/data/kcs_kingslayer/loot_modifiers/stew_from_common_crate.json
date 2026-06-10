@@ -1,0 +1,15 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:common_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.6,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "minecraft:mushroom_stew",
+  "max_count": 3
+}

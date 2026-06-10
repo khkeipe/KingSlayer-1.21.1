@@ -1,0 +1,16 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:epic_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.8,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "minecraft:cookie",
+  "max_count": 16,
+  "min_count": 6
+}

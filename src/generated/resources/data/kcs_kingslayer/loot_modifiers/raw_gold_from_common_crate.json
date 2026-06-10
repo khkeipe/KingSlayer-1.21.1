@@ -2,13 +2,15 @@
   "type": "kcs_kingslayer:add_item",
   "conditions": [
     {
-      "block": "kcs_kingslayer:rare_crate",
+      "block": "kcs_kingslayer:common_crate",
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.2,
+      "chance": 0.4,
       "condition": "minecraft:random_chance"
     }
   ],
-  "item": "kcs_kingslayer:slayer_axe"
+  "item": "minecraft:raw_gold",
+  "max_count": 8,
+  "min_count": 3
 }

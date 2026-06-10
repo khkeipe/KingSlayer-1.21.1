@@ -10,5 +10,5 @@
       "condition": "minecraft:random_chance"
     }
   ],
-  "item": "kcs_kingslayer:slayer_sword"
+  "item": "kcs_kingslayer:slayer_axe"
 }

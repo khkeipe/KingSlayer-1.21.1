@@ -1,0 +1,23 @@
+{
+  "type": "forge:add_features",
+  "biomes": [
+    "minecraft:plains",
+    "minecraft:forest",
+    "minecraft:birch_forest",
+    "minecraft:dark_forest",
+    "minecraft:flower_forest",
+    "minecraft:meadow",
+    "minecraft:taiga",
+    "minecraft:snowy_plains",
+    "minecraft:savanna",
+    "minecraft:swamp",
+    "minecraft:jungle",
+    "minecraft:desert",
+    "minecraft:stony_shore",
+    "minecraft:dripstone_caves",
+    "minecraft:lush_caves",
+    "minecraft:deep_dark"
+  ],
+  "features": "kcs_kingslayer:epic_crate_placed",
+  "step": "underground_decoration"
+}

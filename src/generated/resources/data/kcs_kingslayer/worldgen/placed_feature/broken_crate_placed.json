@@ -1,5 +1,5 @@
 {
-  "feature": "kcs_kingslayer:crate",
+  "feature": "kcs_kingslayer:broken_crate",
   "placement": [
     {
       "type": "minecraft:rarity_filter",
@@ -10,7 +10,11 @@
     },
     {
       "type": "minecraft:heightmap",
-      "heightmap": "WORLD_SURFACE_WG"
+      "heightmap": "OCEAN_FLOOR_WG"
+    },
+    {
+      "type": "minecraft:surface_water_depth_filter",
+      "max_water_depth": 0
     },
     {
       "type": "minecraft:biome"

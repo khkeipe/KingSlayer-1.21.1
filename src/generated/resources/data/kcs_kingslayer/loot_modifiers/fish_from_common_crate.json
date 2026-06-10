@@ -1,0 +1,16 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:common_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.5,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "minecraft:cod",
+  "max_count": 6,
+  "min_count": 2
+}
