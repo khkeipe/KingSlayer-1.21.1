@@ -7,6 +7,7 @@ import com.koreykeipe.kingslayer.entity.ModEntityTypes;
 import com.koreykeipe.kingslayer.item.ModCreativeModeTabs;
 import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.loot.ModLootModifiers;
+import com.koreykeipe.kingslayer.worldgen.ModFeatures;
 import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -49,6 +50,7 @@ public class KingSlayer
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModEntityTypes.register(modEventBus);
+        ModFeatures.register(modEventBus);
 
         ModLootModifiers.register(modEventBus);
         // Register the item to a creative tab

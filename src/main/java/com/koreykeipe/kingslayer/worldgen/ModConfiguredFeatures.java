@@ -47,18 +47,48 @@ public class ModConfiguredFeatures {
                                         .add(Blocks.STONE.defaultBlockState(), 3)
                         )));
 
-        // COMMON / RARE / EPIC — a single clean crate block; placement does the rest.
-        register(context, COMMON_CRATE_KEY, Feature.SIMPLE_BLOCK,
-                new SimpleBlockConfiguration(
-                        BlockStateProvider.simple(ModBlocks.COMMON_CRATE.get().defaultBlockState())));
+        // COMMON / RARE / EPIC — a guaranteed crate ringed by a rarity-themed debris pile
+        // (CrateDebrisFeature). The richness of the rubble climbs with the tier, with raw
+        // ore blocks salting the higher tiers as a treasure hint.
 
-        register(context, RARE_CRATE_KEY, Feature.SIMPLE_BLOCK,
-                new SimpleBlockConfiguration(
-                        BlockStateProvider.simple(ModBlocks.RARE_CRATE.get().defaultBlockState())));
+        // Common — humble rubble: cobble, stone, dirt, a touch of coal.
+        register(context, COMMON_CRATE_KEY, ModFeatures.CRATE_DEBRIS.get(),
+                new CrateDebrisConfiguration(
+                        ModBlocks.COMMON_CRATE.get().defaultBlockState(),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.COBBLESTONE.defaultBlockState(), 4)
+                                .add(Blocks.STONE.defaultBlockState(), 3)
+                                .add(Blocks.DIRT.defaultBlockState(), 2)
+                                .add(Blocks.GRAVEL.defaultBlockState(), 2)
+                                .add(Blocks.COAL_ORE.defaultBlockState(), 1)),
+                        2, 0.55f));
 
-        register(context, EPIC_CRATE_KEY, Feature.SIMPLE_BLOCK,
-                new SimpleBlockConfiguration(
-                        BlockStateProvider.simple(ModBlocks.EPIC_CRATE.get().defaultBlockState())));
+        // Rare — ore starts to show: iron & copper ore, a rare raw copper block.
+        register(context, RARE_CRATE_KEY, ModFeatures.CRATE_DEBRIS.get(),
+                new CrateDebrisConfiguration(
+                        ModBlocks.RARE_CRATE.get().defaultBlockState(),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.STONE.defaultBlockState(), 3)
+                                .add(Blocks.ANDESITE.defaultBlockState(), 2)
+                                .add(Blocks.COBBLESTONE.defaultBlockState(), 2)
+                                .add(Blocks.IRON_ORE.defaultBlockState(), 2)
+                                .add(Blocks.COPPER_ORE.defaultBlockState(), 2)
+                                .add(Blocks.RAW_COPPER_BLOCK.defaultBlockState(), 1)),
+                        2, 0.55f));
+
+        // Epic — a glittering wreck: deepslate/blackstone with gold & iron ore and the
+        // occasional raw iron / raw gold block.
+        register(context, EPIC_CRATE_KEY, ModFeatures.CRATE_DEBRIS.get(),
+                new CrateDebrisConfiguration(
+                        ModBlocks.EPIC_CRATE.get().defaultBlockState(),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.DEEPSLATE.defaultBlockState(), 3)
+                                .add(Blocks.BLACKSTONE.defaultBlockState(), 2)
+                                .add(Blocks.GOLD_ORE.defaultBlockState(), 2)
+                                .add(Blocks.IRON_ORE.defaultBlockState(), 2)
+                                .add(Blocks.RAW_IRON_BLOCK.defaultBlockState(), 1)
+                                .add(Blocks.RAW_GOLD_BLOCK.defaultBlockState(), 1)),
+                        3, 0.60f));
     }
 
     public static ResourceKey<ConfiguredFeature<?, ?>> registerKey(String name) {

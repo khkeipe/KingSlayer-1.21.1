@@ -7,6 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -23,11 +24,13 @@ import java.util.stream.Stream;
  * <p>All four tiers are surface features ({@link GenerationStep.Decoration#VEGETAL_DECORATION}).
  * Difficulty is expressed through biome eligibility:</p>
  * <ul>
- *   <li><b>Broken</b> — every gated biome (gentle, dangerous and mountains) so basic resources are always nearby.</li>
+ *   <li><b>Broken</b> — every overworld biome (via the {@code is_overworld} tag, dry land only) so basic resources are always nearby.</li>
  *   <li><b>Common</b> — gentle, common, easy-to-reach biomes.</li>
- *   <li><b>Rare</b> — "dangerous" biomes: jungles, swamps, badlands, dark forest, desert.</li>
- *   <li><b>Epic</b> — mountains and peaks: the highest, hardest-to-reach terrain.</li>
+ *   <li><b>Rare</b> — "dangerous" biomes: jungles, swamps, badlands, dark forest, desert; plus deep ocean floors.</li>
+ *   <li><b>Epic</b> — mountains and peaks; plus the deepest, coldest ocean floors.</li>
  * </ul>
+ * Common and above also generate on submerged ocean/river floors — the crate is the
+ * lure, drowning the risk. Broken stays on dry land only.
  * The ~4x smaller-biome worldgen override makes these gated biomes reliably appear
  * inside the small world border.
  */
@@ -45,34 +48,51 @@ public class ModBiomeModifiers {
         // --- Gentle / common / easy-to-reach (Common) ---
         List<ResourceKey<Biome>> gentle = List.of(
                 Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.BIRCH_FOREST,
-                Biomes.FLOWER_FOREST, Biomes.MEADOW, Biomes.TAIGA, Biomes.SNOWY_TAIGA,
-                Biomes.SNOWY_PLAINS, Biomes.SAVANNA, Biomes.BEACH, Biomes.STONY_SHORE);
+                Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.FLOWER_FOREST, Biomes.MEADOW, Biomes.CHERRY_GROVE,
+                Biomes.TAIGA, Biomes.SNOWY_TAIGA, Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA,
+                Biomes.SNOWY_PLAINS, Biomes.SAVANNA, Biomes.BEACH, Biomes.SNOWY_BEACH,
+                Biomes.STONY_SHORE, Biomes.MUSHROOM_FIELDS);
 
         // --- Dangerous surface biomes (Rare) ---
         List<ResourceKey<Biome>> dangerous = List.of(
                 Biomes.DARK_FOREST, Biomes.SWAMP, Biomes.MANGROVE_SWAMP, Biomes.JUNGLE,
                 Biomes.BAMBOO_JUNGLE, Biomes.SPARSE_JUNGLE, Biomes.BADLANDS, Biomes.WOODED_BADLANDS,
-                Biomes.ERODED_BADLANDS, Biomes.WINDSWEPT_SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.DESERT);
+                Biomes.ERODED_BADLANDS, Biomes.WINDSWEPT_SAVANNA, Biomes.SAVANNA_PLATEAU, Biomes.DESERT,
+                Biomes.ICE_SPIKES);
 
         // --- Mountains / peaks — hardest to reach (Epic) ---
         List<ResourceKey<Biome>> mountains = List.of(
                 Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_FOREST,
                 Biomes.SNOWY_SLOPES, Biomes.GROVE, Biomes.STONY_PEAKS, Biomes.JAGGED_PEAKS, Biomes.FROZEN_PEAKS);
 
-        // Broken crates are everywhere — gentle, dangerous AND mountains — so basic
-        // resources are always close at hand no matter where a player lands.
-        List<ResourceKey<Biome>> everywhere =
-                Stream.of(gentle, dangerous, mountains).flatMap(List::stream).toList();
+        // --- Aquatic floors — crate sits on the seabed; the dive is the danger ---
+        // Risk scales with depth: rivers/shallow oceans are an easy dip, deep oceans
+        // a real drowning gamble. Broken stays on land (omitted here on purpose).
+        List<ResourceKey<Biome>> shallowWater = List.of(
+                Biomes.RIVER, Biomes.FROZEN_RIVER, Biomes.OCEAN, Biomes.WARM_OCEAN,
+                Biomes.LUKEWARM_OCEAN, Biomes.COLD_OCEAN, Biomes.FROZEN_OCEAN);
+        List<ResourceKey<Biome>> rareDeepWater  = List.of(Biomes.DEEP_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+        List<ResourceKey<Biome>> epicDeepWater  = List.of(Biomes.DEEP_COLD_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
 
-        HolderSet<Biome> gentleBiomes    = HolderSet.direct(biomes::getOrThrow, gentle);
-        HolderSet<Biome> dangerousBiomes = HolderSet.direct(biomes::getOrThrow, dangerous);
-        HolderSet<Biome> mountainBiomes  = HolderSet.direct(biomes::getOrThrow, mountains);
-        HolderSet<Biome> allBiomes       = HolderSet.direct(biomes::getOrThrow, everywhere);
+        // Common/Rare/Epic each pick up an aquatic floor set matched to their dive risk.
+        List<ResourceKey<Biome>> commonAll =
+                Stream.of(gentle, shallowWater).flatMap(List::stream).toList();
+        List<ResourceKey<Biome>> rareAll =
+                Stream.of(dangerous, rareDeepWater).flatMap(List::stream).toList();
+        List<ResourceKey<Biome>> epicAll =
+                Stream.of(mountains, epicDeepWater).flatMap(List::stream).toList();
 
-        register(context, ADD_BROKEN_CRATE, allBiomes,       placed.getOrThrow(ModPlacedFeatures.BROKEN_CRATE_PLACED_KEY));
-        register(context, ADD_COMMON_CRATE, gentleBiomes,    placed.getOrThrow(ModPlacedFeatures.COMMON_CRATE_PLACED_KEY));
-        register(context, ADD_RARE_CRATE,   dangerousBiomes, placed.getOrThrow(ModPlacedFeatures.RARE_CRATE_PLACED_KEY));
-        register(context, ADD_EPIC_CRATE,   mountainBiomes,  placed.getOrThrow(ModPlacedFeatures.EPIC_CRATE_PLACED_KEY));
+        // Broken crates target the entire is_overworld biome tag, so EVERY overworld
+        // biome is covered with zero gaps. The placement's water filter keeps them on
+        // dry land, and surface placement never triggers inside cave biomes.
+        register(context, ADD_BROKEN_CRATE, biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                placed.getOrThrow(ModPlacedFeatures.BROKEN_CRATE_PLACED_KEY));
+        register(context, ADD_COMMON_CRATE, HolderSet.direct(biomes::getOrThrow, commonAll),
+                placed.getOrThrow(ModPlacedFeatures.COMMON_CRATE_PLACED_KEY));
+        register(context, ADD_RARE_CRATE, HolderSet.direct(biomes::getOrThrow, rareAll),
+                placed.getOrThrow(ModPlacedFeatures.RARE_CRATE_PLACED_KEY));
+        register(context, ADD_EPIC_CRATE, HolderSet.direct(biomes::getOrThrow, epicAll),
+                placed.getOrThrow(ModPlacedFeatures.EPIC_CRATE_PLACED_KEY));
     }
 
     private static void register(BootstrapContext<BiomeModifier> context, ResourceKey<BiomeModifier> key,

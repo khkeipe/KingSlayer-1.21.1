@@ -1,11 +1,54 @@
 {
-  "type": "minecraft:simple_block",
+  "type": "kcs_kingslayer:crate_debris",
   "config": {
-    "to_place": {
-      "type": "minecraft:simple_state_provider",
-      "state": {
-        "Name": "kcs_kingslayer:epic_crate"
-      }
-    }
+    "chance": 0.6,
+    "crate": {
+      "Name": "kcs_kingslayer:epic_crate"
+    },
+    "debris": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "minecraft:deepslate",
+            "Properties": {
+              "axis": "y"
+            }
+          },
+          "weight": 3
+        },
+        {
+          "data": {
+            "Name": "minecraft:blackstone"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:gold_ore"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:iron_ore"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:raw_iron_block"
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:raw_gold_block"
+          },
+          "weight": 1
+        }
+      ]
+    },
+    "radius": 3
   }
 }

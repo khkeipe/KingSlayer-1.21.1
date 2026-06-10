@@ -8,7 +8,9 @@
     "minecraft:grove",
     "minecraft:stony_peaks",
     "minecraft:jagged_peaks",
-    "minecraft:frozen_peaks"
+    "minecraft:frozen_peaks",
+    "minecraft:deep_cold_ocean",
+    "minecraft:deep_frozen_ocean"
   ],
   "features": "kcs_kingslayer:epic_crate_placed",
   "step": "vegetal_decoration"

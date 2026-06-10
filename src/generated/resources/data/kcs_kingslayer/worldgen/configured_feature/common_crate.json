@@ -1,11 +1,45 @@
 {
-  "type": "minecraft:simple_block",
+  "type": "kcs_kingslayer:crate_debris",
   "config": {
-    "to_place": {
-      "type": "minecraft:simple_state_provider",
-      "state": {
-        "Name": "kcs_kingslayer:common_crate"
-      }
-    }
+    "chance": 0.55,
+    "crate": {
+      "Name": "kcs_kingslayer:common_crate"
+    },
+    "debris": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "minecraft:cobblestone"
+          },
+          "weight": 4
+        },
+        {
+          "data": {
+            "Name": "minecraft:stone"
+          },
+          "weight": 3
+        },
+        {
+          "data": {
+            "Name": "minecraft:dirt"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:gravel"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:coal_ore"
+          },
+          "weight": 1
+        }
+      ]
+    },
+    "radius": 2
   }
 }

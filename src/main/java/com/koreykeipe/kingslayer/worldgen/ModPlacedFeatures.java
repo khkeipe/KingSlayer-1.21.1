@@ -32,16 +32,19 @@ public class ModPlacedFeatures {
 
         // Lower the rarity number = more common. Crates are intentionally abundant so
         // players start making crafting moments immediately instead of grinding.
+        // Broken stays on dry land only; Common/Rare/Epic may also land on the ocean
+        // or river floor (their aquatic biomes are added in ModBiomeModifiers) — a
+        // tempting crate guarded by the risk of drowning.
         register(context, BROKEN_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BROKEN_CRATE_KEY),
-                onSurface(4));
+                onSurface(2));
         register(context, COMMON_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.COMMON_CRATE_KEY),
-                onSurface(6));
+                onSurfaceOrSeabed(3));
         // Rare/Epic appear only in their gated biomes (see ModBiomeModifiers), so a
         // modest rarity here still makes them scarce overall.
         register(context, RARE_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.RARE_CRATE_KEY),
-                onSurface(6));
+                onSurfaceOrSeabed(4));
         register(context, EPIC_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.EPIC_CRATE_KEY),
-                onSurface(9));
+                onSurfaceOrSeabed(5));
     }
 
     /**
@@ -55,6 +58,19 @@ public class ModPlacedFeatures {
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP_TOP_SOLID,
                 SurfaceWaterDepthFilter.forMaxDepth(0),
+                BiomeFilter.biome());
+    }
+
+    /**
+     * Like {@link #onSurface} but without the water-depth filter, so the crate may
+     * also settle on a submerged floor (ocean/river bed). On dry land it behaves
+     * identically — HEIGHTMAP_TOP_SOLID still lands it on the topmost solid block.
+     */
+    private static List<PlacementModifier> onSurfaceOrSeabed(int rarity) {
+        return List.of(
+                RarityFilter.onAverageOnceEvery(rarity),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP_TOP_SOLID,
                 BiomeFilter.biome());
     }
 
