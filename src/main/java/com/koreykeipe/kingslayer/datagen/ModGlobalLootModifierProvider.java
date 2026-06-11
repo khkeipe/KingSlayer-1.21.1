@@ -30,14 +30,10 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     protected void start(HolderLookup.Provider registries) {
 
         // Broken Crate Loot
-        this.add("slayer_hoe_from_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.75f).build() }, ModItems.SLAYER_HOE.get()));
-        this.add("slayer_shovel_from_broken_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.75f).build() }, ModItems.SLAYER_SHOVEL.get()));
+        oneOf("broken_ad_special", ModBlocks.BROKEN_CRATE.get(), 0.75f,
+                new OneOfItemModifier.Choice(ModItems.SLAYER_SHOVEL.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.SLAYER_HOE.get(),1));
+
         this.add("flint_from_broken_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
@@ -46,22 +42,11 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.FEATHER, 1, 5));
-        this.add("carrot_from_broken_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.CARROT, 2, 5));
-        this.add("potato_from_broken_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.POTATO, 2, 5));
-        this.add("beat_from_broken_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.8f).build() }, Items.BEETROOT, 2, 5));
-        this.add("apple_from_broken_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.2f).build() }, Items.APPLE, 1, 3));
+        oneOf("food_from_broken_crate",ModBlocks.BROKEN_CRATE.get(),.8f,
+                new OneOfItemModifier.Choice(Items.CARROT, 1, 2, 5),
+                new OneOfItemModifier.Choice(Items.POTATO, 1, 2, 5),
+                new OneOfItemModifier.Choice(Items.BEETROOT, 2, 2, 5),
+                new OneOfItemModifier.Choice(Items.APPLE, 1, 1, 3));
 
         // Common Crate Loot
         this.add("slayer_pickaxe_from_common_crate",
@@ -80,24 +65,16 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.LEATHER, 1, 3));
-        this.add("bread_from_common_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.BREAD, 2, 6));
-        this.add("fish_from_common_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.COD, 2, 6));
-        this.add("stew_from_common_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.MUSHROOM_STEW, 1, 3));
         this.add("paper_from_common_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.PAPER, 10, 30));
 
-
+        oneOf("food_from_common_crate",ModBlocks.COMMON_CRATE.get(),.8f,
+                new OneOfItemModifier.Choice(Items.BREAD, 1, 3, 6),
+                new OneOfItemModifier.Choice(Items.COD, 2, 2, 5),
+                new OneOfItemModifier.Choice(Items.MUSHROOM_STEW, 1, 1, 3),
+                new OneOfItemModifier.Choice(Items.SUSPICIOUS_STEW, 1, 1, 1));
 
         // Rare Crate Loot
         this.add("slayer_sword_from_rare_crate",
@@ -108,23 +85,16 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.RARE_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.IRON_INGOT, 1, 5));
-        this.add("beef_from_rare_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.RARE_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.BEEF, 1, 5));
-        this.add("chicken_from_rare_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.RARE_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.CHICKEN, 1, 5));
-        this.add("apple_from_rare_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.RARE_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.APPLE, 1, 5));
         this.add("gunpowder_rare_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.RARE_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.GUNPOWDER, 6, 12));
 
+        oneOf("food_from_rare_crate",ModBlocks.RARE_CRATE.get(),.8f,
+                new OneOfItemModifier.Choice(Items.BEEF, 1, 2, 6),
+                new OneOfItemModifier.Choice(Items.CHICKEN, 2, 2, 5),
+                new OneOfItemModifier.Choice(Items.APPLE, 1, 1, 3),
+                new OneOfItemModifier.Choice(Items.PORKCHOP, 1, 1, 4));
 
         // Epic Crate Loot
 
@@ -132,18 +102,13 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.6f).build() }, ModItems.SLAYER_AXE.get()));
-        this.add("cookies_from_epic_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.8f).build() }, Items.COOKIE, 6, 16));
-        this.add("cake_from_epic_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.CAKE, 2, 4));
-        this.add("pie_from_epic_crate",
-                new AddItemModifier(new LootItemCondition[] {
-                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.PUMPKIN_PIE, 3, 6));
+
+        oneOf("food_from_epic_crate",ModBlocks.EPIC_CRATE.get(),.8f,
+                new OneOfItemModifier.Choice(Items.COOKIE, 2, 6, 16),
+                new OneOfItemModifier.Choice(Items.CAKE, 1, 1, 2),
+                new OneOfItemModifier.Choice(Items.PUMPKIN_PIE, 1, 2, 6),
+                new OneOfItemModifier.Choice(Items.SWEET_BERRIES, 1, 1, 5));
+
         this.add("diamonds_from_epic_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.EPIC_CRATE.get()).build(),
@@ -162,8 +127,10 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_AD_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(1f).build() }, Items.GOLDEN_APPLE, 0, 3));
         // One bonus item from the group (add more Choices here later).
-        oneOf("broken_ad_special", ModBlocks.BROKEN_AD_CRATE.get(), 0.6f,
-                new OneOfItemModifier.Choice(Items.WIND_CHARGE, 1, 6, 16));
+        oneOf("broken_ad_special", ModBlocks.BROKEN_AD_CRATE.get(), 0.8f,
+                new OneOfItemModifier.Choice(Items.WIND_CHARGE, 2, 6, 16),
+                new OneOfItemModifier.Choice(Items.FIRE_CHARGE, 1, 6, 10),
+                new OneOfItemModifier.Choice(Items.ENDER_PEARL, 1,1,3));
 
         // Common Airdrop Crate Loot
         this.add("golden_apple_from_common_airdop",
@@ -238,6 +205,8 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         mysteryCrate("mystery_ender_pearls", Items.ENDER_PEARL,        0.40f, 1, 3);
         mysteryCrate("mystery_xp",           Items.EXPERIENCE_BOTTLE,  0.50f, 2, 6);
         mysteryCrate("mystery_gapple",       Items.GOLDEN_APPLE,       0.25f, 1, 1);
+        mysteryCrate("mystery_crown",       ModItems.CROWN.get(),       0.1f, 1, 1);
+
         // Rare weapon — ONE of the group (not all). ~25% chance, weighted sword:bat 2:1.
         // Add future custom weapons here as extra Choices and they join the same single roll.
         oneOf("mystery_rare_weapon", ModBlocks.MYSTERY_CRATE.get(), 0.25f,
