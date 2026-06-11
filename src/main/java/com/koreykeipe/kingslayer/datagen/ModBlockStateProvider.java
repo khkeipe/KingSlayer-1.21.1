@@ -28,6 +28,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.BOUNTY_CRATE);
 
         blockWithItem(ModBlocks.TRIBUTE_STONE);
+        blockWithItem(ModBlocks.MYSTERY_CRATE);
     }
 
     private void blockWithItem(RegistryObject<Block> blocksRegistryObject){

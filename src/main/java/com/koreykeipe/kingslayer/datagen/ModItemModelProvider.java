@@ -19,6 +19,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         basicItem(ModItems.CROWN.get());
         basicItem(ModItems.CROWN_FRAGMENT.get());
+        basicItem(ModItems.BOSS_KEY.get());
 
 
         handheldItem(ModItems.SLAYER_SWORD);

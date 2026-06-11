@@ -2,16 +2,15 @@
   "type": "kcs_kingslayer:add_item",
   "conditions": [
     {
-      "block": "kcs_kingslayer:epic_airdrop_crate",
+      "block": "kcs_kingslayer:rare_airdrop_crate",
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.8,
+      "chance": 1.0,
       "condition": "minecraft:random_chance"
     }
   ],
-  "enchantments": {
-    "minecraft:knockback": 4
-  },
-  "item": "kcs_kingslayer:slayer_bat"
+  "item": "kcs_kingslayer:crown_fragment",
+  "max_count": 6,
+  "min_count": 4
 }

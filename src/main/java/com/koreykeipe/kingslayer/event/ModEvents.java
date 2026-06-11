@@ -164,12 +164,26 @@ public class ModEvents {
         AirdropManager.get().onServerStarted(event.getServer());
         BorderManager.get().onServerStarted(event.getServer());
         com.koreykeipe.kingslayer.exchange.TributeStoneShrine.ensureAtSpawn(event.getServer());
+
+        // First-time world setup: default keepInventory ON so deaths don't reset progress.
+        // Runs once per world (tracked in saved data), leaving later operator changes intact.
+        net.minecraft.server.level.ServerLevel overworld = event.getServer().overworld();
+        com.koreykeipe.kingslayer.game.KsWorldData ksData = com.koreykeipe.kingslayer.game.KsWorldData.get(overworld);
+        if (!ksData.firstStartDone) {
+            event.getServer().getGameRules()
+                    .getRule(net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY)
+                    .set(true, event.getServer());
+            ksData.firstStartDone = true;
+            ksData.setDirty();
+            KingSlayer.LOGGER.info("KingSlayer: first world start — keepInventory defaulted to true.");
+        }
     }
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         AirdropManager.get().onServerTick(event.getServer());
+        com.koreykeipe.kingslayer.exchange.TributeExchange.tick(event.getServer());
 
         // Leaderboard broadcast every 3 600 ticks (3 minutes)
         if (event.getServer().getTickCount() % 3600 == 0) {

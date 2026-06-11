@@ -1,0 +1,39 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "enchantments": {
+        "minecraft:fire_aspect": 2,
+        "minecraft:sharpness": 2,
+        "minecraft:unbreaking": 3
+      },
+      "item": "kcs_kingslayer:slayer_sword",
+      "weight": 2
+    },
+    {
+      "enchantments": {
+        "minecraft:knockback": 5,
+        "minecraft:unbreaking": 3
+      },
+      "item": "kcs_kingslayer:slayer_bat"
+    },
+    {
+      "enchantments": {
+        "minecraft:protection": 1,
+        "minecraft:unbreaking": 3
+      },
+      "item": "minecraft:diamond_chestplate",
+      "weight": 2
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:bounty_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.95,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

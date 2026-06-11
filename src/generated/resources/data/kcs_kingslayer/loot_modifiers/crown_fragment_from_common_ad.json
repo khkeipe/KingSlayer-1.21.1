@@ -2,7 +2,7 @@
   "type": "kcs_kingslayer:add_item",
   "conditions": [
     {
-      "block": "kcs_kingslayer:epic_airdrop_crate",
+      "block": "kcs_kingslayer:common_airdrop_crate",
       "condition": "minecraft:block_state_property"
     },
     {
@@ -10,8 +10,7 @@
       "condition": "minecraft:random_chance"
     }
   ],
-  "enchantments": {
-    "minecraft:knockback_resistance": 4
-  },
-  "item": "minecraft:shield"
+  "item": "kcs_kingslayer:crown_fragment",
+  "max_count": 4,
+  "min_count": 2
 }

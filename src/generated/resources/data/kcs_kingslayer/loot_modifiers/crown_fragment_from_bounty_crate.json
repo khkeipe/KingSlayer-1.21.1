@@ -6,14 +6,11 @@
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.85,
+      "chance": 1.0,
       "condition": "minecraft:random_chance"
     }
   ],
-  "enchantments": {
-    "minecraft:fire_aspect": 2,
-    "minecraft:sharpness": 4,
-    "minecraft:unbreaking": 3
-  },
-  "item": "kcs_kingslayer:slayer_sword"
+  "item": "kcs_kingslayer:crown_fragment",
+  "max_count": 12,
+  "min_count": 8
 }

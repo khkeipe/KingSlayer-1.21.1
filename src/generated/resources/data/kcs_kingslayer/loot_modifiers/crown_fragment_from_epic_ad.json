@@ -2,14 +2,15 @@
   "type": "kcs_kingslayer:add_item",
   "conditions": [
     {
-      "block": "kcs_kingslayer:common_airdrop_crate",
+      "block": "kcs_kingslayer:epic_airdrop_crate",
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.6,
+      "chance": 1.0,
       "condition": "minecraft:random_chance"
     }
   ],
-  "item": "minecraft:ender_pearl",
-  "max_count": 3
+  "item": "kcs_kingslayer:crown_fragment",
+  "max_count": 10,
+  "min_count": 6
 }

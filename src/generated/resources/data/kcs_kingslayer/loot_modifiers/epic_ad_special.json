@@ -1,0 +1,29 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "enchantments": {
+        "minecraft:knockback": 4
+      },
+      "item": "kcs_kingslayer:slayer_bat",
+      "weight": 2
+    },
+    {
+      "enchantments": {
+        "minecraft:knockback_resistance": 4
+      },
+      "item": "minecraft:shield",
+      "weight": 2
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:epic_airdrop_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.9,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

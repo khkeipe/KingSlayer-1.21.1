@@ -22,35 +22,35 @@ public class ModBlocks {
 
     // Loot Crates
     public static final RegistryObject<Block> BROKEN_CRATE = registerBlock("broken_crate",
-        () -> new DropExperienceBlock(UniformInt.of(1, 1), BlockBehaviour.Properties.of()
+        () -> new CrateBlock(UniformInt.of(1, 1), BlockBehaviour.Properties.of()
             .strength(0.4f).sound(SoundType.WOOD)));
 
     public static final RegistryObject<Block> COMMON_CRATE = registerBlock("common_crate",
-        () -> new DropExperienceBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
+        () -> new CrateBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
             .strength(0.8f).sound(SoundType.CHAIN)));
 
     public static final RegistryObject<Block> RARE_CRATE = registerBlock("rare_crate",
-        () -> new DropExperienceBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
+        () -> new CrateBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
             .strength(1.5f).sound(SoundType.ANCIENT_DEBRIS)));
 
     public static final RegistryObject<Block> EPIC_CRATE = registerBlock("epic_crate",
-        () -> new DropExperienceBlock(UniformInt.of(8, 16), BlockBehaviour.Properties.of()
+        () -> new CrateBlock(UniformInt.of(8, 16), BlockBehaviour.Properties.of()
             .strength(2.5f).sound(SoundType.NETHERITE_BLOCK)));
 
     // Airdrop Crates
     public static final RegistryObject<Block> BROKEN_AD_CRATE = registerBlock("broken_airdrop_crate",
-            () -> new DropExperienceBlock(UniformInt.of(1, 1), BlockBehaviour.Properties.of()
+            () -> new CrateBlock(UniformInt.of(1, 1), BlockBehaviour.Properties.of()
                     .strength(0.4f).sound(SoundType.WOOD)));
     public static final RegistryObject<Block> COMMON_AD_CRATE = registerBlock("common_airdrop_crate",
-            () -> new DropExperienceBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
+            () -> new CrateBlock(UniformInt.of(2, 4), BlockBehaviour.Properties.of()
                     .strength(0.8f).sound(SoundType.METAL)));
 
     public static final RegistryObject<Block> RARE_AD_CRATE = registerBlock("rare_airdrop_crate",
-            () -> new DropExperienceBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
+            () -> new CrateBlock(UniformInt.of(4, 8), BlockBehaviour.Properties.of()
                     .strength(1.5f).sound(SoundType.ANCIENT_DEBRIS)));
 
     public static final RegistryObject<Block> EPIC_AD_CRATE = registerBlock("epic_airdrop_crate",
-            () -> new DropExperienceBlock(UniformInt.of(8, 16), BlockBehaviour.Properties.of()
+            () -> new CrateBlock(UniformInt.of(8, 16), BlockBehaviour.Properties.of()
                     .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
 
     // Bounty Crate — the special reward for slaying THE MARKED. Not part of the
@@ -58,7 +58,13 @@ public class ModBlocks {
     // (see GameManager#handleMarkedKilled), who places and breaks it to claim the
     // richest loot table in the game.
     public static final RegistryObject<Block> BOUNTY_CRATE = registerBlock("bounty_crate",
-            () -> new DropExperienceBlock(UniformInt.of(10, 20), BlockBehaviour.Properties.of()
+            () -> new CrateBlock(UniformInt.of(10, 20), BlockBehaviour.Properties.of()
+                    .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
+
+    // Mystery Crate — a curatable "box" reward from the Tribute Stone. Loot table is
+    // filled in ModGlobalLootModifierProvider with mystery items (spawn eggs, rare weapons…).
+    public static final RegistryObject<Block> MYSTERY_CRATE = registerBlock("mystery_crate",
+            () -> new CrateBlock(UniformInt.of(5, 12), BlockBehaviour.Properties.of()
                     .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
 
     // Tribute Stone — indestructible exchange hub placed at world spawn (bedrock-grade

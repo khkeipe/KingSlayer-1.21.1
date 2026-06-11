@@ -39,6 +39,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         this.add(ModBlocks.BOUNTY_CRATE.get(), block -> noDrop());
 
         this.add(ModBlocks.TRIBUTE_STONE.get(), block -> noDrop());
+        this.add(ModBlocks.MYSTERY_CRATE.get(), block -> noDrop());
     }
 
     protected LootTable.Builder createMultipleOreDrops(Block pBlock, Item item, float minDrops, float maxDrops) {

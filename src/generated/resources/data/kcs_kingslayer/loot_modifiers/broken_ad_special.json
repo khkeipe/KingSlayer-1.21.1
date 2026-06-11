@@ -1,0 +1,20 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "minecraft:wind_charge",
+      "max_count": 16,
+      "min_count": 6
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:broken_airdrop_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.6,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

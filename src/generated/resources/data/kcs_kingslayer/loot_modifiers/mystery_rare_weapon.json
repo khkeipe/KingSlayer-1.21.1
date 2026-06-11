@@ -1,0 +1,22 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "kcs_kingslayer:slayer_sword",
+      "weight": 2
+    },
+    {
+      "item": "kcs_kingslayer:slayer_bat"
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:mystery_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.25,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

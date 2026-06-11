@@ -12,12 +12,18 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
+import java.util.List;
 
 /**
  * The Tribute Stone — an indestructible hub block (registered with bedrock-grade
@@ -56,6 +62,17 @@ public class TributeStoneBlock extends Block {
             }
         }
         return ItemInteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.literal("Trade Crown Fragments for rewards.")
+                .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        tooltip.add(Component.literal("Empty-hand right-click: browse offers")
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        tooltip.add(Component.literal("Right-click with fragments: buy")
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        super.appendHoverText(stack, context, tooltip, flag);
     }
 
     @Override

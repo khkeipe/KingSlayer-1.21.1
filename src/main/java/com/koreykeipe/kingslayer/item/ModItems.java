@@ -12,11 +12,15 @@ public class ModItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, KingSlayer.MOD_ID);
 
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown",
-            ()-> new Item(new Item.Properties().food(ModFoodProperties.CROWN)));
+            ()-> new CrownItem(new Item.Properties()));
 
     // Renewable currency for the Tribute Stone exchange. Drops from knights and hostiles.
     public static final RegistryObject<Item> CROWN_FRAGMENT = ITEMS.register("crown_fragment",
-            ()-> new Item(new Item.Properties()));
+            ()-> new CrownFragmentItem(new Item.Properties()));
+
+    // Gated Tribute Stone reward — right-click to summon The King (final phase only).
+    public static final RegistryObject<Item> BOSS_KEY = ITEMS.register("boss_key",
+            ()-> new BossKeyItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> SLAYER_SWORD = ITEMS.register("slayer_sword",
             () -> new SwordItem(ModToolTeirs.SLAYER, new Item.Properties()

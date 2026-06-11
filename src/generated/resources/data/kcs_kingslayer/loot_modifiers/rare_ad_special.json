@@ -1,14 +1,18 @@
 {
-  "type": "kcs_kingslayer:add_item",
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "minecraft:mace"
+    }
+  ],
   "conditions": [
     {
-      "block": "kcs_kingslayer:common_airdrop_crate",
+      "block": "kcs_kingslayer:rare_airdrop_crate",
       "condition": "minecraft:block_state_property"
     },
     {
       "chance": 0.6,
       "condition": "minecraft:random_chance"
     }
-  ],
-  "item": "minecraft:trident"
+  ]
 }

@@ -20,7 +20,9 @@ public class ModCreativeModeTabs {
                     .displayItems((itemDisplayParameters, output) -> {
                         output.accept(ModItems.CROWN.get());
                         output.accept(ModItems.CROWN_FRAGMENT.get());
+                        output.accept(ModItems.BOSS_KEY.get());
                         output.accept(ModBlocks.TRIBUTE_STONE.get());
+                        output.accept(ModBlocks.MYSTERY_CRATE.get());
                         output.accept(ModBlocks.BROKEN_CRATE.get());
                         output.accept(ModBlocks.COMMON_CRATE.get());
                         output.accept(ModBlocks.RARE_CRATE.get());

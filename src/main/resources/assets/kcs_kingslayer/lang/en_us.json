@@ -2,8 +2,10 @@
 
   "item.kcs_kingslayer.crown": "Crown",
   "item.kcs_kingslayer.crown_fragment": "Crown Fragment",
+  "item.kcs_kingslayer.boss_key": "Boss Key",
 
   "block.kcs_kingslayer.tribute_stone": "Tribute Stone",
+  "block.kcs_kingslayer.mystery_crate": "Mystery Crate",
 
   "item.kcs_kingslayer.slayer_sword": "Slayer Sword",
   "item.kcs_kingslayer.slayer_pickaxe": "Slayer Pickaxe",
