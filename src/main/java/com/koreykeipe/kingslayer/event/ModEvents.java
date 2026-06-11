@@ -163,6 +163,7 @@ public class ModEvents {
         GameManager.get().onServerStarted(event.getServer());
         AirdropManager.get().onServerStarted(event.getServer());
         BorderManager.get().onServerStarted(event.getServer());
+        com.koreykeipe.kingslayer.exchange.TributeStoneShrine.ensureAtSpawn(event.getServer());
     }
 
     @SubscribeEvent

@@ -1,6 +1,9 @@
 {
 
   "item.kcs_kingslayer.crown": "Crown",
+  "item.kcs_kingslayer.crown_fragment": "Crown Fragment",
+
+  "block.kcs_kingslayer.tribute_stone": "Tribute Stone",
 
   "item.kcs_kingslayer.slayer_sword": "Slayer Sword",
   "item.kcs_kingslayer.slayer_pickaxe": "Slayer Pickaxe",

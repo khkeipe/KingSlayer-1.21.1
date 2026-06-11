@@ -224,9 +224,6 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         // Handed straight to the killer's inventory; they place + break it to claim.
         // This is the richest crate in the game. Tweak chances / items / counts freely.
         // ------------------------------------------------------------------
-
-        // Guaranteed sustenance package
-
         this.add("golden_apple_from_bounty",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
@@ -269,5 +266,27 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                                 ResourceLocation.withDefaultNamespace("protection"), 4,
                                 ResourceLocation.withDefaultNamespace("unbreaking"), 3
                         )));
+
+        // ------------------------------------------------------------------
+        // Crown Fragments — renewable Tribute Stone currency. Common hostiles drop
+        // them generously so the exchange economy keeps flowing.
+        // ------------------------------------------------------------------
+        for (String mob : new String[] {
+                "zombie", "zombie_villager", "husk", "drowned",
+                "skeleton", "stray", "bogged",
+                "creeper", "spider", "cave_spider",
+                "witch", "pillager", "vindicator", "phantom", "slime" }) {
+            fragmentDrop(mob, 0.35f, 1, 2);
+        }
+    }
+
+    /** Adds a global loot modifier dropping Crown Fragments from the given vanilla entity. */
+    private void fragmentDrop(String entityPath, float chance, int min, int max) {
+        this.add("crown_fragment_from_" + entityPath,
+                new AddItemModifier(new LootItemCondition[] {
+                        new LootTableIdCondition.Builder(
+                                ResourceLocation.withDefaultNamespace("entities/" + entityPath))
+                                .and(LootItemRandomChanceCondition.randomChance(chance)).build() },
+                        ModItems.CROWN_FRAGMENT.get(), min, max));
     }
 }

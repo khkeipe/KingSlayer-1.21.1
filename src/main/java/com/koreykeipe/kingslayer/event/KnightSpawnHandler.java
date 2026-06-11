@@ -151,6 +151,15 @@ public class KnightSpawnHandler {
         String tier = getKnightTier(mob);
         String display = tierDisplayName(tier);
 
+        // Crown Fragment drop (renewable currency) — scales with tier, dropped regardless of killer.
+        int frags = switch (tier) {
+            case "CHAMPION" -> 2;
+            case "GUARD"    -> 3;
+            default         -> 1; // FOOTSOLDIER
+        };
+        mob.spawnAtLocation(new net.minecraft.world.item.ItemStack(
+                com.koreykeipe.kingslayer.item.ModItems.CROWN_FRAGMENT.get(), frags));
+
         // Identify the killer
         net.minecraft.world.entity.Entity killerEntity = event.getSource().getEntity();
         if (killerEntity instanceof ServerPlayer killer) {

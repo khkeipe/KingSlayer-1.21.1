@@ -1,5 +1,6 @@
-// 1.21.1	2026-05-31T17:53:46.7632348	Item Models: kcs_kingslayer
+// 1.21.1	2026-06-10T19:57:27.5904608	Item Models: kcs_kingslayer
 e59c7a1b7e13dddeddeacb61db6eec10db982429 assets/kcs_kingslayer/models/item/crown.json
+ece832d3418231e6dc7c3167725041f2f40c4283 assets/kcs_kingslayer/models/item/crown_fragment.json
 06fe5c5a038ae0dca6bd0f84d43cfdc6ec8171b6 assets/kcs_kingslayer/models/item/slayer_axe.json
 c1a4c4493234fe8d20d1814c4d4b3a17a7113d9d assets/kcs_kingslayer/models/item/slayer_bat.json
 a078cd54e55b5e7d3c226a912de584a114c01a9d assets/kcs_kingslayer/models/item/slayer_hoe.json

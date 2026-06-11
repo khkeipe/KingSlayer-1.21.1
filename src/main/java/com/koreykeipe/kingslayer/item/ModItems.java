@@ -14,6 +14,10 @@ public class ModItems {
     public static final RegistryObject<Item> CROWN = ITEMS.register("crown",
             ()-> new Item(new Item.Properties().food(ModFoodProperties.CROWN)));
 
+    // Renewable currency for the Tribute Stone exchange. Drops from knights and hostiles.
+    public static final RegistryObject<Item> CROWN_FRAGMENT = ITEMS.register("crown_fragment",
+            ()-> new Item(new Item.Properties()));
+
     public static final RegistryObject<Item> SLAYER_SWORD = ITEMS.register("slayer_sword",
             () -> new SwordItem(ModToolTeirs.SLAYER, new Item.Properties()
                     .attributes(SwordItem.createAttributes(ModToolTeirs.SLAYER,3, -2.4f))));

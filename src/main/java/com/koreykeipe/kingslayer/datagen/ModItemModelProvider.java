@@ -18,6 +18,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         basicItem(ModItems.CROWN.get());
+        basicItem(ModItems.CROWN_FRAGMENT.get());
 
 
         handheldItem(ModItems.SLAYER_SWORD);

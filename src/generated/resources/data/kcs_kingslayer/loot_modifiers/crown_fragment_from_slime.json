@@ -1,0 +1,20 @@
+{
+  "type": "kcs_kingslayer:add_item",
+  "conditions": [
+    {
+      "condition": "minecraft:all_of",
+      "terms": [
+        {
+          "condition": "forge:loot_table_id",
+          "loot_table_id": "minecraft:entities/slime"
+        },
+        {
+          "chance": 0.35,
+          "condition": "minecraft:random_chance"
+        }
+      ]
+    }
+  ],
+  "item": "kcs_kingslayer:crown_fragment",
+  "max_count": 2
+}

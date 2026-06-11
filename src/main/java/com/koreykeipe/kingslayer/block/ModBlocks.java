@@ -61,6 +61,15 @@ public class ModBlocks {
             () -> new DropExperienceBlock(UniformInt.of(10, 20), BlockBehaviour.Properties.of()
                     .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
 
+    // Tribute Stone — indestructible exchange hub placed at world spawn (bedrock-grade
+    // strength so it can't be mined or blown up). See TributeStoneBlock / TributeExchange.
+    public static final RegistryObject<Block> TRIBUTE_STONE = registerBlock("tribute_stone",
+            () -> new TributeStoneBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0f, 3600000.0f)
+                    .sound(SoundType.ANCIENT_DEBRIS)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(s -> 10)));
+
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn);
