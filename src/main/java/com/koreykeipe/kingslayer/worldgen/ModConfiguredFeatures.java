@@ -2,12 +2,15 @@ package com.koreykeipe.kingslayer.worldgen;
 
 import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.block.ModBlocks;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -15,15 +18,16 @@ import net.minecraft.world.level.levelgen.feature.configurations.*;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 
+import java.util.Optional;
+
 /**
- * One configured feature per crate tier. The feature only describes <em>what</em>
- * to place; {@link ModPlacedFeatures} decides <em>where</em> (rarity, depth, water,
- * biome) and {@link ModBiomeModifiers} decides which biomes receive it.
+ * One configured feature per crate tier, plus a couple of decorative no-crate piles.
+ * The feature describes <em>what</em> to place; {@link ModPlacedFeatures} decides
+ * <em>where</em> and {@link ModBiomeModifiers} decides which biomes receive it.
  *
- * <p>Design: the Broken tier uses a {@link Feature#BLOCK_PILE} "crashed supply"
- * wreckage mound (crate buried in debris), while the more valuable tiers place a
- * single clean crate via {@link Feature#SIMPLE_BLOCK} so the prize is always
- * actually present and findable.</p>
+ * <p>Broken uses {@link Feature#BLOCK_PILE} (can scatter several crates). Common/Rare/Epic
+ * use {@link CrateDebrisFeature}: a guaranteed crate wrapped in a tight, rarity-themed
+ * mound, with a small chance to hide a higher-tier crate in the rubble.</p>
  */
 public class ModConfiguredFeatures {
 
@@ -32,11 +36,17 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?,?>> RARE_CRATE_KEY   = registerKey("rare_crate");
     public static final ResourceKey<ConfiguredFeature<?,?>> EPIC_CRATE_KEY   = registerKey("epic_crate");
 
+    // Decorative (no-crate) piles — King's-realm atmosphere: camps, battles, graves, ruins.
+    public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_CAMP_KEY   = registerKey("decor_camp");
+    public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_BATTLE_KEY = registerKey("decor_battle");
+    public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_GRAVE_KEY  = registerKey("decor_grave");
+    public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_RUINS_KEY  = registerKey("decor_ruins");
+
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 
-        // BROKEN — a "crashed supply" wreckage pile: the crate mixed into debris.
-        // Weights are per-block within the pile; the crate is the most likely block
-        // so a pile almost always contains at least one.
+        // BROKEN — a "crashed supply" wreckage pile (BLOCK_PILE). Can scatter several
+        // broken crates; dressed with fallen (side-laid) logs and an occasional intact
+        // Common crate buried in the rubble.
         register(context, BROKEN_CRATE_KEY, Feature.BLOCK_PILE,
                 new BlockPileConfiguration(
                         new WeightedStateProvider(
@@ -44,14 +54,12 @@ public class ModConfiguredFeatures {
                                         .add(ModBlocks.BROKEN_CRATE.get().defaultBlockState(), 3)
                                         .add(Blocks.GRAVEL.defaultBlockState(), 2)
                                         .add(Blocks.COARSE_DIRT.defaultBlockState(), 2)
-                                        .add(Blocks.STONE.defaultBlockState(), 3)
+                                        .add(sideLog(Blocks.OAK_LOG, Direction.Axis.X), 2)
+                                        .add(sideLog(Blocks.OAK_LOG, Direction.Axis.Z), 1)
+                                        .add(ModBlocks.COMMON_CRATE.get().defaultBlockState(), 1)
                         )));
 
-        // COMMON / RARE / EPIC — a guaranteed crate ringed by a rarity-themed debris pile
-        // (CrateDebrisFeature). The richness of the rubble climbs with the tier, with raw
-        // ore blocks salting the higher tiers as a treasure hint.
-
-        // Common — humble rubble: cobble, stone, dirt, a touch of coal.
+        // Common — tight humble rubble (radius 1); ~6% chance to hide a Rare crate.
         register(context, COMMON_CRATE_KEY, ModFeatures.CRATE_DEBRIS.get(),
                 new CrateDebrisConfiguration(
                         ModBlocks.COMMON_CRATE.get().defaultBlockState(),
@@ -60,10 +68,13 @@ public class ModConfiguredFeatures {
                                 .add(Blocks.STONE.defaultBlockState(), 3)
                                 .add(Blocks.DIRT.defaultBlockState(), 2)
                                 .add(Blocks.GRAVEL.defaultBlockState(), 2)
+                                .add(sideLog(Blocks.OAK_LOG, Direction.Axis.X), 1)
+                                .add(sideLog(Blocks.OAK_LOG, Direction.Axis.Z), 1)
                                 .add(Blocks.COAL_ORE.defaultBlockState(), 1)),
-                        2, 0.55f));
+                        1, 0.8f,
+                        Optional.of(BlockStateProvider.simple(ModBlocks.RARE_CRATE.get().defaultBlockState())), 0.06f));
 
-        // Rare — ore starts to show: iron & copper ore, a rare raw copper block.
+        // Rare — tight ore-flecked rubble (radius 1); ~5% chance to hide an Epic crate.
         register(context, RARE_CRATE_KEY, ModFeatures.CRATE_DEBRIS.get(),
                 new CrateDebrisConfiguration(
                         ModBlocks.RARE_CRATE.get().defaultBlockState(),
@@ -74,10 +85,10 @@ public class ModConfiguredFeatures {
                                 .add(Blocks.IRON_ORE.defaultBlockState(), 2)
                                 .add(Blocks.COPPER_ORE.defaultBlockState(), 2)
                                 .add(Blocks.RAW_COPPER_BLOCK.defaultBlockState(), 1)),
-                        2, 0.55f));
+                        1, 0.8f,
+                        Optional.of(BlockStateProvider.simple(ModBlocks.EPIC_CRATE.get().defaultBlockState())), 0.05f));
 
-        // Epic — a glittering wreck: deepslate/blackstone with gold & iron ore and the
-        // occasional raw iron / raw gold block.
+        // Epic — a glittering wreck with raw ore blocks (radius 2); no higher tier to bonus into.
         register(context, EPIC_CRATE_KEY, ModFeatures.CRATE_DEBRIS.get(),
                 new CrateDebrisConfiguration(
                         ModBlocks.EPIC_CRATE.get().defaultBlockState(),
@@ -88,7 +99,64 @@ public class ModConfiguredFeatures {
                                 .add(Blocks.IRON_ORE.defaultBlockState(), 2)
                                 .add(Blocks.RAW_IRON_BLOCK.defaultBlockState(), 1)
                                 .add(Blocks.RAW_GOLD_BLOCK.defaultBlockState(), 1)),
-                        3, 0.60f));
+                        2, 0.75f,
+                        Optional.empty(), 0f));
+
+        // DECORATIVE — no loot, pure King's-realm atmosphere so the world feels like a
+        // war-torn kingdom as you run around: knight camps, battle aftermaths, graves, ruins.
+
+        // Knight Camp — a lit campfire (smokes, easy to spot from afar) ringed by supplies
+        // and fallen logs, like a resting patrol's bivouac.
+        register(context, DECOR_CAMP_KEY, ModFeatures.CRATE_DEBRIS.get(),
+                new CrateDebrisConfiguration(
+                        Blocks.CAMPFIRE.defaultBlockState(),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(sideLog(Blocks.OAK_LOG, Direction.Axis.X), 2)
+                                .add(sideLog(Blocks.OAK_LOG, Direction.Axis.Z), 2)
+                                .add(Blocks.HAY_BLOCK.defaultBlockState(), 2)
+                                .add(Blocks.BARREL.defaultBlockState(), 1)
+                                .add(Blocks.CRAFTING_TABLE.defaultBlockState(), 1)
+                                .add(Blocks.COBBLESTONE.defaultBlockState(), 2)),
+                        2, 0.5f, Optional.empty(), 0f));
+
+        // Battle Site — broken fortifications and bones marking where knights fell.
+        register(context, DECOR_BATTLE_KEY, Feature.BLOCK_PILE,
+                new BlockPileConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                        .add(Blocks.COBBLESTONE.defaultBlockState(), 3)
+                        .add(Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2)
+                        .add(Blocks.COBBLESTONE_WALL.defaultBlockState(), 2)
+                        .add(Blocks.IRON_BARS.defaultBlockState(), 1)
+                        .add(Blocks.BONE_BLOCK.defaultBlockState(), 1)
+                        .add(Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), 1)
+                        .add(Blocks.COARSE_DIRT.defaultBlockState(), 2))));
+
+        // Grave — a cobblestone headstone over a coarse-dirt mound, lit by an eerie soul torch.
+        register(context, DECOR_GRAVE_KEY, ModFeatures.CRATE_DEBRIS.get(),
+                new CrateDebrisConfiguration(
+                        Blocks.COBBLESTONE_WALL.defaultBlockState(),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.COARSE_DIRT.defaultBlockState(), 4)
+                                .add(Blocks.PODZOL.defaultBlockState(), 2)
+                                .add(Blocks.DIRT.defaultBlockState(), 2)
+                                .add(Blocks.STONE_BRICKS.defaultBlockState(), 1)
+                                .add(Blocks.SOUL_TORCH.defaultBlockState(), 1)),
+                        1, 0.7f, Optional.empty(), 0f));
+
+        // Ruined Keep — crumbled stonework from an old fortress, half-swallowed by moss.
+        register(context, DECOR_RUINS_KEY, Feature.BLOCK_PILE,
+                new BlockPileConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                        .add(Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 3)
+                        .add(Blocks.COBBLESTONE.defaultBlockState(), 2)
+                        .add(Blocks.STONE_BRICKS.defaultBlockState(), 2)
+                        .add(Blocks.MOSSY_STONE_BRICKS.defaultBlockState(), 2)
+                        .add(Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), 1)
+                        .add(Blocks.COBBLESTONE_WALL.defaultBlockState(), 1)
+                        .add(sideLog(Blocks.OAK_LOG, Direction.Axis.Z), 1))));
+    }
+
+    /** A log laid on its side along the given horizontal axis (X or Z) instead of upright. */
+    private static BlockState sideLog(Block log, Direction.Axis axis) {
+        return log.defaultBlockState().setValue(RotatedPillarBlock.AXIS, axis);
     }
 
     public static ResourceKey<ConfiguredFeature<?, ?>> registerKey(String name) {

@@ -1,0 +1,70 @@
+{
+  "type": "kcs_kingslayer:crate_debris",
+  "config": {
+    "chance": 0.5,
+    "crate": {
+      "Name": "minecraft:campfire",
+      "Properties": {
+        "facing": "north",
+        "lit": "true",
+        "signal_fire": "false",
+        "waterlogged": "false"
+      }
+    },
+    "debris": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "x"
+            }
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "z"
+            }
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:hay_block",
+            "Properties": {
+              "axis": "y"
+            }
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:barrel",
+            "Properties": {
+              "facing": "north",
+              "open": "false"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:crafting_table"
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:cobblestone"
+          },
+          "weight": 2
+        }
+      ]
+    },
+    "radius": 2
+  }
+}

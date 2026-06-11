@@ -27,6 +27,11 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> RARE_CRATE_PLACED_KEY   = registerKey("rare_crate_placed");
     public static final ResourceKey<PlacedFeature> EPIC_CRATE_PLACED_KEY   = registerKey("epic_crate_placed");
 
+    public static final ResourceKey<PlacedFeature> DECOR_CAMP_PLACED_KEY   = registerKey("decor_camp_placed");
+    public static final ResourceKey<PlacedFeature> DECOR_BATTLE_PLACED_KEY = registerKey("decor_battle_placed");
+    public static final ResourceKey<PlacedFeature> DECOR_GRAVE_PLACED_KEY  = registerKey("decor_grave_placed");
+    public static final ResourceKey<PlacedFeature> DECOR_RUINS_PLACED_KEY  = registerKey("decor_ruins_placed");
+
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var cf = context.lookup(Registries.CONFIGURED_FEATURE);
 
@@ -36,15 +41,25 @@ public class ModPlacedFeatures {
         // or river floor (their aquatic biomes are added in ModBiomeModifiers) — a
         // tempting crate guarded by the risk of drowning.
         register(context, BROKEN_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BROKEN_CRATE_KEY),
-                onSurface(2));
+                onSurface(6));
         register(context, COMMON_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.COMMON_CRATE_KEY),
-                onSurfaceOrSeabed(3));
+                onSurfaceOrSeabed(6));
         // Rare/Epic appear only in their gated biomes (see ModBiomeModifiers), so a
         // modest rarity here still makes them scarce overall.
         register(context, RARE_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.RARE_CRATE_KEY),
                 onSurfaceOrSeabed(4));
         register(context, EPIC_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.EPIC_CRATE_KEY),
                 onSurfaceOrSeabed(5));
+
+        // Decorative King's-realm piles — dry land, scattered for atmosphere as you explore.
+        register(context, DECOR_CAMP_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_CAMP_KEY),
+                onSurface(8));
+        register(context, DECOR_BATTLE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_BATTLE_KEY),
+                onSurface(9));
+        register(context, DECOR_GRAVE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_GRAVE_KEY),
+                onSurface(10));
+        register(context, DECOR_RUINS_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_RUINS_KEY),
+                onSurface(8));
     }
 
     /**

@@ -1,7 +1,7 @@
 {
   "type": "kcs_kingslayer:crate_debris",
   "config": {
-    "chance": 0.6,
+    "chance": 0.75,
     "crate": {
       "Name": "kcs_kingslayer:epic_crate"
     },
@@ -49,6 +49,6 @@
         }
       ]
     },
-    "radius": 3
+    "radius": 2
   }
 }

@@ -24,9 +24,27 @@
         },
         {
           "data": {
-            "Name": "minecraft:stone"
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "x"
+            }
           },
-          "weight": 3
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "z"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "kcs_kingslayer:common_crate"
+          },
+          "weight": 1
         }
       ]
     }

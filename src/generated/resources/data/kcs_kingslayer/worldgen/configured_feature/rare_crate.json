@@ -1,7 +1,14 @@
 {
   "type": "kcs_kingslayer:crate_debris",
   "config": {
-    "chance": 0.55,
+    "bonus": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "kcs_kingslayer:epic_crate"
+      }
+    },
+    "bonus_chance": 0.05,
+    "chance": 0.8,
     "crate": {
       "Name": "kcs_kingslayer:rare_crate"
     },
@@ -46,6 +53,6 @@
         }
       ]
     },
-    "radius": 2
+    "radius": 1
   }
 }

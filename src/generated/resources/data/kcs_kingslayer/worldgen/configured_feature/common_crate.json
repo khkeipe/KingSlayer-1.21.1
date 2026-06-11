@@ -1,7 +1,14 @@
 {
   "type": "kcs_kingslayer:crate_debris",
   "config": {
-    "chance": 0.55,
+    "bonus": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "kcs_kingslayer:rare_crate"
+      }
+    },
+    "bonus_chance": 0.06,
+    "chance": 0.8,
     "crate": {
       "Name": "kcs_kingslayer:common_crate"
     },
@@ -34,12 +41,30 @@
         },
         {
           "data": {
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "x"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "z"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "data": {
             "Name": "minecraft:coal_ore"
           },
           "weight": 1
         }
       ]
     },
-    "radius": 2
+    "radius": 1
   }
 }

@@ -1,0 +1,63 @@
+{
+  "type": "minecraft:block_pile",
+  "config": {
+    "state_provider": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "minecraft:mossy_cobblestone"
+          },
+          "weight": 3
+        },
+        {
+          "data": {
+            "Name": "minecraft:cobblestone"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:stone_bricks"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:mossy_stone_bricks"
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:cracked_stone_bricks"
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:cobblestone_wall",
+            "Properties": {
+              "east": "none",
+              "north": "none",
+              "south": "none",
+              "up": "true",
+              "waterlogged": "false",
+              "west": "none"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "minecraft:oak_log",
+            "Properties": {
+              "axis": "z"
+            }
+          },
+          "weight": 1
+        }
+      ]
+    }
+  }
+}

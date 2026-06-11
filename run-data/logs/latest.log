@@ -1,25 +1,25 @@
-[10Jun2026 17:37:09.925] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forge_userdev_data, --assetIndex, 17, --assetsDir, C:\Users\kkeip\.gradle\caches\forge_gradle\assets, --gameDir, ., --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
-[10Jun2026 17:37:09.928] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.11+10-LTS
-[10Jun2026 17:37:09.928] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 10.2.4 starting: java version 21.0.11 by Eclipse Adoptium; OS Windows 11 arch amd64 version 10.0
-[10Jun2026 17:37:09.990] [main/INFO] [net.minecraftforge.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forge_userdev_data
-[10Jun2026 17:37:10.058] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=jar:file:///C:/Users/kkeip/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.7/8ab114ac385e6dbdad5efafe28aba4df8120915f/mixin-0.8.7.jar!/ Service=ModLauncher Env=UNKNOWN
-[10Jun2026 17:37:10.572] [main/INFO] [net.minecraftforge.fml.loading.moddiscovery.JarInJarDependencyLocator/]: No dependencies to load found. Skipping!
-[10Jun2026 17:37:11.003] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forge_userdev_data' with arguments [--gameDir, ., --assetsDir, C:\Users\kkeip\.gradle\caches\forge_gradle\assets, --assetIndex, 17, --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
-[10Jun2026 17:37:13.808] [modloading-worker-0/INFO] [net.minecraftforge.common.ForgeMod/FORGEMOD]: Forge mod loading, version 52.1.0, for MC 1.21.1 with MCP 20240808.132146
-[10Jun2026 17:37:13.808] [modloading-worker-0/INFO] [net.minecraftforge.common.MinecraftForge/FORGE]: MinecraftForge v52.1.0 Initialized
-[10Jun2026 17:37:13.825] [modloading-worker-0/INFO] [net.minecraftforge.common.ForgeMod/FORGEMOD]: Opening jdk.naming.dns/com.sun.jndi.dns to java.naming
-[10Jun2026 17:37:13.987] [main/INFO] [net.minecraftforge.data.loading.DatagenModLoader/]: Initializing Data Gatherer for mods [kcs_kingslayer]
-[10Jun2026 17:37:14.030] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/kkeip/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1/forge-1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1-recomp.jar%230!/assets/.mcassetsroot' uses unexpected schema
-[10Jun2026 17:37:14.030] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/kkeip/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1/forge-1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1-recomp.jar%230!/data/.mcassetsroot' uses unexpected schema
-[10Jun2026 17:37:14.136] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Loot Tables
-[10Jun2026 17:37:14.222] [main/INFO] [net.minecraft.data.DataGenerator/]: Loot Tables finished after 85 ms
-[10Jun2026 17:37:14.222] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Item Models: kcs_kingslayer
-[10Jun2026 17:37:14.227] [main/INFO] [net.minecraft.data.DataGenerator/]: Item Models: kcs_kingslayer finished after 5 ms
-[10Jun2026 17:37:14.227] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Block States: kcs_kingslayer
-[10Jun2026 17:37:14.345] [main/INFO] [net.minecraft.data.DataGenerator/]: Block States: kcs_kingslayer finished after 117 ms
-[10Jun2026 17:37:14.345] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Global Loot Modifiers : kcs_kingslayer
-[10Jun2026 17:37:14.355] [main/INFO] [net.minecraft.data.DataGenerator/]: Global Loot Modifiers : kcs_kingslayer finished after 8 ms
-[10Jun2026 17:37:14.355] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Registries
-[10Jun2026 17:37:14.359] [main/INFO] [net.minecraft.data.DataGenerator/]: Registries finished after 3 ms
-[10Jun2026 17:37:14.359] [main/INFO] [net.minecraft.data.DataGenerator/]: All providers took: 222 ms
-[10Jun2026 17:37:14.363] [main/INFO] [net.minecraft.data.HashCache/]: Caching: total files: 100, old count: 100, new count: 101, removed stale: 0, written: 0
+[10Jun2026 18:12:26.394] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forge_userdev_data, --assetIndex, 17, --assetsDir, C:\Users\kkeip\.gradle\caches\forge_gradle\assets, --gameDir, ., --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
+[10Jun2026 18:12:26.396] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.11+10-LTS
+[10Jun2026 18:12:26.396] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 10.2.4 starting: java version 21.0.11 by Eclipse Adoptium; OS Windows 11 arch amd64 version 10.0
+[10Jun2026 18:12:26.470] [main/INFO] [net.minecraftforge.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forge_userdev_data
+[10Jun2026 18:12:26.530] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=jar:file:///C:/Users/kkeip/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.7/8ab114ac385e6dbdad5efafe28aba4df8120915f/mixin-0.8.7.jar!/ Service=ModLauncher Env=UNKNOWN
+[10Jun2026 18:12:27.044] [main/INFO] [net.minecraftforge.fml.loading.moddiscovery.JarInJarDependencyLocator/]: No dependencies to load found. Skipping!
+[10Jun2026 18:12:27.494] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forge_userdev_data' with arguments [--gameDir, ., --assetsDir, C:\Users\kkeip\.gradle\caches\forge_gradle\assets, --assetIndex, 17, --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
+[10Jun2026 18:12:30.456] [modloading-worker-0/INFO] [net.minecraftforge.common.ForgeMod/FORGEMOD]: Forge mod loading, version 52.1.0, for MC 1.21.1 with MCP 20240808.132146
+[10Jun2026 18:12:30.456] [modloading-worker-0/INFO] [net.minecraftforge.common.MinecraftForge/FORGE]: MinecraftForge v52.1.0 Initialized
+[10Jun2026 18:12:30.470] [modloading-worker-0/INFO] [net.minecraftforge.common.ForgeMod/FORGEMOD]: Opening jdk.naming.dns/com.sun.jndi.dns to java.naming
+[10Jun2026 18:12:30.623] [main/INFO] [net.minecraftforge.data.loading.DatagenModLoader/]: Initializing Data Gatherer for mods [kcs_kingslayer]
+[10Jun2026 18:12:30.662] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/kkeip/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1/forge-1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1-recomp.jar%230!/assets/.mcassetsroot' uses unexpected schema
+[10Jun2026 18:12:30.664] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/kkeip/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1/forge-1.21.1-52.1.0_mapped_parchment_2024.11.17-1.21.1-recomp.jar%230!/data/.mcassetsroot' uses unexpected schema
+[10Jun2026 18:12:30.760] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Loot Tables
+[10Jun2026 18:12:30.860] [main/INFO] [net.minecraft.data.DataGenerator/]: Loot Tables finished after 99 ms
+[10Jun2026 18:12:30.860] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Item Models: kcs_kingslayer
+[10Jun2026 18:12:30.869] [main/INFO] [net.minecraft.data.DataGenerator/]: Item Models: kcs_kingslayer finished after 7 ms
+[10Jun2026 18:12:30.869] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Block States: kcs_kingslayer
+[10Jun2026 18:12:30.980] [main/INFO] [net.minecraft.data.DataGenerator/]: Block States: kcs_kingslayer finished after 112 ms
+[10Jun2026 18:12:30.980] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Global Loot Modifiers : kcs_kingslayer
+[10Jun2026 18:12:30.989] [main/INFO] [net.minecraft.data.DataGenerator/]: Global Loot Modifiers : kcs_kingslayer finished after 7 ms
+[10Jun2026 18:12:30.989] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Registries
+[10Jun2026 18:12:30.995] [main/INFO] [net.minecraft.data.DataGenerator/]: Registries finished after 6 ms
+[10Jun2026 18:12:30.995] [main/INFO] [net.minecraft.data.DataGenerator/]: All providers took: 235 ms
+[10Jun2026 18:12:31.000] [main/INFO] [net.minecraft.data.HashCache/]: Caching: total files: 109, old count: 109, new count: 110, removed stale: 0, written: 0

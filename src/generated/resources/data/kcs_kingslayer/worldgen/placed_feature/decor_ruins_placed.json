@@ -1,9 +1,9 @@
 {
-  "feature": "kcs_kingslayer:broken_crate",
+  "feature": "kcs_kingslayer:decor_ruins",
   "placement": [
     {
       "type": "minecraft:rarity_filter",
-      "chance": 6
+      "chance": 8
     },
     {
       "type": "minecraft:in_square"

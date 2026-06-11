@@ -1,0 +1,11 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "kcs_kingslayer:decor_camp_placed",
+    "kcs_kingslayer:decor_battle_placed",
+    "kcs_kingslayer:decor_grave_placed",
+    "kcs_kingslayer:decor_ruins_placed"
+  ],
+  "step": "vegetal_decoration"
+}

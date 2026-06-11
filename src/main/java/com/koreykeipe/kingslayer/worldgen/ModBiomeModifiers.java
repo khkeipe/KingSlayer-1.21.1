@@ -40,6 +40,7 @@ public class ModBiomeModifiers {
     public static final ResourceKey<BiomeModifier> ADD_COMMON_CRATE = registerKey("add_common_crate");
     public static final ResourceKey<BiomeModifier> ADD_RARE_CRATE   = registerKey("add_rare_crate");
     public static final ResourceKey<BiomeModifier> ADD_EPIC_CRATE   = registerKey("add_epic_crate");
+    public static final ResourceKey<BiomeModifier> ADD_DECOR        = registerKey("add_decor");
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         var placed = context.lookup(Registries.PLACED_FEATURE);
@@ -93,6 +94,16 @@ public class ModBiomeModifiers {
                 placed.getOrThrow(ModPlacedFeatures.RARE_CRATE_PLACED_KEY));
         register(context, ADD_EPIC_CRATE, HolderSet.direct(biomes::getOrThrow, epicAll),
                 placed.getOrThrow(ModPlacedFeatures.EPIC_CRATE_PLACED_KEY));
+
+        // Decorative King's-realm piles: sprinkled across every overworld biome (dry land).
+        context.register(ADD_DECOR, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+                biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                HolderSet.direct(
+                        placed.getOrThrow(ModPlacedFeatures.DECOR_CAMP_PLACED_KEY),
+                        placed.getOrThrow(ModPlacedFeatures.DECOR_BATTLE_PLACED_KEY),
+                        placed.getOrThrow(ModPlacedFeatures.DECOR_GRAVE_PLACED_KEY),
+                        placed.getOrThrow(ModPlacedFeatures.DECOR_RUINS_PLACED_KEY)),
+                GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 
     private static void register(BootstrapContext<BiomeModifier> context, ResourceKey<BiomeModifier> key,
