@@ -173,6 +173,8 @@ public class AirdropCommand {
                 v.setPersistenceRequired();
                 AttributeInstance hp = v.getAttribute(Attributes.MAX_HEALTH);
                 if (hp != null) { hp.setBaseValue(40.0); v.setHealth(40f); }
+                AttributeInstance dmg = v.getAttribute(Attributes.ATTACK_DAMAGE);
+                if (dmg != null) dmg.setBaseValue(1.0);
                 yield v;
             }
             case "GUARD" -> {
@@ -183,6 +185,8 @@ public class AirdropCommand {
                 w.setPersistenceRequired();
                 AttributeInstance hp = w.getAttribute(Attributes.MAX_HEALTH);
                 if (hp != null) { hp.setBaseValue(60.0); w.setHealth(60f); }
+                AttributeInstance dmg = w.getAttribute(Attributes.ATTACK_DAMAGE);
+                if (dmg != null) dmg.setBaseValue(2.0);
                 yield w;
             }
             default -> null;

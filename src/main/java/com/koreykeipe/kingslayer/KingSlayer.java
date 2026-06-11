@@ -132,6 +132,8 @@ public class KingSlayer
 
             // Register renderer for the falling airdrop entity
             EntityRenderers.register(ModEntityTypes.AIRDROP.get(), AirdropEntityRenderer::new);
+            // The King reuses the Warden renderer with a royal texture
+            EntityRenderers.register(ModEntityTypes.KING.get(), com.koreykeipe.kingslayer.client.KingRenderer::new);
         }
 
     }

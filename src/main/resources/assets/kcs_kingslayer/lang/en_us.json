@@ -23,6 +23,8 @@
 
   "creativetab.kcs_kingslayer.kingslayer_items": "King Slayer",
 
+  "entity.kcs_kingslayer.king": "The King",
+
   "death.attack.nether_gas": "%1$s choked on nether gas",
   "death.attack.nether_gas.player": "%1$s choked on nether gas while fighting %2$s"
 }

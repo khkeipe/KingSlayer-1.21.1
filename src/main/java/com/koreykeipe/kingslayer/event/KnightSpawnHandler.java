@@ -230,6 +230,9 @@ public class KnightSpawnHandler {
                 AttributeInstance hp = v.getAttribute(Attributes.MAX_HEALTH);
                 if (hp != null) hp.setBaseValue(CHAMPION_MAX_HP);
                 v.setHealth((float) CHAMPION_MAX_HP);
+                // Lower base attack so the iron axe doesn't out-hit The King (≈9 total).
+                AttributeInstance dmg = v.getAttribute(Attributes.ATTACK_DAMAGE);
+                if (dmg != null) dmg.setBaseValue(1.0);
                 yield v;
             }
             case "GUARD" -> {
@@ -242,6 +245,9 @@ public class KnightSpawnHandler {
                 AttributeInstance hp = w.getAttribute(Attributes.MAX_HEALTH);
                 if (hp != null) hp.setBaseValue(GUARD_MAX_HP);
                 w.setHealth((float) GUARD_MAX_HP);
+                // Lower base attack; its sword + wither DoT still make it dangerous (≈6 + wither).
+                AttributeInstance dmg = w.getAttribute(Attributes.ATTACK_DAMAGE);
+                if (dmg != null) dmg.setBaseValue(2.0);
                 yield w;
             }
             default -> null;
@@ -280,6 +286,21 @@ public class KnightSpawnHandler {
     public static void tagKnight(Mob mob, String tier) {
         mob.getPersistentData().putBoolean(TAG_IS_KNIGHT, true);
         mob.getPersistentData().putString(TAG_TIER, tier);
+    }
+
+    /**
+     * Builds, tags, equips and spawns a single knight of {@code tier} at {@code pos}.
+     * Used by The King to summon adds during the boss fight.
+     */
+    public static void summonKnight(ServerLevel level, BlockPos pos, String tier) {
+        Mob knight = buildKnight(tier, level);
+        if (knight == null) return;
+        tagKnight(knight, tier);
+        knight.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
+                level.random.nextFloat() * 360f, 0f);
+        knight.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
+        equip(knight, tier);
+        level.addFreshEntity(knight);
     }
 
     // ------------------------------------------------------------------

@@ -332,6 +332,27 @@ public class GameManager {
     }
 
     // -------------------------------------------------------------------------
+    // Slay the King — alternate victory path
+    // -------------------------------------------------------------------------
+
+    /** Called by {@link com.koreykeipe.kingslayer.entity.TheKing} when the boss dies. */
+    public void onKingSlain(@Nullable ServerPlayer slayer) {
+        String name = slayer != null ? slayer.getName().getString() : "an unknown challenger";
+        broadcast("§4§l☠ THE KING HAS FALLEN ☠");
+        broadcast("§6⚔ §e" + name + " §6has slain The King and seized the throne!");
+
+        if (!gameActive) return; // killed outside an active match — just the announcement
+
+        if (slayer != null) {
+            threatScores.merge(slayer.getUUID(), 10, Integer::sum);
+            announceVictory(slayer, slayer.getName().getString());
+        } else {
+            announceVictory(null, name);
+        }
+        gameActive = false;
+    }
+
+    // -------------------------------------------------------------------------
     // Victory ceremony (task 11)
     // -------------------------------------------------------------------------
 

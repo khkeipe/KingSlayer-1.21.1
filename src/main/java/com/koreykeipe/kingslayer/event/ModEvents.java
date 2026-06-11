@@ -84,6 +84,7 @@ public class ModEvents {
     public static void onRegisterCommands(RegisterCommandsEvent event){
         DeathCommand.register(event.getDispatcher());
         AirdropCommand.register(event.getDispatcher());
+        com.koreykeipe.kingslayer.command.KingCommand.register(event.getDispatcher());
     }
 
     public static void updateDeaths(ServerPlayer player){

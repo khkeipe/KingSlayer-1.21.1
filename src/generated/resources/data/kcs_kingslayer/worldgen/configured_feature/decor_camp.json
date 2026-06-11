@@ -6,7 +6,7 @@
       "Name": "minecraft:campfire",
       "Properties": {
         "facing": "north",
-        "lit": "true",
+        "lit": "false",
         "signal_fire": "false",
         "waterlogged": "false"
       }
@@ -37,6 +37,16 @@
             "Name": "minecraft:hay_block",
             "Properties": {
               "axis": "y"
+            }
+          },
+          "weight": 2
+        },
+        {
+          "data": {
+            "Name": "minecraft:lantern",
+            "Properties": {
+              "hanging": "false",
+              "waterlogged": "false"
             }
           },
           "weight": 2

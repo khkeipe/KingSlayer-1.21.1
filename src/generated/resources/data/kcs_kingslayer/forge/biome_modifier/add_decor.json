@@ -5,7 +5,8 @@
     "kcs_kingslayer:decor_camp_placed",
     "kcs_kingslayer:decor_battle_placed",
     "kcs_kingslayer:decor_grave_placed",
-    "kcs_kingslayer:decor_ruins_placed"
+    "kcs_kingslayer:decor_ruins_placed",
+    "kcs_kingslayer:knight_tent_placed"
   ],
   "step": "vegetal_decoration"
 }

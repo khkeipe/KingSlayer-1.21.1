@@ -102,7 +102,8 @@ public class ModBiomeModifiers {
                         placed.getOrThrow(ModPlacedFeatures.DECOR_CAMP_PLACED_KEY),
                         placed.getOrThrow(ModPlacedFeatures.DECOR_BATTLE_PLACED_KEY),
                         placed.getOrThrow(ModPlacedFeatures.DECOR_GRAVE_PLACED_KEY),
-                        placed.getOrThrow(ModPlacedFeatures.DECOR_RUINS_PLACED_KEY)),
+                        placed.getOrThrow(ModPlacedFeatures.DECOR_RUINS_PLACED_KEY),
+                        placed.getOrThrow(ModPlacedFeatures.KNIGHT_TENT_PLACED_KEY)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 

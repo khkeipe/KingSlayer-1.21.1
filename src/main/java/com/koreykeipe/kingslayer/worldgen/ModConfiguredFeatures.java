@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -41,6 +42,10 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_BATTLE_KEY = registerKey("decor_battle");
     public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_GRAVE_KEY  = registerKey("decor_grave");
     public static final ResourceKey<ConfiguredFeature<?,?>> DECOR_RUINS_KEY  = registerKey("decor_ruins");
+
+    // Custom NBT structures (Route A). Wired and waiting — places nothing until the
+    // matching .nbt exists at data/kcs_kingslayer/structure/<name>.nbt.
+    public static final ResourceKey<ConfiguredFeature<?,?>> KNIGHT_TENT_KEY  = registerKey("knight_tent");
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 
@@ -105,15 +110,16 @@ public class ModConfiguredFeatures {
         // DECORATIVE — no loot, pure King's-realm atmosphere so the world feels like a
         // war-torn kingdom as you run around: knight camps, battle aftermaths, graves, ruins.
 
-        // Knight Camp — a lit campfire (smokes, easy to spot from afar) ringed by supplies
-        // and fallen logs, like a resting patrol's bivouac.
+        // Knight Camp — a burnt-out (unlit) campfire so it never reads as an airdrop smoke
+        // signal, ringed by supplies, fallen logs, and lanterns for warm night-time glow.
         register(context, DECOR_CAMP_KEY, ModFeatures.CRATE_DEBRIS.get(),
                 new CrateDebrisConfiguration(
-                        Blocks.CAMPFIRE.defaultBlockState(),
+                        Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, false),
                         new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
                                 .add(sideLog(Blocks.OAK_LOG, Direction.Axis.X), 2)
                                 .add(sideLog(Blocks.OAK_LOG, Direction.Axis.Z), 2)
                                 .add(Blocks.HAY_BLOCK.defaultBlockState(), 2)
+                                .add(Blocks.LANTERN.defaultBlockState(), 2)
                                 .add(Blocks.BARREL.defaultBlockState(), 1)
                                 .add(Blocks.CRAFTING_TABLE.defaultBlockState(), 1)
                                 .add(Blocks.COBBLESTONE.defaultBlockState(), 2)),
@@ -151,7 +157,14 @@ public class ModConfiguredFeatures {
                         .add(Blocks.MOSSY_STONE_BRICKS.defaultBlockState(), 2)
                         .add(Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), 1)
                         .add(Blocks.COBBLESTONE_WALL.defaultBlockState(), 1)
+                        .add(Blocks.LANTERN.defaultBlockState(), 1)
                         .add(sideLog(Blocks.OAK_LOG, Direction.Axis.Z), 1))));
+
+        // CUSTOM NBT STRUCTURES (Route A) — stamps a saved template. Builds nothing until
+        // you drop knight_tent.nbt into data/kcs_kingslayer/structure/. integrity 1.0 = intact.
+        register(context, KNIGHT_TENT_KEY, ModFeatures.TEMPLATE.get(),
+                new TemplateConfiguration(
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "knight_tent"), 1.0f));
     }
 
     /** A log laid on its side along the given horizontal axis (X or Z) instead of upright. */

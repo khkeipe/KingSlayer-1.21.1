@@ -19,6 +19,10 @@ public class ModFeatures {
     public static final RegistryObject<Feature<CrateDebrisConfiguration>> CRATE_DEBRIS =
             FEATURES.register("crate_debris", () -> new CrateDebrisFeature(CrateDebrisConfiguration.CODEC));
 
+    /** Stamps a saved NBT structure template. See {@link TemplateFeature}. */
+    public static final RegistryObject<Feature<TemplateConfiguration>> TEMPLATE =
+            FEATURES.register("template", () -> new TemplateFeature(TemplateConfiguration.CODEC));
+
     public static void register(IEventBus eventBus) {
         FEATURES.register(eventBus);
     }

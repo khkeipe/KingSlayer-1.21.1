@@ -50,6 +50,16 @@
         },
         {
           "data": {
+            "Name": "minecraft:lantern",
+            "Properties": {
+              "hanging": "false",
+              "waterlogged": "false"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "data": {
             "Name": "minecraft:oak_log",
             "Properties": {
               "axis": "z"
