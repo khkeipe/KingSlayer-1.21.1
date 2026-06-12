@@ -67,6 +67,12 @@ public class ModBlocks {
             () -> new CrateBlock(UniformInt.of(5, 12), BlockBehaviour.Properties.of()
                     .strength(2.0f).sound(SoundType.NETHERITE_BLOCK)));
 
+    // Launch Pad — placeable mobility block; step on it to be flung skyward (no fall damage).
+    // Countered by the Bola's Root, which pins a target so they can't be launched.
+    public static final RegistryObject<Block> LAUNCH_PAD = registerBlock("launch_pad",
+            () -> new LaunchPadBlock(BlockBehaviour.Properties.of()
+                    .strength(0.6f).sound(SoundType.SLIME_BLOCK)));
+
     // Tribute Stone — indestructible exchange hub placed at world spawn (bedrock-grade
     // strength so it can't be mined or blown up). See TributeStoneBlock / TributeExchange.
     public static final RegistryObject<Block> TRIBUTE_STONE = registerBlock("tribute_stone",

@@ -1,0 +1,18 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "kcs_kingslayer:yoink_rod"
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:common_airdrop_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.35,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

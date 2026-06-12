@@ -38,6 +38,8 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
         this.add(ModBlocks.BOUNTY_CRATE.get(), block -> noDrop());
 
+        this.dropSelf(ModBlocks.LAUNCH_PAD.get());
+
         this.add(ModBlocks.TRIBUTE_STONE.get(), block -> noDrop());
         this.add(ModBlocks.MYSTERY_CRATE.get(), block -> noDrop());
     }

@@ -1,0 +1,21 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "kcs_kingslayer:slayer_shovel"
+    },
+    {
+      "item": "kcs_kingslayer:slayer_hoe"
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:broken_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.75,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

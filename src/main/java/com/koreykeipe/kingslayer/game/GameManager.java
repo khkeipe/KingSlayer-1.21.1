@@ -45,9 +45,12 @@ public class GameManager {
 
     /**
      * Composite threat score driving The Marked election.
-     * Player kill = 2 pts. Knight kills add 1/2/3 via {@link #awardThreatScore}.
+     * Player kill = 2 pts. Assist = 1 pt. Knight kills add 1/2/3 via {@link #awardThreatScore}.
      */
     private final Map<UUID, Integer> threatScores = new HashMap<>();
+
+    /** Kill assists credited to each UUID this session (for stats / leaderboard). */
+    private final Map<UUID, Integer> assistCounts = new HashMap<>();
 
     // -------------------------------------------------------------------------
     // Marked / Bounty
@@ -71,6 +74,7 @@ public class GameManager {
         eliminatedPlayers.clear();
         killCounts.clear();
         threatScores.clear();
+        assistCounts.clear();
         currentMarkedUUID = null;
         CombatLog.clear();
         CombatTracker.clear();
@@ -125,8 +129,23 @@ public class GameManager {
         if (attribution.killerUUID() != null) {
             killCounts.merge(attribution.killerUUID(), 1, Integer::sum);
             threatScores.merge(attribution.killerUUID(), 2, Integer::sum);
-            computeMarked();
         }
+
+        // Reward assists — partial threat to everyone who contributed, so the fight
+        // isn't all about landing the final blow.
+        for (AssistEntry assist : attribution.assists()) {
+            UUID au = assist.playerUUID();
+            if (au == null || au.equals(uuid) || au.equals(attribution.killerUUID())) continue;
+            assistCounts.merge(au, 1, Integer::sum);
+            threatScores.merge(au, 1, Integer::sum);
+            ServerPlayer assister = server.getPlayerList().getPlayer(au);
+            if (assister != null) {
+                assister.displayClientMessage(Component.literal(
+                        "§7+1 threat §8(assist on " + victim.getName().getString() + ")"), true);
+            }
+        }
+
+        computeMarked();
     }
 
     // -------------------------------------------------------------------------
@@ -201,9 +220,10 @@ public class GameManager {
         for (Map.Entry<UUID, Integer> e : top) {
             ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
             String name  = p != null ? p.getName().getString() : "Unknown";
-            int    score = threatScores.getOrDefault(e.getKey(), 0);
+            int    score   = threatScores.getOrDefault(e.getKey(), 0);
+            int    assists = assistCounts.getOrDefault(e.getKey(), 0);
             broadcast("  §e" + rank++ + ". §a" + name
-                    + " §7— " + e.getValue() + " kills  §8(threat: " + score + ")");
+                    + " §7— " + e.getValue() + " kills · " + assists + " assists  §8(threat: " + score + ")");
         }
         broadcast("  §7" + alivePlayers.size() + " players remain.");
         broadcast("§6=====================================");

@@ -1,0 +1,34 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "minecraft:beef",
+      "max_count": 6,
+      "min_count": 2
+    },
+    {
+      "item": "minecraft:chicken",
+      "max_count": 5,
+      "min_count": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:apple",
+      "max_count": 3
+    },
+    {
+      "item": "minecraft:porkchop",
+      "max_count": 4
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:rare_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.8,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

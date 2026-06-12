@@ -1,0 +1,27 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "kcs_kingslayer:grapple_crossbow",
+      "weight": 2
+    },
+    {
+      "item": "kcs_kingslayer:yoink_rod",
+      "weight": 2
+    },
+    {
+      "item": "kcs_kingslayer:wind_cannon",
+      "weight": 2
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:rare_airdrop_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.5,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

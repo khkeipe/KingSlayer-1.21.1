@@ -3,10 +3,30 @@
   "choices": [
     {
       "item": "kcs_kingslayer:slayer_sword",
+      "weight": 3
+    },
+    {
+      "item": "kcs_kingslayer:slayer_bat",
       "weight": 2
     },
     {
-      "item": "kcs_kingslayer:slayer_bat"
+      "item": "kcs_kingslayer:yoink_rod",
+      "weight": 2
+    },
+    {
+      "item": "kcs_kingslayer:grapple_crossbow"
+    },
+    {
+      "item": "kcs_kingslayer:storm_brand"
+    },
+    {
+      "item": "kcs_kingslayer:kings_maul"
+    },
+    {
+      "item": "kcs_kingslayer:wind_cannon"
+    },
+    {
+      "item": "kcs_kingslayer:shadow_cloak"
     }
   ],
   "conditions": [

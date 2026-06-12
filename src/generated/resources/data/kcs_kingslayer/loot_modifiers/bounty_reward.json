@@ -19,6 +19,29 @@
     },
     {
       "enchantments": {
+        "minecraft:sharpness": 3,
+        "minecraft:unbreaking": 3
+      },
+      "item": "kcs_kingslayer:storm_brand",
+      "weight": 2
+    },
+    {
+      "enchantments": {
+        "minecraft:density": 3,
+        "minecraft:unbreaking": 3
+      },
+      "item": "kcs_kingslayer:kings_maul",
+      "weight": 2
+    },
+    {
+      "item": "kcs_kingslayer:wind_cannon",
+      "weight": 2
+    },
+    {
+      "item": "kcs_kingslayer:shadow_cloak"
+    },
+    {
+      "enchantments": {
         "minecraft:protection": 1,
         "minecraft:unbreaking": 3
       },

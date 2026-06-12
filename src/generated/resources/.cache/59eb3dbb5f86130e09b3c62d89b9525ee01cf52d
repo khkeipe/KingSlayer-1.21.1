@@ -1,4 +1,4 @@
-// 1.21.1	2026-06-10T20:27:07.1825604	Loot Tables
+// 1.21.1	2026-06-11T20:03:52.37724	Loot Tables
 c4ac6f1aee69155c8331a84b5a38bc6a459514c8 data/kcs_kingslayer/loot_table/blocks/bounty_crate.json
 804baa78a623437ac6ab85723f2c98810fda3447 data/kcs_kingslayer/loot_table/blocks/broken_airdrop_crate.json
 171ad9ce5ba9423a18ecacdf3807a517778cee32 data/kcs_kingslayer/loot_table/blocks/broken_crate.json
@@ -6,6 +6,7 @@ c4ac6f1aee69155c8331a84b5a38bc6a459514c8 data/kcs_kingslayer/loot_table/blocks/b
 637a11670caef2e5e221968442582cdb9fdf6157 data/kcs_kingslayer/loot_table/blocks/common_crate.json
 7ee320cd2fcd258d5400dd8d4dc70057a6cc9beb data/kcs_kingslayer/loot_table/blocks/epic_airdrop_crate.json
 eb24562c8578250ec8538a57c5f4c76a46f98781 data/kcs_kingslayer/loot_table/blocks/epic_crate.json
+1bf6ab9823601ce5e02a08ebcf2f60bd96ab408e data/kcs_kingslayer/loot_table/blocks/launch_pad.json
 88ff6201d1c9f5faf934034370ed337d5f7cb508 data/kcs_kingslayer/loot_table/blocks/mystery_crate.json
 d956c8a2e77fa3d66abd86651e895c73e824bdc4 data/kcs_kingslayer/loot_table/blocks/rare_airdrop_crate.json
 15f7e68b9d7f556e088b6e59bf58a1d04e31cc19 data/kcs_kingslayer/loot_table/blocks/rare_crate.json

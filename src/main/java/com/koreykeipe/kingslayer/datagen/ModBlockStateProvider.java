@@ -27,6 +27,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         blockWithItem(ModBlocks.BOUNTY_CRATE);
 
+        blockWithItem(ModBlocks.LAUNCH_PAD);
+
         blockWithItem(ModBlocks.TRIBUTE_STONE);
         blockWithItem(ModBlocks.MYSTERY_CRATE);
     }

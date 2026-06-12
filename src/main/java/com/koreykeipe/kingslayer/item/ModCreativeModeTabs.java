@@ -27,12 +27,23 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.COMMON_CRATE.get());
                         output.accept(ModBlocks.RARE_CRATE.get());
                         output.accept(ModBlocks.EPIC_CRATE.get());
+                        output.accept(ModBlocks.LAUNCH_PAD.get());
 
                         output.accept(ModItems.SLAYER_SWORD.get());
                         output.accept(ModItems.SLAYER_PICKAXE.get());
                         output.accept(ModItems.SLAYER_SHOVEL.get());
                         output.accept(ModItems.SLAYER_AXE.get());
                         output.accept(ModItems.SLAYER_HOE.get());
+                        output.accept(ModItems.SLAYER_BAT.get());
+                        output.accept(ModItems.YOINK_ROD.get());
+                        output.accept(ModItems.STORM_BRAND.get());
+                        output.accept(ModItems.KINGS_MAUL.get());
+                        output.accept(ModItems.ANCHOR_CHARM.get());
+                        output.accept(ModItems.GRAPPLE_CROSSBOW.get());
+                        output.accept(ModItems.BOLA.get());
+                        output.accept(ModItems.WIND_CANNON.get());
+                        output.accept(ModItems.SHADOW_CLOAK.get());
+                        output.accept(ModItems.TRUESIGHT_LENS.get());
 
                     }).build());
 

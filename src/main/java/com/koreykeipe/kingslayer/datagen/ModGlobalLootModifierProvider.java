@@ -30,7 +30,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     protected void start(HolderLookup.Provider registries) {
 
         // Broken Crate Loot
-        oneOf("broken_ad_special", ModBlocks.BROKEN_CRATE.get(), 0.75f,
+        oneOf("broken_special", ModBlocks.BROKEN_CRATE.get(), 0.75f,
                 new OneOfItemModifier.Choice(ModItems.SLAYER_SHOVEL.get(), 1),
                 new OneOfItemModifier.Choice(ModItems.SLAYER_HOE.get(),1));
 
@@ -131,6 +131,9 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new OneOfItemModifier.Choice(Items.WIND_CHARGE, 2, 6, 16),
                 new OneOfItemModifier.Choice(Items.FIRE_CHARGE, 1, 6, 10),
                 new OneOfItemModifier.Choice(Items.ENDER_PEARL, 1,1,3));
+        // Combat: the entry-level counter. A couple of Bolas to root runners.
+        crateItem("bola_from_broken_ad", ModBlocks.BROKEN_AD_CRATE.get(), 0.35f,
+                ModItems.BOLA.get(), 1, 2);
 
         // Common Airdrop Crate Loot
         this.add("golden_apple_from_common_airdop",
@@ -142,6 +145,12 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new OneOfItemModifier.Choice(Items.ENDER_PEARL, 2, 1, 3),
                 new OneOfItemModifier.Choice(Items.TRIDENT, 1,
                         Map.of(ResourceLocation.withDefaultNamespace("loyalty"), 2)));
+        // Combat: a control weapon (one of the group) + circulating counters.
+        oneOf("common_ad_combat", ModBlocks.COMMON_AD_CRATE.get(), 0.35f,
+                new OneOfItemModifier.Choice(ModItems.YOINK_ROD.get(), 1));
+        crateItem("bola_from_common_ad",   ModBlocks.COMMON_AD_CRATE.get(), 0.40f, ModItems.BOLA.get(), 1, 3);
+        crateItem("anchor_from_common_ad", ModBlocks.COMMON_AD_CRATE.get(), 0.30f, ModItems.ANCHOR_CHARM.get(), 1, 1);
+        crateItem("truesight_from_common_ad", ModBlocks.COMMON_AD_CRATE.get(), 0.20f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
 
         // Rare Airdrop Crate Loot
         this.add("golden_apple_from_rare_airdop",
@@ -151,6 +160,16 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         // One special item from the group (add more Choices here later).
         oneOf("rare_ad_special", ModBlocks.RARE_AD_CRATE.get(), 0.6f,
                 new OneOfItemModifier.Choice(Items.MACE, 1));
+        // Combat: mobility + control specials (one of the group) + counters.
+        oneOf("rare_ad_combat", ModBlocks.RARE_AD_CRATE.get(), 0.50f,
+                new OneOfItemModifier.Choice(ModItems.GRAPPLE_CROSSBOW.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.YOINK_ROD.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 2));
+        crateItem("launch_pad_from_rare_ad", ModBlocks.RARE_AD_CRATE.get(), 0.30f, ModBlocks.LAUNCH_PAD.get().asItem(), 1, 2);
+        crateItem("bola_from_rare_ad",      ModBlocks.RARE_AD_CRATE.get(), 0.40f, ModItems.BOLA.get(), 2, 3);
+        crateItem("anchor_from_rare_ad",    ModBlocks.RARE_AD_CRATE.get(), 0.35f, ModItems.ANCHOR_CHARM.get(), 1, 1);
+        crateItem("truesight_from_rare_ad", ModBlocks.RARE_AD_CRATE.get(), 0.25f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
+        crateItem("lightning_rod_from_rare_ad", ModBlocks.RARE_AD_CRATE.get(), 0.30f, Items.LIGHTNING_ROD, 1, 1);
 
         //Epic Airdrop Crate Loot
         this.add("golden_apple_from_epic_airdop",
@@ -164,6 +183,18 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         Map.of(ResourceLocation.withDefaultNamespace("knockback"), 4)),
                 new OneOfItemModifier.Choice(Items.SHIELD, 2,
                         Map.of(ResourceLocation.withDefaultNamespace("knockback_resistance"), 4)));
+        // Combat: the heavy specials (one of the group) + the counters that beat them.
+        oneOf("epic_ad_combat", ModBlocks.EPIC_AD_CRATE.get(), 0.60f,
+                new OneOfItemModifier.Choice(ModItems.STORM_BRAND.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.KINGS_MAUL.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.GRAPPLE_CROSSBOW.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1));
+        crateItem("launch_pad_from_epic_ad",    ModBlocks.EPIC_AD_CRATE.get(), 0.35f, ModBlocks.LAUNCH_PAD.get().asItem(), 1, 2);
+        crateItem("anchor_from_epic_ad",        ModBlocks.EPIC_AD_CRATE.get(), 0.40f, ModItems.ANCHOR_CHARM.get(), 1, 1);
+        crateItem("bola_from_epic_ad",          ModBlocks.EPIC_AD_CRATE.get(), 0.40f, ModItems.BOLA.get(), 2, 4);
+        crateItem("truesight_from_epic_ad",     ModBlocks.EPIC_AD_CRATE.get(), 0.30f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
+        crateItem("lightning_rod_from_epic_ad", ModBlocks.EPIC_AD_CRATE.get(), 0.40f, Items.LIGHTNING_ROD, 1, 2);
 
         // ------------------------------------------------------------------
         // Bounty Crate Loot — the special reward for slaying THE MARKED.
@@ -179,7 +210,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BOUNTY_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(1f).build() }, Items.GOLDEN_CARROT, 4, 8));
 
-        // ONE top-tier enchanted reward (not all three). Weighted; add more Choices freely.
+        // ONE top-tier enchanted reward (not all). Weighted; now includes the custom specials.
         oneOf("bounty_reward", ModBlocks.BOUNTY_CRATE.get(), 0.95f,
                 new OneOfItemModifier.Choice(ModItems.SLAYER_SWORD.get(), 2,
                         Map.of(ResourceLocation.withDefaultNamespace("sharpness"), 2,
@@ -188,9 +219,21 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new OneOfItemModifier.Choice(ModItems.SLAYER_BAT.get(), 1,
                         Map.of(ResourceLocation.withDefaultNamespace("knockback"), 5,
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
+                new OneOfItemModifier.Choice(ModItems.STORM_BRAND.get(), 2,
+                        Map.of(ResourceLocation.withDefaultNamespace("sharpness"), 3,
+                               ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
+                new OneOfItemModifier.Choice(ModItems.KINGS_MAUL.get(), 2,
+                        Map.of(ResourceLocation.withDefaultNamespace("density"), 3,
+                               ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
+                new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1),
                 new OneOfItemModifier.Choice(Items.DIAMOND_CHESTPLATE, 2,
                         Map.of(ResourceLocation.withDefaultNamespace("protection"), 1,
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)));
+        // Guaranteed counter kit — the bounty winner walks away ready to defend the lead.
+        crateItem("anchor_from_bounty",    ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.ANCHOR_CHARM.get(), 1, 1);
+        crateItem("bola_from_bounty",      ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BOLA.get(), 3, 5);
+        crateItem("truesight_from_bounty", ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
 
         // ------------------------------------------------------------------
         // Mystery Crate Loot — a curatable grab-bag (bought as a "box" at the Tribute
@@ -206,12 +249,22 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         mysteryCrate("mystery_xp",           Items.EXPERIENCE_BOTTLE,  0.50f, 2, 6);
         mysteryCrate("mystery_gapple",       Items.GOLDEN_APPLE,       0.25f, 1, 1);
         mysteryCrate("mystery_crown",       ModItems.CROWN.get(),       0.1f, 1, 1);
+        // Combat counters in the grab-bag, so the mystery box can also arm your defense.
+        mysteryCrate("mystery_bola",         ModItems.BOLA.get(),         0.30f, 1, 2);
+        mysteryCrate("mystery_anchor",       ModItems.ANCHOR_CHARM.get(), 0.15f, 1, 1);
+        mysteryCrate("mystery_truesight",    ModItems.TRUESIGHT_LENS.get(), 0.15f, 1, 1);
+        mysteryCrate("mystery_launch_pad",   ModBlocks.LAUNCH_PAD.get().asItem(), 0.20f, 1, 2);
 
-        // Rare weapon — ONE of the group (not all). ~25% chance, weighted sword:bat 2:1.
-        // Add future custom weapons here as extra Choices and they join the same single roll.
+        // Rare weapon — ONE of the group (not all). ~25% chance. Now spans the full custom arsenal.
         oneOf("mystery_rare_weapon", ModBlocks.MYSTERY_CRATE.get(), 0.25f,
-                new OneOfItemModifier.Choice(ModItems.SLAYER_SWORD.get(), 2),
-                new OneOfItemModifier.Choice(ModItems.SLAYER_BAT.get(), 1));
+                new OneOfItemModifier.Choice(ModItems.SLAYER_SWORD.get(), 3),
+                new OneOfItemModifier.Choice(ModItems.SLAYER_BAT.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.YOINK_ROD.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.GRAPPLE_CROSSBOW.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.STORM_BRAND.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.KINGS_MAUL.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1));
 
         // ------------------------------------------------------------------
         // Crown Fragments from crates — amount climbs with rarity.
@@ -245,6 +298,15 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 LootItemBlockStatePropertyCondition.hasBlockStateProperties(crate).build(),
                 LootItemRandomChanceCondition.randomChance(chance).build() },
                 ModItems.CROWN_FRAGMENT.get(), min, max));
+    }
+
+    /** Adds an item drop (uniform count) to any crate block's loot when {@code chance} passes. */
+    private void crateItem(String name, net.minecraft.world.level.block.Block crate, float chance,
+                           net.minecraft.world.item.Item item, int min, int max) {
+        this.add(name, new AddItemModifier(new LootItemCondition[] {
+                LootItemBlockStatePropertyCondition.hasBlockStateProperties(crate).build(),
+                LootItemRandomChanceCondition.randomChance(chance).build() },
+                item, min, max));
     }
 
     /** Adds an item drop to the Mystery Crate's loot. */

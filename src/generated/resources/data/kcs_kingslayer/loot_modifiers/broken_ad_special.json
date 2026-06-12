@@ -4,7 +4,17 @@
     {
       "item": "minecraft:wind_charge",
       "max_count": 16,
+      "min_count": 6,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:fire_charge",
+      "max_count": 10,
       "min_count": 6
+    },
+    {
+      "item": "minecraft:ender_pearl",
+      "max_count": 3
     }
   ],
   "conditions": [
@@ -13,7 +23,7 @@
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.6,
+      "chance": 0.8,
       "condition": "minecraft:random_chance"
     }
   ]

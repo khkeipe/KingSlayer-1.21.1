@@ -189,7 +189,7 @@ public class CombatTracker {
             .sorted((a, b) -> Float.compare(b.getValue(), a.getValue()))
             .forEach(e -> {
                 int pct = total > 0 ? Math.round(e.getValue() / total * 100) : 0;
-                assists.add(new AssistEntry(nameByPlayer.get(e.getKey()), pct + "% damage"));
+                assists.add(new AssistEntry(e.getKey(), nameByPlayer.get(e.getKey()), pct + "% damage"));
                 recorded.add(e.getKey());
             });
 
@@ -199,7 +199,7 @@ public class CombatTracker {
             .filter(t -> !t.playerUUID().equals(killerUUID))
             .filter(t -> !recorded.contains(t.playerUUID()))
             .forEach(t -> {
-                assists.add(new AssistEntry(t.playerName(), t.reason()));
+                assists.add(new AssistEntry(t.playerUUID(), t.playerName(), t.reason()));
                 recorded.add(t.playerUUID());
             });
 

@@ -1,0 +1,33 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "minecraft:bread",
+      "max_count": 6,
+      "min_count": 3
+    },
+    {
+      "item": "minecraft:cod",
+      "max_count": 5,
+      "min_count": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:mushroom_stew",
+      "max_count": 3
+    },
+    {
+      "item": "minecraft:suspicious_stew"
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:common_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.8,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

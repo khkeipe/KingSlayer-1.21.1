@@ -28,6 +28,16 @@ public class ModItemModelProvider extends ItemModelProvider {
         handheldItem(ModItems.SLAYER_AXE);
         handheldItem(ModItems.SLAYER_HOE);
         handheldItem(ModItems.SLAYER_BAT);
+
+        basicItem(ModItems.YOINK_ROD.get());
+        handheldItem(ModItems.STORM_BRAND);
+        handheldItem(ModItems.KINGS_MAUL);
+        basicItem(ModItems.ANCHOR_CHARM.get());
+        handheldItem(ModItems.GRAPPLE_CROSSBOW);
+        basicItem(ModItems.BOLA.get());
+        handheldItem(ModItems.WIND_CANNON);
+        basicItem(ModItems.SHADOW_CLOAK.get());
+        basicItem(ModItems.TRUESIGHT_LENS.get());
     }
 
     private ItemModelBuilder handheldItem(RegistryObject<Item> item) {

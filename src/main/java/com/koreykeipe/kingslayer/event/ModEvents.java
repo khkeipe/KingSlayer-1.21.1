@@ -305,22 +305,33 @@ public class ModEvents {
     public static void onExplosionDetonate(ExplosionEvent.Detonate event) {
         if (event.getLevel().isClientSide()) return;
         Entity cause = event.getExplosion().getDirectSourceEntity();
-        if (!(cause instanceof PrimedTnt tnt)) return;
 
-        TrapTracker.PlacerInfo placer = TrapTracker.getTntPlacer(tnt.getId());
-        if (placer == null) return;
+        // Pressure-plate → TNT trap kills.
+        if (cause instanceof PrimedTnt tnt) {
+            TrapTracker.PlacerInfo placer = TrapTracker.getTntPlacer(tnt.getId());
+            if (placer == null) return;
+            for (Entity entity : event.getAffectedEntities()) {
+                if (entity instanceof ServerPlayer victim) {
+                    CombatTracker.registerAttribution(
+                        victim.getUUID(), placer.uuid(), placer.name(),
+                        "pressure_plate_trap", 10);
+                }
+            }
+            TrapTracker.removeTnt(tnt.getId());
+            return;
+        }
 
-        for (Entity entity : event.getAffectedEntities()) {
-            if (entity instanceof ServerPlayer victim) {
-                CombatTracker.registerAttribution(
-                    victim.getUUID(),
-                    placer.uuid(),
-                    placer.name(),
-                    "pressure_plate_trap",
-                    10  // priority 10 = intentional trap, beats a stray hit within extended window
-                );
+        // Wind-charge knockback: deals no damage, so a player launched off a ledge / into
+        // lava would otherwise be unattributed. Credit the thrower if they die soon after.
+        if (cause instanceof net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge wind
+                && wind.getOwner() instanceof ServerPlayer thrower) {
+            for (Entity entity : event.getAffectedEntities()) {
+                if (entity instanceof ServerPlayer victim && victim != thrower) {
+                    CombatTracker.registerAttribution(
+                        victim.getUUID(), thrower.getUUID(), thrower.getName().getString(),
+                        "wind_blast", 7);
+                }
             }
         }
-        TrapTracker.removeTnt(tnt.getId());
     }
 }

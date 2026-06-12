@@ -1,0 +1,35 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "minecraft:carrot",
+      "max_count": 5,
+      "min_count": 2
+    },
+    {
+      "item": "minecraft:potato",
+      "max_count": 5,
+      "min_count": 2
+    },
+    {
+      "item": "minecraft:beetroot",
+      "max_count": 5,
+      "min_count": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:apple",
+      "max_count": 3
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:broken_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 0.8,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}
