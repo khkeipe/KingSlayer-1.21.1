@@ -29,13 +29,16 @@ public final class TributeStoneShrine {
         // Already built — leave it alone.
         if (level.getBlockState(center).is(ModBlocks.TRIBUTE_STONE.get())) return;
 
-        BlockState floor   = Blocks.POLISHED_BLACKSTONE_BRICKS.defaultBlockState();
-        BlockState pillar  = Blocks.CHISELED_POLISHED_BLACKSTONE.defaultBlockState();
+        BlockState floorBrick   = Blocks.DEEPSLATE_BRICKS.defaultBlockState();
+        BlockState floorCracked = Blocks.CRACKED_DEEPSLATE_BRICKS.defaultBlockState();
+        BlockState pillar       = Blocks.REINFORCED_DEEPSLATE.defaultBlockState();
 
-        // 5x5 platform at y-1, with headroom cleared above.
+        // 5x5 platform at y-1 (a weathered mix of deepslate & cracked deepslate brick),
+        // with headroom cleared above.
         for (int dx = -2; dx <= 2; dx++) {
             for (int dz = -2; dz <= 2; dz++) {
-                level.setBlockAndUpdate(new BlockPos(cx + dx, y - 1, cz + dz), floor);
+                BlockState f = level.random.nextInt(4) == 0 ? floorCracked : floorBrick;
+                level.setBlockAndUpdate(new BlockPos(cx + dx, y - 1, cz + dz), f);
                 for (int dy = 0; dy < 3; dy++) {
                     level.setBlockAndUpdate(new BlockPos(cx + dx, y + dy, cz + dz), Blocks.AIR.defaultBlockState());
                 }

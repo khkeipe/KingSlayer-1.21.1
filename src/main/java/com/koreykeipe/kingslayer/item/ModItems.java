@@ -46,10 +46,11 @@ public class ModItems {
     public static final RegistryObject<Item> YOINK_ROD = ITEMS.register("yoink_rod",
             () -> new YoinkRodItem(new Item.Properties().durability(256)));
 
-    // Storm Brand — sword that calls a lightning bolt where you aim (right-click).
+    // Storm Brand — sword that calls a lightning bolt where you aim (right-click). Its power is
+    // the lightning, not the blade: melee is intentionally weak (~2 total attack damage).
     public static final RegistryObject<Item> STORM_BRAND = ITEMS.register("storm_brand",
             () -> new StormBrandItem(Tiers.IRON, new Item.Properties()
-                    .attributes(SwordItem.createAttributes(Tiers.IRON, 3, -2.4f))));
+                    .attributes(SwordItem.createAttributes(Tiers.IRON, -1, -2.4f))));
 
     // King's Maul — mace with a right-click ground-slam shockwave.
     public static final RegistryObject<Item> KINGS_MAUL = ITEMS.register("kings_maul",
@@ -79,6 +80,15 @@ public class ModItems {
     // Truesight Visor — helmet; passive aura that reveals nearby invisible foes. Counter to the Cloak.
     public static final RegistryObject<Item> TRUESIGHT_LENS = ITEMS.register("truesight_lens",
             () -> new TruesightLensItem(new Item.Properties()));
+
+    // Sunder Pike — anti-armor sword; bonus bypass damage scaling with the target's armor.
+    public static final RegistryObject<Item> SUNDER_PIKE = ITEMS.register("sunder_pike",
+            () -> new SunderPikeItem(Tiers.DIAMOND, new Item.Properties()
+                    .attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.8f))));
+
+    // Bulwark Legguards — leggings; flat cut to all incoming damage. Counter to the Sunder Pike.
+    public static final RegistryObject<Item> BULWARK_LEGGUARDS = ITEMS.register("bulwark_legguards",
+            () -> new BulwarkLegguardsItem(new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

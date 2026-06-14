@@ -82,7 +82,7 @@ public class GrappleCrossbowItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.literal("⌖ Grapple Crossbow")
+        return Component.literal("⌖ Grapple")
                 .withStyle(s -> s.withColor(ChatFormatting.GREEN).withBold(true).withItalic(false));
     }
 

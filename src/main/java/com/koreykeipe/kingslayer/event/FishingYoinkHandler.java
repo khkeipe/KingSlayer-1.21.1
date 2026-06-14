@@ -21,8 +21,8 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FishingYoinkHandler {
 
-    /** Horizontal pull strength of the Yoink Rod. */
-    private static final double YANK_POWER = 2.0;
+    /** Max reel-in speed (blocks/tick) of the Yoink Rod — a reverse grapple toward the caster. */
+    private static final double YANK_MAX_PULL = 2.5;
 
     @SubscribeEvent
     public static void onProjectileImpact(ProjectileImpactEvent event) {
@@ -40,12 +40,15 @@ public class FishingYoinkHandler {
         boolean yoinkRod = owner.getMainHandItem().is(ModItems.YOINK_ROD.get())
                 || owner.getOffhandItem().is(ModItems.YOINK_ROD.get());
         if (yoinkRod) {
-            // Scale by (1 - knockback resistance) so the Anchor Charm shrugs off the yank.
+            // Reverse grapple: reel the target toward the caster with a distance-scaled pull
+            // (clamped), so a long-range hook drags them all the way in. Scaled by
+            // (1 - knockback resistance) so the Anchor Greaves shrug off the reel.
             double resist = victim.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
-            double power = YANK_POWER * (1.0 - resist);
-            if (power > 0.05) {
-                Vec3 dir = owner.position().subtract(victim.position()).normalize();
-                victim.setDeltaMovement(dir.x * power, 0.4 * (1.0 - resist) + 0.05, dir.z * power);
+            if (resist < 1.0) {
+                Vec3 pull = owner.position().subtract(victim.position());
+                double speed = Math.min(YANK_MAX_PULL, 0.25 * pull.length() + 0.6) * (1.0 - resist);
+                Vec3 vel = pull.normalize().scale(speed);
+                victim.setDeltaMovement(vel.x, vel.y + 0.3 * (1.0 - resist), vel.z);
                 victim.hurtMarked = true; // sync the velocity to the victim's client
                 owner.level().playSound(null, victim.blockPosition(),
                         SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.2f, 0.6f);

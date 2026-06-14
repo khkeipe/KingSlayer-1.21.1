@@ -19,7 +19,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         basicItem(ModItems.CROWN.get());
         basicItem(ModItems.CROWN_FRAGMENT.get());
-        basicItem(ModItems.BOSS_KEY.get());
+        vanillaFlat(ModItems.BOSS_KEY, "item/trial_key");
 
 
         handheldItem(ModItems.SLAYER_SWORD);
@@ -30,19 +30,35 @@ public class ModItemModelProvider extends ItemModelProvider {
         handheldItem(ModItems.SLAYER_BAT);
 
         basicItem(ModItems.YOINK_ROD.get());
-        handheldItem(ModItems.STORM_BRAND);
         handheldItem(ModItems.KINGS_MAUL);
-        basicItem(ModItems.ANCHOR_CHARM.get());
-        handheldItem(ModItems.GRAPPLE_CROSSBOW);
-        basicItem(ModItems.BOLA.get());
-        handheldItem(ModItems.WIND_CANNON);
-        basicItem(ModItems.SHADOW_CLOAK.get());
-        basicItem(ModItems.TRUESIGHT_LENS.get());
+
+        // These reuse vanilla item textures rather than custom art.
+        vanillaFlat(ModItems.WIND_CANNON, "item/feather");
+        vanillaFlat(ModItems.STORM_BRAND, "item/nether_star");
+        vanillaHandheld(ModItems.GRAPPLE_CROSSBOW, "item/crossbow_standby");
+        vanillaFlat(ModItems.BOLA, "item/lead");
+        vanillaFlat(ModItems.ANCHOR_CHARM, "item/netherite_boots");
+        vanillaFlat(ModItems.SHADOW_CLOAK, "item/netherite_chestplate");
+        vanillaFlat(ModItems.TRUESIGHT_LENS, "item/netherite_helmet");
+        vanillaHandheld(ModItems.SUNDER_PIKE, "item/trident");
+        vanillaFlat(ModItems.BULWARK_LEGGUARDS, "item/netherite_leggings");
     }
 
     private ItemModelBuilder handheldItem(RegistryObject<Item> item) {
         return withExistingParent(item.getId().getPath(),
                 ResourceLocation.parse("item/handheld")).texture("layer0",
                 ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "item/" + item.getId().getPath()));
+    }
+
+    /** A flat (item/generated) model whose icon is a vanilla texture, e.g. "item/lead". */
+    private ItemModelBuilder vanillaFlat(RegistryObject<Item> item, String mcTexture) {
+        return withExistingParent(item.getId().getPath(), mcLoc("item/generated"))
+                .texture("layer0", mcLoc(mcTexture));
+    }
+
+    /** A held (item/handheld) model whose icon is a vanilla texture, e.g. "item/crossbow_standby". */
+    private ItemModelBuilder vanillaHandheld(RegistryObject<Item> item, String mcTexture) {
+        return withExistingParent(item.getId().getPath(), mcLoc("item/handheld"))
+                .texture("layer0", mcLoc(mcTexture));
     }
 }

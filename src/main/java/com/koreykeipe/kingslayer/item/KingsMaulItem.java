@@ -1,5 +1,6 @@
 package com.koreykeipe.kingslayer.item;
 
+import com.koreykeipe.kingslayer.game.CombatTracker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -50,6 +51,11 @@ public class KingsMaulItem extends MaceItem {
             // knockback() applies (1 - knockbackResistance), so the Anchor Charm shrugs it off.
             e.knockback(STRENGTH, sp.getX() - e.getX(), sp.getZ() - e.getZ());
             e.hurt(sl.damageSources().playerAttack(sp), DAMAGE);
+            // Credit the slam if a knocked victim dies soon after (e.g. flung off a ledge).
+            if (e instanceof ServerPlayer victim) {
+                CombatTracker.registerAttribution(victim.getUUID(), sp.getUUID(),
+                        sp.getName().getString(), "ground_slam", 7);
+            }
         }
 
         sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, sp.getX(), sp.getY() + 0.2, sp.getZ(), 1, 0, 0, 0, 0);

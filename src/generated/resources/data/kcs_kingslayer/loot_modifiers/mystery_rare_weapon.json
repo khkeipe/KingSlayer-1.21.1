@@ -27,6 +27,9 @@
     },
     {
       "item": "kcs_kingslayer:shadow_cloak"
+    },
+    {
+      "item": "kcs_kingslayer:sunder_pike"
     }
   ],
   "conditions": [

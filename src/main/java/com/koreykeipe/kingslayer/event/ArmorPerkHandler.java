@@ -1,10 +1,13 @@
 package com.koreykeipe.kingslayer.event;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import com.koreykeipe.kingslayer.damage.ModDamageTypes;
 import com.koreykeipe.kingslayer.item.ModItems;
 import com.koreykeipe.kingslayer.item.ShadowCloakItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -14,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,6 +37,9 @@ public class ArmorPerkHandler {
             ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "anchor_boots");
 
     private static final double REVEAL_RADIUS = 16.0;
+
+    /** Flat share of incoming damage the Bulwark Legguards absorb. */
+    private static final float BULWARK_DR = 0.20f;
 
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
@@ -72,5 +79,21 @@ public class ArmorPerkHandler {
                 t.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0, false, false, true));
             }
         }
+    }
+
+    /** Bulwark Legguards: cut all incoming damage by a flat share — even armor-bypassing hits. */
+    @SubscribeEvent
+    public static void onLivingHurt(LivingHurtEvent event) {
+        LivingEntity e = event.getEntity();
+        if (!e.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.BULWARK_LEGGUARDS.get())) return;
+
+        // Never soften the intentional anti-cheat / fail-safe sources.
+        DamageSource src = event.getSource();
+        if (src.is(ModDamageTypes.NETHER_GAS)
+                || src.is(DamageTypes.FELL_OUT_OF_WORLD)
+                || src.is(DamageTypes.GENERIC_KILL)) {
+            return;
+        }
+        event.setAmount(event.getAmount() * (1.0f - BULWARK_DR));
     }
 }

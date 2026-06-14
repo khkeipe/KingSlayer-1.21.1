@@ -44,6 +44,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.WIND_CANNON.get());
                         output.accept(ModItems.SHADOW_CLOAK.get());
                         output.accept(ModItems.TRUESIGHT_LENS.get());
+                        output.accept(ModItems.SUNDER_PIKE.get());
+                        output.accept(ModItems.BULWARK_LEGGUARDS.get());
 
                     }).build());
 

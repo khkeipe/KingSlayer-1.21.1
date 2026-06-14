@@ -1,6 +1,8 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/slab",
   "textures": {
-    "all": "kcs_kingslayer:block/launch_pad"
+    "bottom": "kcs_kingslayer:block/launch_pad",
+    "side": "kcs_kingslayer:block/launch_pad",
+    "top": "kcs_kingslayer:block/launch_pad"
   }
 }

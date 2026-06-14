@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "kcs_kingslayer:block/tribute_stone"
+      "model": "minecraft:block/lodestone"
     }
   }
 }

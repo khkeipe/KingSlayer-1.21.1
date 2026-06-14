@@ -71,7 +71,7 @@ public class ModBlocks {
     // Countered by the Bola's Root, which pins a target so they can't be launched.
     public static final RegistryObject<Block> LAUNCH_PAD = registerBlock("launch_pad",
             () -> new LaunchPadBlock(BlockBehaviour.Properties.of()
-                    .strength(0.6f).sound(SoundType.SLIME_BLOCK)));
+                    .strength(0.6f).sound(SoundType.SLIME_BLOCK).noOcclusion()));
 
     // Tribute Stone — indestructible exchange hub placed at world spawn (bedrock-grade
     // strength so it can't be mined or blown up). See TributeStoneBlock / TributeExchange.

@@ -42,6 +42,14 @@
     },
     {
       "enchantments": {
+        "minecraft:sharpness": 2,
+        "minecraft:unbreaking": 3
+      },
+      "item": "kcs_kingslayer:sunder_pike",
+      "weight": 2
+    },
+    {
+      "enchantments": {
         "minecraft:protection": 1,
         "minecraft:unbreaking": 3
       },

@@ -27,9 +27,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         blockWithItem(ModBlocks.BOUNTY_CRATE);
 
-        blockWithItem(ModBlocks.LAUNCH_PAD);
+        // Launch Pad is a half-slab shape — give it a slab model (single texture all faces).
+        net.minecraft.resources.ResourceLocation padTex = modLoc("block/launch_pad");
+        simpleBlockWithItem(ModBlocks.LAUNCH_PAD.get(),
+                models().slab("launch_pad", padTex, padTex, padTex));
 
-        blockWithItem(ModBlocks.TRIBUTE_STONE);
+        // Tribute Stone reuses the vanilla lodestone model/textures.
+        simpleBlockWithItem(ModBlocks.TRIBUTE_STONE.get(),
+                new net.minecraftforge.client.model.generators.ModelFile.UncheckedModelFile(mcLoc("block/lodestone")));
+
         blockWithItem(ModBlocks.MYSTERY_CRATE);
     }
 

@@ -169,6 +169,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         crateItem("bola_from_rare_ad",      ModBlocks.RARE_AD_CRATE.get(), 0.40f, ModItems.BOLA.get(), 2, 3);
         crateItem("anchor_from_rare_ad",    ModBlocks.RARE_AD_CRATE.get(), 0.35f, ModItems.ANCHOR_CHARM.get(), 1, 1);
         crateItem("truesight_from_rare_ad", ModBlocks.RARE_AD_CRATE.get(), 0.25f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
+        crateItem("bulwark_from_rare_ad",   ModBlocks.RARE_AD_CRATE.get(), 0.30f, ModItems.BULWARK_LEGGUARDS.get(), 1, 1);
         crateItem("lightning_rod_from_rare_ad", ModBlocks.RARE_AD_CRATE.get(), 0.30f, Items.LIGHTNING_ROD, 1, 1);
 
         //Epic Airdrop Crate Loot
@@ -188,12 +189,14 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new OneOfItemModifier.Choice(ModItems.STORM_BRAND.get(), 2),
                 new OneOfItemModifier.Choice(ModItems.KINGS_MAUL.get(), 2),
                 new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 2),
+                new OneOfItemModifier.Choice(ModItems.SUNDER_PIKE.get(), 2),
                 new OneOfItemModifier.Choice(ModItems.GRAPPLE_CROSSBOW.get(), 1),
                 new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1));
         crateItem("launch_pad_from_epic_ad",    ModBlocks.EPIC_AD_CRATE.get(), 0.35f, ModBlocks.LAUNCH_PAD.get().asItem(), 1, 2);
         crateItem("anchor_from_epic_ad",        ModBlocks.EPIC_AD_CRATE.get(), 0.40f, ModItems.ANCHOR_CHARM.get(), 1, 1);
         crateItem("bola_from_epic_ad",          ModBlocks.EPIC_AD_CRATE.get(), 0.40f, ModItems.BOLA.get(), 2, 4);
         crateItem("truesight_from_epic_ad",     ModBlocks.EPIC_AD_CRATE.get(), 0.30f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
+        crateItem("bulwark_from_epic_ad",       ModBlocks.EPIC_AD_CRATE.get(), 0.35f, ModItems.BULWARK_LEGGUARDS.get(), 1, 1);
         crateItem("lightning_rod_from_epic_ad", ModBlocks.EPIC_AD_CRATE.get(), 0.40f, Items.LIGHTNING_ROD, 1, 2);
 
         // ------------------------------------------------------------------
@@ -227,6 +230,9 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
                 new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 2),
                 new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.SUNDER_PIKE.get(), 2,
+                        Map.of(ResourceLocation.withDefaultNamespace("sharpness"), 2,
+                               ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
                 new OneOfItemModifier.Choice(Items.DIAMOND_CHESTPLATE, 2,
                         Map.of(ResourceLocation.withDefaultNamespace("protection"), 1,
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)));
@@ -234,6 +240,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         crateItem("anchor_from_bounty",    ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.ANCHOR_CHARM.get(), 1, 1);
         crateItem("bola_from_bounty",      ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BOLA.get(), 3, 5);
         crateItem("truesight_from_bounty", ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
+        crateItem("bulwark_from_bounty",   ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BULWARK_LEGGUARDS.get(), 1, 1);
 
         // ------------------------------------------------------------------
         // Mystery Crate Loot — a curatable grab-bag (bought as a "box" at the Tribute
@@ -253,6 +260,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         mysteryCrate("mystery_bola",         ModItems.BOLA.get(),         0.30f, 1, 2);
         mysteryCrate("mystery_anchor",       ModItems.ANCHOR_CHARM.get(), 0.15f, 1, 1);
         mysteryCrate("mystery_truesight",    ModItems.TRUESIGHT_LENS.get(), 0.15f, 1, 1);
+        mysteryCrate("mystery_bulwark",      ModItems.BULWARK_LEGGUARDS.get(), 0.15f, 1, 1);
         mysteryCrate("mystery_launch_pad",   ModBlocks.LAUNCH_PAD.get().asItem(), 0.20f, 1, 2);
 
         // Rare weapon — ONE of the group (not all). ~25% chance. Now spans the full custom arsenal.
@@ -264,7 +272,8 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new OneOfItemModifier.Choice(ModItems.STORM_BRAND.get(), 1),
                 new OneOfItemModifier.Choice(ModItems.KINGS_MAUL.get(), 1),
                 new OneOfItemModifier.Choice(ModItems.WIND_CANNON.get(), 1),
-                new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1));
+                new OneOfItemModifier.Choice(ModItems.SHADOW_CLOAK.get(), 1),
+                new OneOfItemModifier.Choice(ModItems.SUNDER_PIKE.get(), 1));
 
         // ------------------------------------------------------------------
         // Crown Fragments from crates — amount climbs with rarity.

@@ -13,25 +13,34 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
 
 /**
- * The Launch Pad — a placeable mobility block. Anything that steps on it is flung skyward
- * with a fall-damage grace window, so you can vault walls, reach airdrops, or bail out of a
- * fight. Counter: a Rooted target (netted by a Bola) can't be launched — the root pins them
- * down and the upward velocity is cancelled.
+ * The Launch Pad — a single-use mobility block. Sits a half-block tall so you can walk
+ * straight onto it (no jump). Stepping on it flings you high into the air with a fall-damage
+ * grace window, then the pad is spent and breaks. A clean "panic button" escape tool.
+ * Counter: a Rooted target (netted by a Bola) can't be launched — the root cancels the lift.
  */
 public class LaunchPadBlock extends Block {
 
-    private static final double LAUNCH = 1.35;
+    private static final double LAUNCH = 1.6;
+    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16); // bottom slab
 
     public LaunchPadBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
     }
 
     @Override
@@ -56,16 +65,18 @@ public class LaunchPadBlock extends Block {
         }
 
         if (level instanceof ServerLevel sl) {
-            sl.sendParticles(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
-                    18, 0.3, 0.1, 0.3, 0.08);
+            sl.sendParticles(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                    22, 0.3, 0.1, 0.3, 0.1);
             sl.playSound(null, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0f, 1.4f);
         }
-        super.stepOn(level, pos, state, entity);
+
+        // Single use — the pad is spent and breaks (no drop).
+        level.destroyBlock(pos, false);
     }
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("Place it down, then step on to launch skyward.")
+        tooltip.add(Component.literal("Place it down, then step on to launch high — single use.")
                 .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
         tooltip.add(Component.literal("No fall damage from the bounce. Rooted players can't launch.")
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));

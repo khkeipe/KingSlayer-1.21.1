@@ -1,5 +1,6 @@
 package com.koreykeipe.kingslayer.item;
 
+import com.koreykeipe.kingslayer.game.CombatTracker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -63,6 +64,11 @@ public class WindCannonItem extends Item {
                 e.hurtMarked = true;
             }
             e.hurt(sl.damageSources().playerAttack(sp), DAMAGE);
+            // Credit the blast if a launched victim dies soon after (e.g. blown off a ledge).
+            if (e instanceof ServerPlayer victim) {
+                CombatTracker.registerAttribution(victim.getUUID(), sp.getUUID(),
+                        sp.getName().getString(), "wind_cannon", 7);
+            }
         }
 
         // Visual gust + report.

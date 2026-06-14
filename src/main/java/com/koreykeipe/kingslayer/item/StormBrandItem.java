@@ -1,5 +1,6 @@
 package com.koreykeipe.kingslayer.item;
 
+import com.koreykeipe.kingslayer.game.CombatTracker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -78,6 +80,17 @@ public class StormBrandItem extends SwordItem {
             bolt.moveTo(strike.getX() + 0.5, strike.getY(), strike.getZ() + 0.5);
             bolt.setCause(sp); // credits the wielder for the kill
             sl.addFreshEntity(bolt);
+        }
+
+        // The vanilla lightning damage source carries no attacker, so register attribution for
+        // every player in the strike zone — this is how a lightning kill credits the wielder.
+        AABB hitBox = new AABB(strike).inflate(3.0);
+        for (LivingEntity e : sl.getEntitiesOfClass(LivingEntity.class, hitBox,
+                t -> t != sp && t.isAlive())) {
+            if (e instanceof ServerPlayer victim) {
+                CombatTracker.registerAttribution(victim.getUUID(), sp.getUUID(),
+                        sp.getName().getString(), "lightning", 7);
+            }
         }
 
         sp.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
