@@ -19,6 +19,14 @@ public class AirdropConfig {
     // -------------------------------------------------------------------------
 
     public static final ForgeConfigSpec.BooleanValue ENABLED;
+    /**
+     * Total remaining lives across the WHOLE roster at which The King is auto-summoned as the
+     * grand finale — fires once when remaining lives drop to this value, regardless of player
+     * count. An absolute lives count (not a %) guarantees a consistent buffer at any player
+     * count: 3 means he rises with more than 2 lives still in play. The auto-summon also
+     * requires more than one player still alive; a Boss Key can bring him earlier. 0 = disable.
+     */
+    public static final ForgeConfigSpec.IntValue KING_AUTO_SUMMON_LIVES;
     public static final ForgeConfigSpec.IntValue SPAWN_HEIGHT;
     /**
      * Terminal fall velocity in blocks/tick. Lower = slower, more cinematic drop.
@@ -57,6 +65,11 @@ public class AirdropConfig {
         ENABLED = BUILDER
                 .comment("Set to false to disable all airdrops.")
                 .define("enabled", true);
+        KING_AUTO_SUMMON_LIVES = BUILDER
+                .comment("Total remaining lives across the whole roster at which The King auto-summons as the "
+                        + "finale (fires once, regardless of player count). 3 = he rises with more than 2 lives "
+                        + "still in play. Also requires more than one player alive. 0 = disable auto-summon.")
+                .defineInRange("king_auto_summon_lives", 3, 0, 1000);
         SPAWN_HEIGHT = BUILDER
                 .comment("How many blocks above the surface the airdrop spawns before falling.")
                 .defineInRange("spawn_height", 150, 50, 256);

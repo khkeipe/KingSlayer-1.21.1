@@ -47,6 +47,7 @@ public class KingSlayer
 
         ModCreativeModeTabs.register(modEventBus);
 
+        com.koreykeipe.kingslayer.item.ModArmorMaterials.register(modEventBus);
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModEntityTypes.register(modEventBus);
@@ -136,5 +137,12 @@ public class KingSlayer
             EntityRenderers.register(ModEntityTypes.KING.get(), com.koreykeipe.kingslayer.client.KingRenderer::new);
         }
 
+        @SubscribeEvent
+        public static void onRegisterLayerDefinitions(
+                net.minecraftforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions event) {
+            event.registerLayerDefinition(
+                    com.koreykeipe.kingslayer.client.ModModelLayers.KING_CROWN,
+                    com.koreykeipe.kingslayer.client.KingCrownModel::createLayer);
+        }
     }
 }

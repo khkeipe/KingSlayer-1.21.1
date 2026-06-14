@@ -3,7 +3,6 @@ package com.koreykeipe.kingslayer.item;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -19,7 +18,7 @@ import java.util.List;
 public class BulwarkLegguardsItem extends ArmorItem {
 
     public BulwarkLegguardsItem(Properties properties) {
-        super(ArmorMaterials.NETHERITE, ArmorItem.Type.LEGGINGS, properties);
+        super(ModArmorMaterials.SLAYER_PLATE.getHolder().orElseThrow(), ArmorItem.Type.LEGGINGS, properties);
     }
 
     @Override

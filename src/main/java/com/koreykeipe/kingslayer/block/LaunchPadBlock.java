@@ -31,7 +31,8 @@ import java.util.List;
  */
 public class LaunchPadBlock extends Block {
 
-    private static final double LAUNCH = 1.6;
+    private static final double LAUNCH        = 1.6;  // vertical pop
+    private static final double FORWARD_BOOST = 0.7;   // kick in the direction of travel
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16); // bottom slab
 
     public LaunchPadBlock(Properties properties) {
@@ -56,8 +57,12 @@ public class LaunchPadBlock extends Block {
             return;
         }
 
+        // Vertical pop, plus a kick in the direction the entity is already travelling.
         Vec3 m = entity.getDeltaMovement();
-        entity.setDeltaMovement(m.x * 1.1, LAUNCH, m.z * 1.1);
+        double hLen = Math.sqrt(m.x * m.x + m.z * m.z);
+        double bx = hLen > 0.05 ? m.x / hLen * FORWARD_BOOST : 0.0;
+        double bz = hLen > 0.05 ? m.z / hLen * FORWARD_BOOST : 0.0;
+        entity.setDeltaMovement(m.x + bx, LAUNCH, m.z + bz);
         entity.hurtMarked = true;
         entity.fallDistance = 0;
         if (entity instanceof LivingEntity le) {

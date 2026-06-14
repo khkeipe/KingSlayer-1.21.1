@@ -90,10 +90,12 @@ public class ModEvents {
     public static void updateDeaths(ServerPlayer player){
         final int MAX_DEATHS = 5;
         Scoreboard scoreboard = player.getServer().getScoreboard();
-        int deaths = player.getStats().getValue(Stats.CUSTOM, Stats.DEATHS);
+        // Lives are driven by the persistent event death counter (incremented in onLivingDeath),
+        // so they survive restarts. This hook just reflects the count on respawn.
+        int deaths = GameManager.get().getDeaths(player.getUUID());
         int lives = MAX_DEATHS - deaths;
 
-        if(deaths == 0){
+        if(deaths <= 0){
             PlayerTeam team = scoreboard.getPlayerTeam("aqua_team");
             if(team != null){
                 scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
@@ -144,18 +146,13 @@ public class ModEvents {
                 );
             }
         }
-        else if(deaths >= 5){
+        else { // deaths >= 5 — eliminated (the win-condition check already ran in recordDeath)
             PlayerTeam team = scoreboard.getPlayerTeam("gray_team");
             if(team != null){
                 scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
             }
-            GameManager.get().onPlayerEliminated(player);
             player.setGameMode(GameType.SPECTATOR);
             player.sendSystemMessage(Component.literal("THANKS FOR PLAYING KING SLAYER"));
-        }
-        else {
-            Stat<ResourceLocation> stat = Stats.CUSTOM.get(Stats.DEATHS);
-            player.getStats().setValue(player, stat, 0);
         }
     }
     @SubscribeEvent
@@ -236,6 +233,11 @@ public class ModEvents {
 
         CombatTracker.clearPlayer(victim.getUUID());
         GameManager.get().onPlayerKilled(victim, attribution);
+
+        // Tally this death into the persistent event counter BEFORE progress is read, so the
+        // airdrop tiers and King auto-summon see the up-to-date roster (this also runs the
+        // elimination / win-condition check when the victim hits their last life).
+        GameManager.get().recordDeath(victim);
 
         // Check whether this death has crossed an airdrop threshold
         net.minecraft.server.MinecraftServer server = victim.getServer();

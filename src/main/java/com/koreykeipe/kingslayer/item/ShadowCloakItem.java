@@ -3,7 +3,6 @@ package com.koreykeipe.kingslayer.item;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -28,7 +27,7 @@ public class ShadowCloakItem extends ArmorItem {
     public static final String REVEAL_KEY = "ks_cloak_reveal_until";
 
     public ShadowCloakItem(Properties properties) {
-        super(ArmorMaterials.NETHERITE, ArmorItem.Type.CHESTPLATE, properties);
+        super(ModArmorMaterials.SLAYER_PLATE.getHolder().orElseThrow(), ArmorItem.Type.CHESTPLATE, properties);
     }
 
     @Override

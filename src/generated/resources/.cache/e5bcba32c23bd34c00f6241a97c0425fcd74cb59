@@ -1,4 +1,4 @@
-// 1.21.1	2026-06-13T19:45:27.306211	Global Loot Modifiers : kcs_kingslayer
+// 1.21.1	2026-06-13T20:12:14.9371149	Global Loot Modifiers : kcs_kingslayer
 0878276362a8ac9d002116adf202b31b49715586 data/forge/loot_modifiers/global_loot_modifiers.json
 80720ff08648ca8be92266b80dc9a04960663b56 data/kcs_kingslayer/loot_modifiers/anchor_from_bounty.json
 1a55eaa2ffe136c7e8a32513ff65882345fdfe56 data/kcs_kingslayer/loot_modifiers/anchor_from_common_ad.json
@@ -68,7 +68,7 @@ d8c5f51607781cab89a75d2574063e4be3ca2a05 data/kcs_kingslayer/loot_modifiers/myst
 c7bd2e38d805eae473deb25a4bb2c613762be5aa data/kcs_kingslayer/loot_modifiers/mystery_bola.json
 736ade1c50a3247648527058e36480fa0111a983 data/kcs_kingslayer/loot_modifiers/mystery_bulwark.json
 5be2b553d75a23e21b07bb42f3da4c52454d4663 data/kcs_kingslayer/loot_modifiers/mystery_crown.json
-0f447dd97d4c96d4abc59e97aeee21ed08c78649 data/kcs_kingslayer/loot_modifiers/mystery_egg.json
+00fd34a6442905ee7acf78fe9cdb53783d5a4867 data/kcs_kingslayer/loot_modifiers/mystery_egg.json
 089320445677276721a8fb06e07aab32ac883c7a data/kcs_kingslayer/loot_modifiers/mystery_ender_pearls.json
 e7c5bba60899145dd824aa8e0bb3a9bb29fd0424 data/kcs_kingslayer/loot_modifiers/mystery_gapple.json
 ac04326185876965555aac1834a5f09467d71779 data/kcs_kingslayer/loot_modifiers/mystery_launch_pad.json

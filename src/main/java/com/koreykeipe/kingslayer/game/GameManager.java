@@ -32,9 +32,12 @@ public class GameManager {
     private static final GameManager INSTANCE = new GameManager();
 
     private MinecraftServer server;
-    private final LinkedHashSet<UUID> alivePlayers     = new LinkedHashSet<>();
-    private final Set<UUID>           eliminatedPlayers = new HashSet<>();
     private boolean gameActive = false;
+
+    /** Persistent event state (roster, per-player deaths, finale flags) — survives restarts. */
+    private KsWorldData state;
+
+    private static final int MAX_DEATHS = 5; // lives per player; elimination latches at this count
 
     // -------------------------------------------------------------------------
     // Kill tracking
@@ -70,26 +73,95 @@ public class GameManager {
 
     public void onServerStarted(MinecraftServer server) {
         this.server = server;
-        alivePlayers.clear();
-        eliminatedPlayers.clear();
+        // Load the persistent event roster/deaths. Continuous tournament: the game is over
+        // only if a victor was already declared — otherwise it resumes right where it left off.
+        this.state = KsWorldData.get(server.overworld());
+
+        // Per-session scoreboards (kills/threat/assists/Marked/kill-feed) reset each session;
+        // the win-critical roster + death counts live in `state` and persist.
         killCounts.clear();
         threatScores.clear();
         assistCounts.clear();
         currentMarkedUUID = null;
         CombatLog.clear();
         CombatTracker.clear();
-        gameActive = true;
-        KingSlayer.LOGGER.info("KingSlayer initialized — waiting for players to join.");
+
+        gameActive = !state.concluded;
+        KingSlayer.LOGGER.info("KingSlayer {} — {} participants, {} still alive.",
+                state.concluded ? "event already concluded" : "event resumed/started",
+                state.participants.size(), aliveCount());
     }
 
     public void onPlayerLogin(ServerPlayer player) {
-        if (!gameActive) return;
+        if (state == null) return;
         UUID uuid = player.getUUID();
-        if (eliminatedPlayers.contains(uuid)) return;
-        if (alivePlayers.add(uuid)) {
-            broadcast("§6KingSlayer §a" + player.getName().getString()
-                    + " §ehas entered the arena. §7(" + alivePlayers.size() + " players)");
+        state.names.put(uuid, player.getName().getString());
+
+        // Eliminated players rejoin as spectators no matter when they reconnect.
+        if (isEliminated(uuid)) {
+            player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+            state.setDirty();
+            return;
         }
+        if (!gameActive) { state.setDirty(); return; }
+
+        if (state.participants.add(uuid)) {
+            broadcast("§6KingSlayer §a" + player.getName().getString()
+                    + " §ehas entered the arena. §7(" + aliveCount() + " players)");
+        }
+        state.setDirty();
+    }
+
+    // -------------------------------------------------------------------------
+    // Roster helpers — "alive" = a participant who hasn't hit MAX_DEATHS, online or not.
+    // -------------------------------------------------------------------------
+
+    public int getDeaths(UUID uuid)        { return state == null ? 0 : state.deaths.getOrDefault(uuid, 0); }
+    public boolean isEliminated(UUID uuid) { return getDeaths(uuid) >= MAX_DEATHS; }
+    public boolean isAlive(UUID uuid)      { return state != null && state.participants.contains(uuid) && !isEliminated(uuid); }
+
+    public int aliveCount() {
+        if (state == null) return 0;
+        int n = 0;
+        for (UUID p : state.participants) if (!isEliminated(p)) n++;
+        return n;
+    }
+
+    /** Total lives left across the WHOLE roster (each participant starts with MAX_DEATHS). */
+    public int remainingLives() {
+        if (state == null) return 0;
+        int total = 0;
+        for (UUID p : state.participants) total += Math.max(0, MAX_DEATHS - getDeaths(p));
+        return total;
+    }
+
+    /** Normalised event death progress (0–1) over the FULL roster — player-count independent. */
+    public double eventDeathProgress() {
+        if (state == null || state.participants.isEmpty()) return 0.0;
+        int total = 0;
+        for (UUID p : state.participants) total += Math.min(getDeaths(p), MAX_DEATHS);
+        return (double) total / ((double) state.participants.size() * MAX_DEATHS);
+    }
+
+    public boolean isKingSummoned()        { return state != null && state.kingSummoned; }
+    public void    markKingSummoned()      { if (state != null) { state.kingSummoned = true; state.setDirty(); } }
+
+    /**
+     * Records one death for a player (the single source of truth for lives). Returns the new
+     * count. When it crosses {@link #MAX_DEATHS} the player is eliminated and the win condition
+     * is re-checked. Called from the death hook before airdrop progress is read.
+     */
+    public int recordDeath(ServerPlayer player) {
+        if (state == null) return 0;
+        UUID uuid = player.getUUID();
+        state.participants.add(uuid);
+        state.names.put(uuid, player.getName().getString());
+        int count = state.deaths.merge(uuid, 1, Integer::sum);
+        state.setDirty();
+        if (count == MAX_DEATHS) {   // exact crossing — eliminate once
+            onPlayerEliminated(player);
+        }
+        return count;
     }
 
     // -------------------------------------------------------------------------
@@ -99,7 +171,7 @@ public class GameManager {
     public void onPlayerKilled(ServerPlayer victim, CombatTracker.KillAttribution attribution) {
         if (!gameActive) return;
         UUID uuid = victim.getUUID();
-        if (!alivePlayers.contains(uuid) && !eliminatedPlayers.contains(uuid)) return;
+        if (state == null || !state.participants.contains(uuid)) return;
 
         // First blood — must check before logKill so the list is still empty
         boolean isFirstBlood = CombatLog.getEntries().isEmpty()
@@ -152,27 +224,32 @@ public class GameManager {
     // Elimination / win condition
     // -------------------------------------------------------------------------
 
+    /**
+     * Called once when a player crosses {@link #MAX_DEATHS} (from {@link #recordDeath}).
+     * Elimination itself is derived from the persisted death count; this handles the
+     * win-condition check, milestones, and victory/draw — over the FULL roster, so players
+     * who are merely offline still count as alive.
+     */
     public void onPlayerEliminated(ServerPlayer player) {
-        if (!gameActive) return;
-        UUID uuid = player.getUUID();
-        if (!alivePlayers.remove(uuid)) return;
-        eliminatedPlayers.add(uuid);
-
-        if (uuid.equals(currentMarkedUUID)) {
+        if (!gameActive || state == null) return;
+        if (player.getUUID().equals(currentMarkedUUID)) {
             currentMarkedUUID = null;
         }
 
-        int remaining = alivePlayers.size();
+        int remaining = aliveCount();
 
-        if (remaining == 1) {
-            UUID winnerId = alivePlayers.iterator().next();
-            ServerPlayer winner = server.getPlayerList().getPlayer(winnerId);
-            String winnerName = winner != null ? winner.getName().getString() : "Unknown";
-            announceVictory(winner, winnerName);
-            gameActive = false;
-
-        } else if (remaining == 0) {
-            broadcast("§6KingSlayer §cNo survivors — it's a draw!");
+        if (remaining <= 1) {
+            UUID winnerId = state.participants.stream().filter(p -> !isEliminated(p)).findFirst().orElse(null);
+            if (remaining == 1 && winnerId != null) {
+                ServerPlayer winner = server.getPlayerList().getPlayer(winnerId); // may be offline
+                String winnerName = winner != null ? winner.getName().getString()
+                        : state.names.getOrDefault(winnerId, "Unknown");
+                announceVictory(winner, winnerName);
+            } else {
+                broadcast("§6KingSlayer §cNo survivors — it's a draw!");
+            }
+            state.concluded = true;
+            state.setDirty();
             gameActive = false;
 
         } else {
@@ -225,7 +302,7 @@ public class GameManager {
             broadcast("  §e" + rank++ + ". §a" + name
                     + " §7— " + e.getValue() + " kills · " + assists + " assists  §8(threat: " + score + ")");
         }
-        broadcast("  §7" + alivePlayers.size() + " players remain.");
+        broadcast("  §7" + aliveCount() + " players remain.");
         broadcast("§6=====================================");
     }
 
@@ -237,7 +314,7 @@ public class GameManager {
         if (server == null) return;
 
         UUID newMarked = threatScores.entrySet().stream()
-                .filter(e -> alivePlayers.contains(e.getKey()))
+                .filter(e -> isAlive(e.getKey()))
                 .filter(e -> e.getValue() > 5)
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -369,6 +446,7 @@ public class GameManager {
         } else {
             announceVictory(null, name);
         }
+        if (state != null) { state.concluded = true; state.setDirty(); }
         gameActive = false;
     }
 
@@ -477,7 +555,13 @@ public class GameManager {
     public boolean isGameActive()      { return gameActive; }
     public MinecraftServer getServer() { return server; }
 
-    public Set<UUID>          getAlivePlayers() { return Collections.unmodifiableSet(alivePlayers); }
+    public Set<UUID> getAlivePlayers() {
+        Set<UUID> alive = new HashSet<>();
+        if (state != null) {
+            for (UUID p : state.participants) if (!isEliminated(p)) alive.add(p);
+        }
+        return Collections.unmodifiableSet(alive);
+    }
     public Map<UUID, Integer> getKillCounts()   { return Collections.unmodifiableMap(killCounts); }
     public Map<UUID, Integer> getThreatScores() { return Collections.unmodifiableMap(threatScores); }
 }

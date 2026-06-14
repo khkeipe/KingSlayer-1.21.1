@@ -247,7 +247,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         // Stone). Mix in hostile spawn eggs, rare custom weapons, and oddities freely.
         // ------------------------------------------------------------------
         // One random hostile egg (not all of them). Add more egg Choices freely.
-        oneOf("mystery_egg", ModBlocks.MYSTERY_CRATE.get(), 0.6f,
+        oneOf("mystery_egg", ModBlocks.MYSTERY_CRATE.get(), 0.9f,
                 new OneOfItemModifier.Choice(Items.ZOMBIE_SPAWN_EGG, 3),
                 new OneOfItemModifier.Choice(Items.SKELETON_SPAWN_EGG, 3),
                 new OneOfItemModifier.Choice(Items.CREEPER_SPAWN_EGG, 2),

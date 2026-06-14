@@ -50,6 +50,7 @@ public class BossKeyItem extends Item {
         king.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, sp.getYRot() + 180f, 0f);
         king.finalizeSpawn(sl, sl.getCurrentDifficultyAt(pos), MobSpawnType.EVENT, null);
         sl.addFreshEntity(king);
+        GameManager.get().markKingSummoned(); // so the auto-finale won't spawn a second King
 
         GameManager.get().broadcast("§4☠ §c" + sp.getName().getString()
                 + " §4turned the Boss Key — §cTHE KING RISES!");

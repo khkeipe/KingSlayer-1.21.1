@@ -1,6 +1,8 @@
 package com.koreykeipe.kingslayer.airdrop;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import com.koreykeipe.kingslayer.entity.ModEntityTypes;
+import com.koreykeipe.kingslayer.entity.TheKing;
 import com.koreykeipe.kingslayer.game.GameManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -17,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
 
@@ -151,6 +154,49 @@ public class AirdropManager {
                         THRESHOLD_SPAWN_DELAY_TICKS);
             }
         }
+
+        // Finale: once the round is nearly over, The King rises automatically (once).
+        maybeAutoSummonKing(server);
+    }
+
+    /**
+     * Auto-summons The King as the grand finale when total remaining lives drop to the configured
+     * count — an absolute trigger so a consistent buffer of lives is left at ANY player count.
+     * Requires more than one player still alive (a lone last player is handled by the normal
+     * last-standing victory, unless absences keep others alive — then that player must slay him).
+     * Fires once; a Boss Key may bring him earlier (it latches the same flag).
+     */
+    private void maybeAutoSummonKing(MinecraftServer server) {
+        GameManager gm = GameManager.get();
+        if (gm.isKingSummoned()) return;
+        if (!gm.isGameActive()) return;
+        int trigger = AirdropConfig.KING_AUTO_SUMMON_LIVES.get();
+        if (trigger <= 0) return;                       // auto-summon disabled
+        if (gm.aliveCount() <= 1) return;               // last player standing → normal victory
+        if (gm.remainingLives() > trigger) return;      // not the finale yet
+
+        ServerLevel overworld = server.overworld();
+        BlockPos spawn = overworld.getSharedSpawnPos();
+        int y = overworld.getHeight(Heightmap.Types.WORLD_SURFACE, spawn.getX(), spawn.getZ());
+        TheKing king = new TheKing(ModEntityTypes.KING.get(), overworld);
+        king.moveTo(spawn.getX() + 0.5, y, spawn.getZ() + 0.5, 0f, 0f);
+        king.finalizeSpawn(overworld, overworld.getCurrentDifficultyAt(spawn), MobSpawnType.EVENT, null);
+        overworld.addFreshEntity(king);
+        GameManager.get().markKingSummoned();
+
+        GameManager.get().broadcast("§4§l☠ THE KING RISES ☠");
+        GameManager.get().broadcast("§cThe final hour has come — The King has risen at world spawn. Slay him to seize the throne!");
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            p.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 20));
+            p.connection.send(new ClientboundSetTitleTextPacket(Component.literal("THE KING RISES")
+                    .withStyle(s -> s.withColor(ChatFormatting.DARK_RED).withBold(true))));
+            p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Slay him to seize the throne!")
+                    .withStyle(s -> s.withColor(ChatFormatting.RED).withItalic(false))));
+            p.connection.send(new ClientboundSoundPacket(net.minecraft.core.Holder.direct(SoundEvents.WITHER_SPAWN),
+                    SoundSource.AMBIENT, p.getX(), p.getY(), p.getZ(), 2.0f, 0.6f, p.getRandom().nextLong()));
+        }
+        KingSlayer.LOGGER.info("KingSlayer: King auto-summoned at finale ({} lives left, {} players alive).",
+                GameManager.get().remainingLives(), GameManager.get().aliveCount());
     }
 
     // -------------------------------------------------------------------------
@@ -344,15 +390,9 @@ public class AirdropManager {
     // -------------------------------------------------------------------------
 
     private double calculateProgress(MinecraftServer server) {
-        List<ServerPlayer> players = server.getPlayerList().getPlayers();
-        if (players.isEmpty()) return 0.0;
-
-        int totalDeaths = 0;
-        for (ServerPlayer player : players) {
-            int deaths = player.getStats().getValue(Stats.CUSTOM, Stats.DEATHS);
-            totalDeaths += Math.min(deaths, 5);
-        }
-        return (double) totalDeaths / ((double) players.size() * 5.0);
+        // Roster-wide event progress (counts offline participants too), so tier pacing is
+        // consistent across sessions and independent of who happens to be online.
+        return GameManager.get().eventDeathProgress();
     }
 
     private AirdropConfig.TierConfig configFor(AirdropTier tier) {
