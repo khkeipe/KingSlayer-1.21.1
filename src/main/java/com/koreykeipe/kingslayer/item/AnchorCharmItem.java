@@ -18,7 +18,7 @@ import java.util.List;
 public class AnchorCharmItem extends ArmorItem {
 
     public AnchorCharmItem(Properties properties) {
-        super(ModArmorMaterials.SLAYER_PLATE.getHolder().orElseThrow(), ArmorItem.Type.BOOTS, properties);
+        super(ModArmorMaterials.SLAYER_PLATE, ArmorItem.Type.BOOTS, properties);
     }
 
     @Override

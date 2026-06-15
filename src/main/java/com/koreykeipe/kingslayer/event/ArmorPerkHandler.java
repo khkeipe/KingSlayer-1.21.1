@@ -16,10 +16,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 /**
  * Passive perks for the wearable combat gear (the held abilities became armor-slot trade-offs):
@@ -30,7 +31,7 @@ import net.minecraftforge.fml.common.Mod;
  *   <li><b>Truesight Visor</b> (helmet) — a periodic aura that Glows nearby invisible enemies.</li>
  * </ul>
  */
-@Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ArmorPerkHandler {
 
     private static final ResourceLocation ANCHOR_KB_ID =
@@ -42,7 +43,7 @@ public class ArmorPerkHandler {
     private static final float BULWARK_DR = 0.20f;
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+    public static void onLivingTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer p)) return;
         long now = p.level().getGameTime();
 
@@ -83,7 +84,7 @@ public class ArmorPerkHandler {
 
     /** Bulwark Legguards: cut all incoming damage by a flat share — even armor-bypassing hits. */
     @SubscribeEvent
-    public static void onLivingHurt(LivingHurtEvent event) {
+    public static void onLivingHurt(LivingIncomingDamageEvent event) {
         LivingEntity e = event.getEntity();
         if (!e.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.BULWARK_LEGGUARDS.get())) return;
 

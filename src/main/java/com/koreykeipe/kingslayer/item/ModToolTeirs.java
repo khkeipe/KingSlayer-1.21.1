@@ -1,12 +1,13 @@
 package com.koreykeipe.kingslayer.item;
 
 import com.koreykeipe.kingslayer.util.ModTags;
+import net.neoforged.neoforge.common.SimpleTier;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.ForgeTier;
 
 public class ModToolTeirs {
-    public static final Tier SLAYER = new ForgeTier(1500, 5,3f, 25,
-            ModTags.Blocks.NEEDS_SLAYER_TOOL, () -> Ingredient.of(ModItems.CROWN.get()),
-            ModTags.Blocks.INCORRECT_FOR_SLAYER_TOOL);
+    // NeoForge/1.21 use vanilla SimpleTier: (incorrectBlocksForDrops, uses, speed, attack, enchantValue, repair).
+    public static final Tier SLAYER = new SimpleTier(
+            ModTags.Blocks.INCORRECT_FOR_SLAYER_TOOL, 1500, 5.0F, 3.0F, 25,
+            () -> Ingredient.of(ModItems.CROWN.get()));
 }

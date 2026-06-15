@@ -13,9 +13,10 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 /**
  * Applies slow, unavoidable nether-gas damage to every player inside the Nether
@@ -44,7 +45,7 @@ import net.minecraftforge.fml.common.Mod;
  *   <li>{@link #POISON_AMPLIFIER}      — poison level (0 = Poison I)</li>
  * </ul>
  */
-@Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class NetherGasHandler {
 
     /** Ticks between pulses. 60 = every 3 seconds. */
@@ -60,10 +61,9 @@ public class NetherGasHandler {
     private static final int POISON_AMPLIFIER = 0;
 
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         // Only act at the end of the tick and only for server-side players
-        if (event.phase != TickEvent.Phase.END) return;
-        if (!(event.player instanceof ServerPlayer player)) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         // Respect game state and player mode
         if (!GameManager.get().isGameActive()) return;

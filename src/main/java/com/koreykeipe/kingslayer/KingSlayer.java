@@ -15,17 +15,18 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.ModContainer;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -37,13 +38,12 @@ public class KingSlayer
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public KingSlayer(FMLJavaModLoadingContext context)
+    public KingSlayer(IEventBus modEventBus, ModContainer modContainer)
     {
-        IEventBus modEventBus = context.getModEventBus();
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
 
         ModCreativeModeTabs.register(modEventBus);
 
@@ -56,10 +56,10 @@ public class KingSlayer
         ModLootModifiers.register(modEventBus);
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        // Register the mod's ModConfigSpec so NeoForge can create and load the config files.
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         // Airdrop system config (server-side — loot tables and thresholds)
-        context.registerConfig(ModConfig.Type.SERVER, AirdropConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, AirdropConfig.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -121,7 +121,7 @@ public class KingSlayer
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
         @SubscribeEvent
@@ -139,7 +139,7 @@ public class KingSlayer
 
         @SubscribeEvent
         public static void onRegisterLayerDefinitions(
-                net.minecraftforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions event) {
+                net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions event) {
             event.registerLayerDefinition(
                     com.koreykeipe.kingslayer.client.ModModelLayers.KING_CROWN,
                     com.koreykeipe.kingslayer.client.KingCrownModel::createLayer);

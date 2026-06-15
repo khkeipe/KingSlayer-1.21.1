@@ -24,10 +24,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ import java.util.List;
  * Adjust {@link #SPAWN_INTERVAL_TICKS}, {@link #SPAWN_CHANCE},
  * {@link #MAX_KNIGHTS_NEAR_PLAYER}, and the distance constants below.
  */
-@Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class KnightSpawnHandler {
 
     // ------------------------------------------------------------------
@@ -94,8 +95,7 @@ public class KnightSpawnHandler {
     // ------------------------------------------------------------------
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public static void onServerTick(ServerTickEvent.Post event) {
         if (!GameManager.get().isGameActive()) return;
 
         MinecraftServer server = event.getServer();

@@ -9,16 +9,17 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 /**
  * Fishing-hook combat: when any fishing hook latches onto a player, the owner is
  * registered for kill attribution (so a yoink into lava/void credits them). If the owner
  * wields the {@link ModItems#YOINK_ROD}, the victim is also violently yanked toward them.
  */
-@Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class FishingYoinkHandler {
 
     /** Max reel-in speed (blocks/tick) of the Yoink Rod — a reverse grapple toward the caster. */

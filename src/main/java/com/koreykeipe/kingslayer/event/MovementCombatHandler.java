@@ -5,10 +5,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 /**
  * Shared movement-combat state for the displacement arsenal:
@@ -20,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
  *       window, so the Grapple Crossbow is a mobility tool and not a suicide button.</li>
  * </ul>
  */
-@Mod.EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class MovementCombatHandler {
 
     private static final String ROOT_KEY    = "ks_rooted_until";
@@ -43,8 +44,8 @@ public class MovementCombatHandler {
     }
 
     @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        LivingEntity entity = event.getEntity();
+    public static void onLivingTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
         if (entity.level().isClientSide || !isRooted(entity)) return;
 
         Vec3 m = entity.getDeltaMovement();
@@ -56,7 +57,7 @@ public class MovementCombatHandler {
 
     @SubscribeEvent
     public static void onLivingFall(LivingFallEvent event) {
-        LivingEntity entity = event.getEntity();
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
         if (entity.level().getGameTime() <= entity.getPersistentData().getLong(NOFALL_KEY)) {
             entity.getPersistentData().remove(NOFALL_KEY);
             event.setCanceled(true); // no landing damage from the grapple

@@ -27,7 +27,7 @@ public class ShadowCloakItem extends ArmorItem {
     public static final String REVEAL_KEY = "ks_cloak_reveal_until";
 
     public ShadowCloakItem(Properties properties) {
-        super(ModArmorMaterials.SLAYER_PLATE.getHolder().orElseThrow(), ArmorItem.Type.CHESTPLATE, properties);
+        super(ModArmorMaterials.SLAYER_PLATE, ArmorItem.Type.CHESTPLATE, properties);
     }
 
     @Override

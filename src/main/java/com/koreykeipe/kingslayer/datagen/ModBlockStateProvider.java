@@ -4,9 +4,9 @@ import com.koreykeipe.kingslayer.KingSlayer;
 import com.koreykeipe.kingslayer.block.ModBlocks;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class ModBlockStateProvider extends BlockStateProvider {
     public ModBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
@@ -34,12 +34,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         // Tribute Stone reuses the vanilla lodestone model/textures.
         simpleBlockWithItem(ModBlocks.TRIBUTE_STONE.get(),
-                new net.minecraftforge.client.model.generators.ModelFile.UncheckedModelFile(mcLoc("block/lodestone")));
+                new net.neoforged.neoforge.client.model.generators.ModelFile.UncheckedModelFile(mcLoc("block/lodestone")));
 
         blockWithItem(ModBlocks.MYSTERY_CRATE);
     }
 
-    private void blockWithItem(RegistryObject<Block> blocksRegistryObject){
+    private void blockWithItem(DeferredHolder<Block, Block> blocksRegistryObject){
         simpleBlockWithItem(blocksRegistryObject.get(),cubeAll(blocksRegistryObject.get()));
     }
 }

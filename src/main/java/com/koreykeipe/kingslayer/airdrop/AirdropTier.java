@@ -2,7 +2,7 @@ package com.koreykeipe.kingslayer.airdrop;
 
 import com.koreykeipe.kingslayer.block.ModBlocks;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 /**
  * The four escalating tiers of airdrops, each mapped to a crate block
@@ -16,9 +16,9 @@ public enum AirdropTier {
 
     private final String displayName;
     private final String color;        // chat format prefix
-    private final RegistryObject<Block> crate;
+    private final DeferredHolder<Block, Block> crate;
 
-    AirdropTier(String displayName, String color, RegistryObject<Block> crate) {
+    AirdropTier(String displayName, String color, DeferredHolder<Block, Block> crate) {
         this.displayName = displayName;
         this.color = color;
         this.crate = crate;
@@ -26,7 +26,7 @@ public enum AirdropTier {
 
     public String getDisplayName()        { return displayName; }
     public String getColor()              { return color; }
-    public RegistryObject<Block> getCrate() { return crate; }
+    public DeferredHolder<Block, Block> getCrate() { return crate; }
 
     /** Returns a chat-formatted label, e.g. "§aCommon Airdrop§r". */
     public String coloredName() {

@@ -15,19 +15,19 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraftforge.common.data.GlobalLootModifierProvider;
-import net.minecraftforge.common.loot.LootTableIdCondition;
+import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
+import net.neoforged.neoforge.common.loot.LootTableIdCondition;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     public ModGlobalLootModifierProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, KingSlayer.MOD_ID, registries);
+        super(output, registries, KingSlayer.MOD_ID);
     }
 
     @Override
-    protected void start(HolderLookup.Provider registries) {
+    protected void start() {
 
         // Broken Crate Loot
         oneOf("broken_special", ModBlocks.BROKEN_CRATE.get(), 0.75f,

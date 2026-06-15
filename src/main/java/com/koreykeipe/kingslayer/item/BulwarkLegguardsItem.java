@@ -18,7 +18,7 @@ import java.util.List;
 public class BulwarkLegguardsItem extends ArmorItem {
 
     public BulwarkLegguardsItem(Properties properties) {
-        super(ModArmorMaterials.SLAYER_PLATE.getHolder().orElseThrow(), ArmorItem.Type.LEGGINGS, properties);
+        super(ModArmorMaterials.SLAYER_PLATE, ArmorItem.Type.LEGGINGS, properties);
     }
 
     @Override

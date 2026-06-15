@@ -1,6 +1,6 @@
 package com.koreykeipe.kingslayer.airdrop;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
  * Server-side config for the KingSlayer airdrop system.
@@ -12,13 +12,13 @@ import net.minecraftforge.common.ForgeConfigSpec;
  */
 public class AirdropConfig {
 
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     // -------------------------------------------------------------------------
     // Global settings
     // -------------------------------------------------------------------------
 
-    public static final ForgeConfigSpec.BooleanValue ENABLED;
+    public static final ModConfigSpec.BooleanValue ENABLED;
     /**
      * Total remaining lives across the WHOLE roster at which The King is auto-summoned as the
      * grand finale — fires once when remaining lives drop to this value, regardless of player
@@ -26,30 +26,30 @@ public class AirdropConfig {
      * count: 3 means he rises with more than 2 lives still in play. The auto-summon also
      * requires more than one player still alive; a Boss Key can bring him earlier. 0 = disable.
      */
-    public static final ForgeConfigSpec.IntValue KING_AUTO_SUMMON_LIVES;
-    public static final ForgeConfigSpec.IntValue SPAWN_HEIGHT;
+    public static final ModConfigSpec.IntValue KING_AUTO_SUMMON_LIVES;
+    public static final ModConfigSpec.IntValue SPAWN_HEIGHT;
     /**
      * Terminal fall velocity in blocks/tick. Lower = slower, more cinematic drop.
      * 0.5 ≈ 5s from 60 blocks, 1.5 ≈ 3s from 60 blocks, 3.0 ≈ 2s from 60 blocks.
      */
-    public static final ForgeConfigSpec.DoubleValue FALL_SPEED;
+    public static final ModConfigSpec.DoubleValue FALL_SPEED;
     /** How many ticks the chest glows after landing. 20 ticks = 1 second. */
-    public static final ForgeConfigSpec.IntValue GLOW_DURATION;
+    public static final ModConfigSpec.IntValue GLOW_DURATION;
 
     // -------------------------------------------------------------------------
     // World-border settings
     // -------------------------------------------------------------------------
 
     /** Whether automated world-border scaling is active. */
-    public static final ForgeConfigSpec.BooleanValue BORDER_ENABLED;
+    public static final ModConfigSpec.BooleanValue BORDER_ENABLED;
     /**
      * Border radius (blocks) contributed by each player who joins before the game
      * becomes active.  Starting diameter = 2 × playerCount × this value.
      * Example: 10 players × 100 = 1 000-block radius (2 000-block diameter).
      */
-    public static final ForgeConfigSpec.IntValue INITIAL_BLOCKS_PER_PLAYER;
+    public static final ModConfigSpec.IntValue INITIAL_BLOCKS_PER_PLAYER;
     /** Hard floor on border radius. The border will never shrink below 2× this (diameter). */
-    public static final ForgeConfigSpec.IntValue BORDER_MIN_RADIUS;
+    public static final ModConfigSpec.IntValue BORDER_MIN_RADIUS;
 
     // -------------------------------------------------------------------------
     // Per-tier settings
@@ -105,7 +105,7 @@ public class AirdropConfig {
         EPIC = new TierConfig(BUILDER, "epic", 0.85, 18000, 150, 24000);
     }
 
-    public static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final ModConfigSpec SPEC = BUILDER.build();
 
     // -------------------------------------------------------------------------
     // Inner class — per-tier config block
@@ -117,28 +117,28 @@ public class AirdropConfig {
          * Fraction (0.0–1.0) of total possible player deaths that must be reached to unlock this tier.
          * Formula: {@code sum(min(deaths, 5) per online player) / (playerCount × 5)}.
          */
-        public final ForgeConfigSpec.DoubleValue thresholdPercent;
+        public final ModConfigSpec.DoubleValue thresholdPercent;
 
         /**
          * How many ticks between repeat drops once this tier is unlocked.
          * Set to 0 to fire only once (on threshold cross) and never repeat.
          * 6000 = 5 min, 12000 = 10 min, 24000 = 20 min.
          */
-        public final ForgeConfigSpec.IntValue repeatIntervalTicks;
+        public final ModConfigSpec.IntValue repeatIntervalTicks;
 
         /**
          * Radius (blocks) by which to shrink the world border when this tier first triggers.
          * Set to 0 to skip the border shrink for this tier entirely.
          */
-        public final ForgeConfigSpec.IntValue borderShrinkRadius;
+        public final ModConfigSpec.IntValue borderShrinkRadius;
 
         /**
          * How many seconds the border-shrink transition takes.
          * The border lerps smoothly from its current size to the new target over this duration.
          */
-        public final ForgeConfigSpec.IntValue borderShrinkSeconds;
+        public final ModConfigSpec.IntValue borderShrinkSeconds;
 
-        TierConfig(ForgeConfigSpec.Builder builder, String name, double defaultThreshold,
+        TierConfig(ModConfigSpec.Builder builder, String name, double defaultThreshold,
                    int defaultRepeatInterval, int defaultShrinkRadius, int defaultShrinkSeconds) {
             builder.push("tiers").push(name);
 

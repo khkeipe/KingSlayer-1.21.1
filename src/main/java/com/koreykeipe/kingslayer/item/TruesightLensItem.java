@@ -18,7 +18,7 @@ import java.util.List;
 public class TruesightLensItem extends ArmorItem {
 
     public TruesightLensItem(Properties properties) {
-        super(ModArmorMaterials.SLAYER_PLATE.getHolder().orElseThrow(), ArmorItem.Type.HELMET, properties);
+        super(ModArmorMaterials.SLAYER_PLATE, ArmorItem.Type.HELMET, properties);
     }
 
     @Override

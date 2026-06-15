@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.item.component.Fireworks;
-import net.minecraftforge.client.event.sound.SoundEvent;
+import net.neoforged.neoforge.client.event.sound.SoundEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;

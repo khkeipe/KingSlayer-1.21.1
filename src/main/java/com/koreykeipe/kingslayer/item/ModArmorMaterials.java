@@ -9,9 +9,9 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -26,7 +26,7 @@ public class ModArmorMaterials {
     public static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS =
             DeferredRegister.create(Registries.ARMOR_MATERIAL, KingSlayer.MOD_ID);
 
-    public static final RegistryObject<ArmorMaterial> SLAYER_PLATE = ARMOR_MATERIALS.register("slayer_plate",
+    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> SLAYER_PLATE = ARMOR_MATERIALS.register("slayer_plate",
             () -> new ArmorMaterial(
                     Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
                         map.put(ArmorItem.Type.BOOTS, 3);

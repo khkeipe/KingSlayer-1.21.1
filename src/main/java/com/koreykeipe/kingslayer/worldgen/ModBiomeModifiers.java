@@ -11,9 +11,9 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraftforge.common.world.BiomeModifier;
-import net.minecraftforge.common.world.ForgeBiomeModifiers;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.BiomeModifiers;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -96,7 +96,7 @@ public class ModBiomeModifiers {
                 placed.getOrThrow(ModPlacedFeatures.EPIC_CRATE_PLACED_KEY));
 
         // Decorative King's-realm piles: sprinkled across every overworld biome (dry land).
-        context.register(ADD_DECOR, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+        context.register(ADD_DECOR, new BiomeModifiers.AddFeaturesBiomeModifier(
                 biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
                 HolderSet.direct(
                         placed.getOrThrow(ModPlacedFeatures.DECOR_CAMP_PLACED_KEY),
@@ -109,11 +109,11 @@ public class ModBiomeModifiers {
 
     private static void register(BootstrapContext<BiomeModifier> context, ResourceKey<BiomeModifier> key,
                                  HolderSet<Biome> biomes, Holder<net.minecraft.world.level.levelgen.placement.PlacedFeature> feature) {
-        context.register(key, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+        context.register(key, new BiomeModifiers.AddFeaturesBiomeModifier(
                 biomes, HolderSet.direct(feature), GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 
     private static ResourceKey<BiomeModifier> registerKey(String name) {
-        return ResourceKey.create(ForgeRegistries.Keys.BIOME_MODIFIERS, ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, name));
+        return ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, name));
     }
 }

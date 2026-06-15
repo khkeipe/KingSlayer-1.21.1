@@ -5,17 +5,17 @@ import com.koreykeipe.kingslayer.airdrop.AirdropEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import com.koreykeipe.kingslayer.entity.TheKing;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class ModEntityTypes {
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, KingSlayer.MOD_ID);
+            DeferredRegister.create(Registries.ENTITY_TYPE, KingSlayer.MOD_ID);
 
-    public static final RegistryObject<EntityType<AirdropEntity>> AIRDROP =
+    public static final DeferredHolder<EntityType<?>, EntityType<AirdropEntity>> AIRDROP =
             ENTITY_TYPES.register("airdrop",
                     () -> EntityType.Builder
                             .<AirdropEntity>of(AirdropEntity::new, MobCategory.MISC)
@@ -24,7 +24,7 @@ public class ModEntityTypes {
                             .updateInterval(1)           // sync every tick for smooth fall
                             .build(KingSlayer.MOD_ID + ":airdrop"));
 
-    public static final RegistryObject<EntityType<TheKing>> KING =
+    public static final DeferredHolder<EntityType<?>, EntityType<TheKing>> KING =
             ENTITY_TYPES.register("king",
                     () -> EntityType.Builder
                             .of(TheKing::new, MobCategory.MONSTER)
