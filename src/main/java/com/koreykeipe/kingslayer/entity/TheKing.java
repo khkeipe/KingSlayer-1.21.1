@@ -113,6 +113,15 @@ public class TheKing extends Warden {
             }
         }
 
+        // The King never fights his own knights. The Warden targets via its anger system, so
+        // drop any knight he's locked onto (and the anger driving it) every tick — the
+        // KingFactionHandler also cancels any stray damage as a backstop.
+        if (this.getTarget() instanceof Mob m && KnightSpawnHandler.isKnight(m)) {
+            this.clearAnger(m);
+            this.setTarget(null);
+            this.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.ATTACK_TARGET);
+        }
+
         updatePhase();
 
         if (--summonCooldown <= 0) {

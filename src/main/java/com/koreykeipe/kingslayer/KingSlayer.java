@@ -143,6 +143,9 @@ public class KingSlayer
             event.registerLayerDefinition(
                     com.koreykeipe.kingslayer.client.ModModelLayers.KING_CROWN,
                     com.koreykeipe.kingslayer.client.KingCrownModel::createLayer);
+            event.registerLayerDefinition(
+                    com.koreykeipe.kingslayer.client.ModModelLayers.KING_CAPE,
+                    com.koreykeipe.kingslayer.client.KingCapeModel::createLayer);
         }
     }
 }

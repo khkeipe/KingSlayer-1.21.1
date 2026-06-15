@@ -43,8 +43,9 @@ public class KingRenderer extends MobRenderer<Warden, WardenModel<Warden>> {
         this.addLayer(new WardenEmissiveLayer<>(this, tex("king_heart.png"),
                 (e, partial, age) -> e.getHeartAnimation(partial), WardenModel::getHeartLayerModelParts));
 
-        // The crown.
+        // The crown and cape.
         this.addLayer(new KingCrownLayer(this, context.bakeLayer(ModModelLayers.KING_CROWN)));
+        this.addLayer(new KingCapeLayer(this, context.bakeLayer(ModModelLayers.KING_CAPE)));
     }
 
     @Override
