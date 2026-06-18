@@ -1,9 +1,9 @@
 {
-  "feature": "kcs_kingslayer:knight_tent",
+  "feature": "kcs_kingslayer:crypt",
   "placement": [
     {
       "type": "minecraft:rarity_filter",
-      "chance": 30
+      "chance": 20
     },
     {
       "type": "minecraft:in_square"

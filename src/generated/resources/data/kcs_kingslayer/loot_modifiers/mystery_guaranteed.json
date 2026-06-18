@@ -1,0 +1,81 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "minecraft:rotten_flesh",
+      "max_count": 4,
+      "weight": 10
+    },
+    {
+      "item": "minecraft:bone",
+      "max_count": 3,
+      "weight": 8
+    },
+    {
+      "item": "minecraft:arrow",
+      "max_count": 12,
+      "min_count": 4,
+      "weight": 8
+    },
+    {
+      "item": "minecraft:bread",
+      "max_count": 2,
+      "weight": 8
+    },
+    {
+      "item": "minecraft:torch",
+      "max_count": 6,
+      "min_count": 2,
+      "weight": 6
+    },
+    {
+      "item": "minecraft:coal",
+      "max_count": 5,
+      "min_count": 2,
+      "weight": 6
+    },
+    {
+      "item": "minecraft:stick",
+      "max_count": 6,
+      "min_count": 2,
+      "weight": 6
+    },
+    {
+      "item": "minecraft:wheat_seeds",
+      "max_count": 4,
+      "min_count": 2,
+      "weight": 5
+    },
+    {
+      "item": "minecraft:experience_bottle",
+      "max_count": 3,
+      "weight": 6
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "max_count": 3,
+      "weight": 4
+    },
+    {
+      "item": "minecraft:ender_pearl",
+      "weight": 4
+    },
+    {
+      "item": "minecraft:golden_apple",
+      "weight": 2
+    },
+    {
+      "item": "minecraft:diamond"
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:mystery_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 1.0,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

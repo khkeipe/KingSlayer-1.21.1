@@ -1,4 +1,4 @@
-// 1.21.1	2026-06-15T15:16:20.5532353	Global Loot Modifiers : kcs_kingslayer
+// 1.21.1	2026-06-17T20:37:21.5264617	Global Loot Modifiers : kcs_kingslayer
 80720ff08648ca8be92266b80dc9a04960663b56 data/kcs_kingslayer/loot_modifiers/anchor_from_bounty.json
 1a55eaa2ffe136c7e8a32513ff65882345fdfe56 data/kcs_kingslayer/loot_modifiers/anchor_from_common_ad.json
 26171cea13387d4263b5c4f91efbf97bcdb04cd1 data/kcs_kingslayer/loot_modifiers/anchor_from_epic_ad.json
@@ -70,6 +70,7 @@ c7bd2e38d805eae473deb25a4bb2c613762be5aa data/kcs_kingslayer/loot_modifiers/myst
 00fd34a6442905ee7acf78fe9cdb53783d5a4867 data/kcs_kingslayer/loot_modifiers/mystery_egg.json
 089320445677276721a8fb06e07aab32ac883c7a data/kcs_kingslayer/loot_modifiers/mystery_ender_pearls.json
 e7c5bba60899145dd824aa8e0bb3a9bb29fd0424 data/kcs_kingslayer/loot_modifiers/mystery_gapple.json
+831724bfacd5c344463724f5b385112f0a218987 data/kcs_kingslayer/loot_modifiers/mystery_guaranteed.json
 ac04326185876965555aac1834a5f09467d71779 data/kcs_kingslayer/loot_modifiers/mystery_launch_pad.json
 8274c122b1a8ae97d072304e2cf21f4137deea4c data/kcs_kingslayer/loot_modifiers/mystery_rare_weapon.json
 5db99c5cf914d9a778f169fa8e50d67072e7f304 data/kcs_kingslayer/loot_modifiers/mystery_truesight.json
@@ -86,4 +87,4 @@ c6556077e7940ad12bdf55354de41fd800012219 data/kcs_kingslayer/loot_modifiers/true
 bbad738a9acd5e99be036990274fb4c0395421cc data/kcs_kingslayer/loot_modifiers/truesight_from_common_ad.json
 e1a4810b063f6d1cd83284dca37a1425d41eb03c data/kcs_kingslayer/loot_modifiers/truesight_from_epic_ad.json
 6279e848107fb9e365d1c9b63c61aeb3f35824dd data/kcs_kingslayer/loot_modifiers/truesight_from_rare_ad.json
-0878276362a8ac9d002116adf202b31b49715586 data/neoforge/loot_modifiers/global_loot_modifiers.json
+6ebfc6a5d6b55ef7b65fe6aaf7ad3bc293f28903 data/neoforge/loot_modifiers/global_loot_modifiers.json

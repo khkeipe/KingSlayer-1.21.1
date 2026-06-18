@@ -2,6 +2,6 @@
   "type": "kcs_kingslayer:template",
   "config": {
     "max_slope": 4,
-    "template": "kcs_kingslayer:knight_tent"
+    "template": "kcs_kingslayer:big_tent"
   }
 }

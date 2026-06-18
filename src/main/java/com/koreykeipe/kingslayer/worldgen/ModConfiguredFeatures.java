@@ -46,6 +46,9 @@ public class ModConfiguredFeatures {
     // Custom NBT structures (Route A). Wired and waiting — places nothing until the
     // matching .nbt exists at data/kcs_kingslayer/structure/<name>.nbt.
     public static final ResourceKey<ConfiguredFeature<?,?>> KNIGHT_TENT_KEY  = registerKey("knight_tent");
+    public static final ResourceKey<ConfiguredFeature<?,?>> BIG_TENT_KEY     = registerKey("big_tent");
+    public static final ResourceKey<ConfiguredFeature<?,?>> OUTPOST_KEY      = registerKey("outpost_01");
+    public static final ResourceKey<ConfiguredFeature<?,?>> CRYPT_KEY        = registerKey("crypt");
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 
@@ -162,9 +165,31 @@ public class ModConfiguredFeatures {
 
         // CUSTOM NBT STRUCTURES (Route A) — stamps a saved template. Builds nothing until
         // you drop knight_tent.nbt into data/kcs_kingslayer/structure/. integrity 1.0 = intact.
+        // Surface tents/outpost — levelled flush, and now slope-gated (max_slope 4) so they
+        // skip cliffs instead of leaving a flat pad floating off a hillside.
         register(context, KNIGHT_TENT_KEY, ModFeatures.TEMPLATE.get(),
                 new TemplateConfiguration(
-                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "knight_tent"), 1.0f));
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "knight_tent"),
+                        1.0f, true, 0, 4));
+
+        register(context, BIG_TENT_KEY, ModFeatures.TEMPLATE.get(),
+                new TemplateConfiguration(
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "big_tent"),
+                        1.0f, true, 0, 4));
+
+        register(context, OUTPOST_KEY, ModFeatures.TEMPLATE.get(),
+                new TemplateConfiguration(
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "outpost_01"),
+                        1.0f, true, 0, 4));
+
+        // Crypt — a buried tomb. level=false keeps the hill above it; bury_depth sinks the
+        // bulk so only the top couple of layers (the ruined entrance lip) pierce the surface.
+        // integrity 1.0 for now so the raw shell is fully visible while testing the shape;
+        // drop to ~0.85 later to weather the exposed entrance.
+        register(context, CRYPT_KEY, ModFeatures.TEMPLATE.get(),
+                new TemplateConfiguration(
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "crypt"),
+                        1.0f, false, 6, 4));
     }
 
     /** A log laid on its side along the given horizontal axis (X or Z) instead of upright. */

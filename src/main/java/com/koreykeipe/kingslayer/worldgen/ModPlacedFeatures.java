@@ -33,6 +33,9 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> DECOR_RUINS_PLACED_KEY  = registerKey("decor_ruins_placed");
 
     public static final ResourceKey<PlacedFeature> KNIGHT_TENT_PLACED_KEY  = registerKey("knight_tent_placed");
+    public static final ResourceKey<PlacedFeature> BIG_TENT_PLACED_KEY      = registerKey("big_tent_placed");
+    public static final ResourceKey<PlacedFeature> OUTPOST_PLACED_KEY       = registerKey("outpost_01_placed");
+    public static final ResourceKey<PlacedFeature> CRYPT_PLACED_KEY         = registerKey("crypt_placed");
 
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var cf = context.lookup(Registries.CONFIGURED_FEATURE);
@@ -63,9 +66,19 @@ public class ModPlacedFeatures {
         register(context, DECOR_RUINS_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_RUINS_KEY),
                 onSurface(10));
 
-        // Custom NBT structure slot — rare; no-op until knight_tent.nbt is added.
+        // Custom NBT structures. The two tents share the decor pool; each at rarity 30 puts
+        // their COMBINED rate near once per ~15 chunks — a bit scarcer than the old 1/12 tent.
         register(context, KNIGHT_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.KNIGHT_TENT_KEY),
-                onSurface(12));
+                onSurface(30));
+        register(context, BIG_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BIG_TENT_KEY),
+                onSurface(30));
+        // Outpost tower — low rate for now.
+        register(context, OUTPOST_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.OUTPOST_KEY),
+                onSurface(44));
+
+        // Crypt — rarer than the tents; buried, so it surfaces only as a ruined entrance.
+        register(context, CRYPT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.CRYPT_KEY),
+                onSurface(20));
     }
 
     /**

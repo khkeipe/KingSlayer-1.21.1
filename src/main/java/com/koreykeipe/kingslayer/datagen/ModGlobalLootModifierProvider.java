@@ -246,6 +246,25 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         // Mystery Crate Loot — a curatable grab-bag (bought as a "box" at the Tribute
         // Stone). Mix in hostile spawn eggs, rare custom weapons, and oddities freely.
         // ------------------------------------------------------------------
+        // GUARANTEED floor (chance 1.0): the crate is NEVER empty. Heavily weighted toward
+        // filler/junk so you always get *something* but only rarely something great. The
+        // bonus rolls below stack on top of this when their own chances pass.
+        // Weight split: ~77% junk, ~19% decent, ~4% good (gapple/diamond).
+        oneOf("mystery_guaranteed", ModBlocks.MYSTERY_CRATE.get(), 1.0f,
+                new OneOfItemModifier.Choice(Items.ROTTEN_FLESH, 10, 1, 4),
+                new OneOfItemModifier.Choice(Items.BONE, 8, 1, 3),
+                new OneOfItemModifier.Choice(Items.ARROW, 8, 4, 12),
+                new OneOfItemModifier.Choice(Items.BREAD, 8, 1, 2),
+                new OneOfItemModifier.Choice(Items.TORCH, 6, 2, 6),
+                new OneOfItemModifier.Choice(Items.COAL, 6, 2, 5),
+                new OneOfItemModifier.Choice(Items.STICK, 6, 2, 6),
+                new OneOfItemModifier.Choice(Items.WHEAT_SEEDS, 5, 2, 4),
+                new OneOfItemModifier.Choice(Items.EXPERIENCE_BOTTLE, 6, 1, 3),
+                new OneOfItemModifier.Choice(Items.IRON_INGOT, 4, 1, 3),
+                new OneOfItemModifier.Choice(Items.ENDER_PEARL, 4, 1, 1),
+                new OneOfItemModifier.Choice(Items.GOLDEN_APPLE, 2, 1, 1),
+                new OneOfItemModifier.Choice(Items.DIAMOND, 1, 1, 1));
+
         // One random hostile egg (not all of them). Add more egg Choices freely.
         oneOf("mystery_egg", ModBlocks.MYSTERY_CRATE.get(), 0.9f,
                 new OneOfItemModifier.Choice(Items.ZOMBIE_SPAWN_EGG, 3),
