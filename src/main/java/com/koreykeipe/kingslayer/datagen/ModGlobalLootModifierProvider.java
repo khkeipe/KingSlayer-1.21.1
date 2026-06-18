@@ -251,28 +251,29 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         // bonus rolls below stack on top of this when their own chances pass.
         // Weight split: ~77% junk, ~19% decent, ~4% good (gapple/diamond).
         oneOf("mystery_guaranteed", ModBlocks.MYSTERY_CRATE.get(), 1.0f,
-                new OneOfItemModifier.Choice(Items.ROTTEN_FLESH, 10, 1, 4),
                 new OneOfItemModifier.Choice(Items.BONE, 8, 1, 3),
                 new OneOfItemModifier.Choice(Items.ARROW, 8, 4, 12),
                 new OneOfItemModifier.Choice(Items.BREAD, 8, 1, 2),
-                new OneOfItemModifier.Choice(Items.TORCH, 6, 2, 6),
                 new OneOfItemModifier.Choice(Items.COAL, 6, 2, 5),
                 new OneOfItemModifier.Choice(Items.STICK, 6, 2, 6),
                 new OneOfItemModifier.Choice(Items.WHEAT_SEEDS, 5, 2, 4),
-                new OneOfItemModifier.Choice(Items.EXPERIENCE_BOTTLE, 6, 1, 3),
                 new OneOfItemModifier.Choice(Items.IRON_INGOT, 4, 1, 3),
                 new OneOfItemModifier.Choice(Items.ENDER_PEARL, 4, 1, 1),
-                new OneOfItemModifier.Choice(Items.GOLDEN_APPLE, 2, 1, 1),
                 new OneOfItemModifier.Choice(Items.DIAMOND, 1, 1, 1));
 
-        // One random hostile egg (not all of them). Add more egg Choices freely.
-        oneOf("mystery_egg", ModBlocks.MYSTERY_CRATE.get(), 0.9f,
-                new OneOfItemModifier.Choice(Items.ZOMBIE_SPAWN_EGG, 3),
-                new OneOfItemModifier.Choice(Items.SKELETON_SPAWN_EGG, 3),
-                new OneOfItemModifier.Choice(Items.CREEPER_SPAWN_EGG, 2),
-                new OneOfItemModifier.Choice(Items.SPIDER_SPAWN_EGG, 2));
+        // Hostile eggs roll INDEPENDENTLY (was a single one-of pick): a crate can now carry a
+        // MIX of egg types, and multiples of each, for more varied ambushes. Chances are tuned
+        // so the combined odds of getting at least one egg stay ~0.9, but you'll often get two
+        // or three different kinds. Zombies/skeletons are the staples; creepers/spiders rarer
+        // (and capped lower) since they're nastier surprises.
+        mysteryCrate("mystery_egg_zombie",   Items.ZOMBIE_SPAWN_EGG,   0.50f, 1, 3);
+        mysteryCrate("mystery_egg_skeleton", Items.SKELETON_SPAWN_EGG, 0.50f, 1, 3);
+        mysteryCrate("mystery_egg_creeper",  Items.CREEPER_SPAWN_EGG,  0.35f, 1, 2);
+        mysteryCrate("mystery_egg_spider",   Items.SPIDER_SPAWN_EGG,   0.35f, 1, 2);
+        mysteryCrate("mystery_egg_zombie",   Items.PILLAGER_SPAWN_EGG,   0.20f, 1, 3);
+        mysteryCrate("mystery_egg_zombie",   Items.GHAST_SPAWN_EGG,   0.10f, 1, 3);
+        mysteryCrate("mystery_egg_zombie",   Items.BREEZE_SPAWN_EGG,   0.10f, 1, 3);
         mysteryCrate("mystery_ender_pearls", Items.ENDER_PEARL,        0.40f, 1, 3);
-        mysteryCrate("mystery_xp",           Items.EXPERIENCE_BOTTLE,  0.50f, 2, 6);
         mysteryCrate("mystery_gapple",       Items.GOLDEN_APPLE,       0.25f, 1, 1);
         mysteryCrate("mystery_crown",       ModItems.CROWN.get(),       0.1f, 1, 1);
         // Combat counters in the grab-bag, so the mystery box can also arm your defense.
