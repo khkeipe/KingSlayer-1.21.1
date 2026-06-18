@@ -6,10 +6,10 @@
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.5,
+      "chance": 0.1,
       "condition": "minecraft:random_chance"
     }
   ],
-  "item": "minecraft:zombie_spawn_egg",
+  "item": "minecraft:breeze_spawn_egg",
   "max_count": 3
 }
