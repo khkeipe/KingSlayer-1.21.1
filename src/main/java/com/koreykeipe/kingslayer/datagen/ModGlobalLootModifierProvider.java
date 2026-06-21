@@ -198,6 +198,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         crateItem("truesight_from_epic_ad",     ModBlocks.EPIC_AD_CRATE.get(), 0.30f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
         crateItem("bulwark_from_epic_ad",       ModBlocks.EPIC_AD_CRATE.get(), 0.35f, ModItems.BULWARK_LEGGUARDS.get(), 1, 1);
         crateItem("lightning_rod_from_epic_ad", ModBlocks.EPIC_AD_CRATE.get(), 0.40f, Items.LIGHTNING_ROD, 1, 2);
+        crateItem("end_crystal_from_epic_ad",   ModBlocks.EPIC_AD_CRATE.get(), 0.30f, Items.END_CRYSTAL, 1, 2);
 
         // ------------------------------------------------------------------
         // Bounty Crate Loot — the special reward for slaying THE MARKED.
@@ -214,7 +215,8 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         LootItemRandomChanceCondition.randomChance(1f).build() }, Items.GOLDEN_CARROT, 4, 8));
 
         // ONE top-tier enchanted reward (not all). Weighted; now includes the custom specials.
-        oneOf("bounty_reward", ModBlocks.BOUNTY_CRATE.get(), 0.95f,
+        // Guaranteed (1.0) — the bounty is the richest crate in the game and should never whiff.
+        oneOf("bounty_reward", ModBlocks.BOUNTY_CRATE.get(), 1.0f,
                 new OneOfItemModifier.Choice(ModItems.SLAYER_SWORD.get(), 2,
                         Map.of(ResourceLocation.withDefaultNamespace("sharpness"), 2,
                                ResourceLocation.withDefaultNamespace("fire_aspect"), 2,
@@ -241,6 +243,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         crateItem("bola_from_bounty",      ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BOLA.get(), 3, 5);
         crateItem("truesight_from_bounty", ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
         crateItem("bulwark_from_bounty",   ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BULWARK_LEGGUARDS.get(), 1, 1);
+        crateItem("end_crystal_from_bounty", ModBlocks.BOUNTY_CRATE.get(), 0.5f, Items.END_CRYSTAL, 1, 2);
 
         // ------------------------------------------------------------------
         // Mystery Crate Loot — a curatable grab-bag (bought as a "box" at the Tribute

@@ -51,7 +51,7 @@ public class CrownItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("Hold: shatters to spare you from death.")
+        tooltip.add(Component.literal("Store: shatters to spare you from death.")
                 .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
         tooltip.add(Component.literal("Use: consume for +1 permanent heart.")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC));

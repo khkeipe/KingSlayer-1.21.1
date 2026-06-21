@@ -16,8 +16,9 @@ import java.util.List;
  * {@link com.koreykeipe.kingslayer.event.StealthHandler}). The cost is real chestplate
  * protection. Counter: a Truesight Visor reveals cloaked players with Glowing.
  *
- * <p>Note: vanilla invisibility still renders worn armor and held items, so the cloak hides
- * your body but not your other gear — run light for true stealth.</p>
+ * <p>While the cloak has you hidden, {@link com.koreykeipe.kingslayer.client.CloakRenderHandler}
+ * suppresses the whole render — armor and held items included — so there's no give-away gear
+ * floating in the air (unlike plain potion invisibility).</p>
  */
 public class ShadowCloakItem extends ArmorItem {
 

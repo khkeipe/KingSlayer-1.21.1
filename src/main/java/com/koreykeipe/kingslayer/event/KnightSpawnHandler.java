@@ -68,15 +68,15 @@ public class KnightSpawnHandler {
     // Spawn tuning
     // ------------------------------------------------------------------
 
-    /** Server ticks between spawn attempts per player. 300 = 15 s. */
-    private static final int SPAWN_INTERVAL_TICKS = 300;
+    /** Server ticks between spawn attempts per player. 450 = 22.5 s. */
+    private static final int SPAWN_INTERVAL_TICKS = 450;
 
     /** Probability of spawning on each attempt (0.0–1.0). */
-    private static final float SPAWN_CHANCE = 0.40f;
+    private static final float SPAWN_CHANCE = 0.25f;
 
     /** Maximum knights within this many blocks of a player before skipping spawn. */
     private static final double MAX_KNIGHTS_SEARCH_RADIUS = 64.0;
-    private static final int    MAX_KNIGHTS_NEAR_PLAYER   = 5;
+    private static final int    MAX_KNIGHTS_NEAR_PLAYER   = 3;
 
     /** Minimum and maximum spawn distance from the target player (blocks). */
     private static final int SPAWN_DIST_MIN = 28;

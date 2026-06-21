@@ -27,6 +27,11 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.COMMON_CRATE.get());
                         output.accept(ModBlocks.RARE_CRATE.get());
                         output.accept(ModBlocks.EPIC_CRATE.get());
+                        output.accept(ModBlocks.BROKEN_AD_CRATE.get());
+                        output.accept(ModBlocks.COMMON_AD_CRATE.get());
+                        output.accept(ModBlocks.RARE_AD_CRATE.get());
+                        output.accept(ModBlocks.EPIC_AD_CRATE.get());
+                        output.accept(ModBlocks.BOUNTY_CRATE.get());
                         output.accept(ModBlocks.LAUNCH_PAD.get());
 
                         output.accept(ModItems.SLAYER_SWORD.get());

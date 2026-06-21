@@ -23,7 +23,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class FishingYoinkHandler {
 
     /** Max reel-in speed (blocks/tick) of the Yoink Rod — a reverse grapple toward the caster. */
-    private static final double YANK_MAX_PULL = 2.5;
+    private static final double YANK_MAX_PULL = 4.0;
 
     @SubscribeEvent
     public static void onProjectileImpact(ProjectileImpactEvent event) {
@@ -47,9 +47,9 @@ public class FishingYoinkHandler {
             double resist = victim.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
             if (resist < 1.0) {
                 Vec3 pull = owner.position().subtract(victim.position());
-                double speed = Math.min(YANK_MAX_PULL, 0.25 * pull.length() + 0.6) * (1.0 - resist);
+                double speed = Math.min(YANK_MAX_PULL, 0.4 * pull.length() + 1.0) * (1.0 - resist);
                 Vec3 vel = pull.normalize().scale(speed);
-                victim.setDeltaMovement(vel.x, vel.y + 0.3 * (1.0 - resist), vel.z);
+                victim.setDeltaMovement(vel.x, vel.y + 0.45 * (1.0 - resist), vel.z);
                 victim.hurtMarked = true; // sync the velocity to the victim's client
                 owner.level().playSound(null, victim.blockPosition(),
                         SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.2f, 0.6f);

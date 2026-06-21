@@ -172,6 +172,9 @@ public class AirdropManager {
         if (!gm.isGameActive()) return;
         int trigger = AirdropConfig.KING_AUTO_SUMMON_LIVES.get();
         if (trigger <= 0) return;                       // auto-summon disabled
+        // Don't bring the finale early: every airdrop tier (through the EPIC "Final Siege")
+        // must have fired first, so players have run the full arc before the King rises.
+        if (!triggeredTiers.containsAll(EnumSet.allOf(AirdropTier.class))) return;
         if (gm.aliveCount() <= 1) return;               // last player standing → normal victory
         if (gm.remainingLives() > trigger) return;      // not the finale yet
 

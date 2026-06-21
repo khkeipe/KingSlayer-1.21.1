@@ -48,17 +48,18 @@ import net.neoforged.fml.common.EventBusSubscriber;
 @EventBusSubscriber(modid = KingSlayer.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class NetherGasHandler {
 
-    /** Ticks between pulses. 60 = every 3 seconds. */
-    private static final int DAMAGE_INTERVAL_TICKS = 60;
+    /** Ticks between pulses. 40 = every 2 seconds. */
+    private static final int DAMAGE_INTERVAL_TICKS = 40;
 
-    /** Custom (lethal) damage dealt per pulse in half-hearts. 1.0f = ½ heart. */
-    private static final float DAMAGE_AMOUNT = 1.0f;
+    /** Custom (lethal) damage dealt per pulse in half-hearts. 2.0f = 1 heart — enough to clearly
+     *  out-pace natural regen so the Nether is genuinely hostile, not just a green tint. */
+    private static final float DAMAGE_AMOUNT = 2.0f;
 
     /** Poison duration applied each pulse. Slightly above the interval keeps the tint seamless. */
-    private static final int POISON_DURATION_TICKS = 80;
+    private static final int POISON_DURATION_TICKS = 60;
 
     /** Poison level. 0 = Poison I, 1 = Poison II, etc. */
-    private static final int POISON_AMPLIFIER = 0;
+    private static final int POISON_AMPLIFIER = 1;
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -88,6 +89,7 @@ public class NetherGasHandler {
                 .registryAccess()
                 .lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(ModDamageTypes.NETHER_GAS);
+        player.invulnerableTime = 0; // don't let an earlier hit's i-frames swallow the gas tick
         player.hurt(new DamageSource(holder), DAMAGE_AMOUNT);
 
         // 3 — Action-bar warning (the `true` flag routes it to the action bar, not chat)

@@ -73,11 +73,12 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    public static void onPlayerCloned(PlayerEvent.Clone event) {
-        if(event.isWasDeath()) {
-            if (event.getEntity() instanceof ServerPlayer player) {
-                updateDeaths(player);
-            }
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        // Reassign the life-count team AFTER respawn (not in Clone): at Clone time the
+        // respawning player's connection isn't ready yet, so the team packet reaches other
+        // clients but not their own — which is why their own name stayed teal to themselves.
+        if (event.getEntity() instanceof ServerPlayer player) {
+            updateDeaths(player);
         }
     }
 

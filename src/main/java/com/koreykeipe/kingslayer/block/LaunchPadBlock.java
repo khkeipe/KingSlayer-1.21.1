@@ -32,7 +32,7 @@ import java.util.List;
 public class LaunchPadBlock extends Block {
 
     private static final double LAUNCH        = 1.6;  // vertical pop
-    private static final double FORWARD_BOOST = 0.7;   // kick in the direction of travel
+    private static final double FORWARD_BOOST = 1.6;   // kick in the direction of travel (or facing)
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16); // bottom slab
 
     public LaunchPadBlock(Properties properties) {
@@ -57,12 +57,20 @@ public class LaunchPadBlock extends Block {
             return;
         }
 
-        // Vertical pop, plus a kick in the direction the entity is already travelling.
+        // Vertical pop, plus a strong kick in the direction the entity is travelling — or, if
+        // they're standing still, the way they're facing, so it always flings you somewhere.
         Vec3 m = entity.getDeltaMovement();
         double hLen = Math.sqrt(m.x * m.x + m.z * m.z);
-        double bx = hLen > 0.05 ? m.x / hLen * FORWARD_BOOST : 0.0;
-        double bz = hLen > 0.05 ? m.z / hLen * FORWARD_BOOST : 0.0;
-        entity.setDeltaMovement(m.x + bx, LAUNCH, m.z + bz);
+        double dirX, dirZ;
+        if (hLen > 0.05) {
+            dirX = m.x / hLen;
+            dirZ = m.z / hLen;
+        } else {
+            float yaw = entity.getYRot() * ((float) Math.PI / 180f);
+            dirX = -Math.sin(yaw);
+            dirZ = Math.cos(yaw);
+        }
+        entity.setDeltaMovement(m.x + dirX * FORWARD_BOOST, LAUNCH, m.z + dirZ * FORWARD_BOOST);
         entity.hurtMarked = true;
         entity.fallDistance = 0;
         if (entity instanceof LivingEntity le) {

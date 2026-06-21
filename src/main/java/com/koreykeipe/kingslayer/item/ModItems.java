@@ -2,6 +2,10 @@ package com.koreykeipe.kingslayer.item;
 
 import com.koreykeipe.kingslayer.KingSlayer;
 import net.minecraft.world.item.*;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.minecraft.core.registries.Registries;
@@ -38,9 +42,16 @@ public class ModItems {
             () -> new HoeItem(ModToolTeirs.SLAYER, new Item.Properties()
                     .attributes(HoeItem.createAttributes(ModToolTeirs.SLAYER,0, -3.0f))));
 
+    // Slayer Bat — a fast knockback weapon. Innate attack-knockback so a plain bat always
+    // sends foes flying (loot copies still stack extra Knockback enchant on top).
     public static final DeferredHolder<Item, Item> SLAYER_BAT = ITEMS.register("slayer_bat",
             () -> new SlayerBatItem(Tiers.WOOD, new Item.Properties()
-                    .attributes(SwordItem.createAttributes(Tiers.WOOD, 1, -1.5f))));
+                    .attributes(SwordItem.createAttributes(Tiers.WOOD, 1, -1.5f)
+                            .withModifierAdded(Attributes.ATTACK_KNOCKBACK,
+                                    new AttributeModifier(
+                                            ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "bat_knockback"),
+                                            1.5, AttributeModifier.Operation.ADD_VALUE),
+                                    EquipmentSlotGroup.MAINHAND))));
 
     // Combat fishing rod — hooks a player and yanks them toward you (see FishingYoinkHandler).
     public static final DeferredHolder<Item, Item> YOINK_ROD = ITEMS.register("yoink_rod",
@@ -59,7 +70,8 @@ public class ModItems {
 
     // Anchor Greaves — boots granting full knockback immunity; counter to all displacement.
     public static final DeferredHolder<Item, Item> ANCHOR_CHARM = ITEMS.register("anchor_charm",
-            () -> new AnchorCharmItem(new Item.Properties()));
+            () -> new AnchorCharmItem(new Item.Properties()
+                    .durability(ArmorItem.Type.BOOTS.getDurability(37))));
 
     // Grapple Crossbow — right-click hooks a block and zips you toward it (mobility special).
     public static final DeferredHolder<Item, Item> GRAPPLE_CROSSBOW = ITEMS.register("grapple_crossbow",
@@ -75,11 +87,13 @@ public class ModItems {
 
     // Shadow Cloak — chestplate; sneak to turn invisible (breaks on strike). See ArmorPerkHandler.
     public static final DeferredHolder<Item, Item> SHADOW_CLOAK = ITEMS.register("shadow_cloak",
-            () -> new ShadowCloakItem(new Item.Properties()));
+            () -> new ShadowCloakItem(new Item.Properties()
+                    .durability(ArmorItem.Type.CHESTPLATE.getDurability(37))));
 
     // Truesight Visor — helmet; passive aura that reveals nearby invisible foes. Counter to the Cloak.
     public static final DeferredHolder<Item, Item> TRUESIGHT_LENS = ITEMS.register("truesight_lens",
-            () -> new TruesightLensItem(new Item.Properties()));
+            () -> new TruesightLensItem(new Item.Properties()
+                    .durability(ArmorItem.Type.HELMET.getDurability(37))));
 
     // Sunder Pike — anti-armor sword; bonus bypass damage scaling with the target's armor.
     public static final DeferredHolder<Item, Item> SUNDER_PIKE = ITEMS.register("sunder_pike",
@@ -88,7 +102,8 @@ public class ModItems {
 
     // Bulwark Legguards — leggings; flat cut to all incoming damage. Counter to the Sunder Pike.
     public static final DeferredHolder<Item, Item> BULWARK_LEGGUARDS = ITEMS.register("bulwark_legguards",
-            () -> new BulwarkLegguardsItem(new Item.Properties()));
+            () -> new BulwarkLegguardsItem(new Item.Properties()
+                    .durability(ArmorItem.Type.LEGGINGS.getDurability(37))));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

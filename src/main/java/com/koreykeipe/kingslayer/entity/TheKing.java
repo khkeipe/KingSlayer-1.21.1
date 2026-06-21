@@ -172,7 +172,7 @@ public class TheKing extends Warden {
         }
         boltStrikeTick = this.tickCount + 25; // ~1.25s warning window to dodge
         sl.playSound(null, this.getX(), this.getY(), this.getZ(),
-                SoundEvents.TRIDENT_THUNDER, SoundSource.HOSTILE, 4f, 0.5f);
+                SoundEvents.TRIDENT_THUNDER, SoundSource.HOSTILE, 1.6f, 0.5f);
     }
 
     private void strikePendingBolts() {
@@ -211,7 +211,7 @@ public class TheKing extends Warden {
             sl.addFreshEntity(cloud);
         }
         sl.playSound(null, this.getX(), this.getY(), this.getZ(),
-                SoundEvents.EVOKER_CAST_SPELL, SoundSource.HOSTILE, 3f, 0.6f);
+                SoundEvents.EVOKER_CAST_SPELL, SoundSource.HOSTILE, 1.2f, 0.6f);
     }
 
     private MobEffectInstance randomHexEffect() {
@@ -223,6 +223,13 @@ public class TheKing extends Warden {
             case 4 -> new MobEffectInstance(MobEffects.CONFUSION, 140, 0);  // nausea — unsettling
             default -> new MobEffectInstance(MobEffects.GLOWING, 200, 0);   // marks the player
         };
+    }
+
+    /** Tame the inherited Warden audio (heartbeat, angry growls, hurt/death, steps) — at scale
+     *  1.6 the King is already imposing; the vanilla Warden volume is overwhelming up close. */
+    @Override
+    protected float getSoundVolume() {
+        return 0.5f;
     }
 
     /** The King is immune to his own hex effects so the clouds never weaken him. */
@@ -253,7 +260,7 @@ public class TheKing extends Warden {
         if (p >= 3) {
             this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 999999, 0, false, false));
         }
-        this.level().playSound(null, this.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 4f, 0.6f);
+        this.level().playSound(null, this.blockPosition(), SoundEvents.WARDEN_ROAR, SoundSource.HOSTILE, 1.8f, 0.6f);
         GameManager.get().broadcast(p == 2 ? "§4☠ §cThe King rises in fury! §4☠"
                                             : "§4☠ §cThe King's wrath knows no bounds! §4☠");
         summonWave(); // a bonus wave punctuates the phase change
