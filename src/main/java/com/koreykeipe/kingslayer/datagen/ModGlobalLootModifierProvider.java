@@ -239,11 +239,13 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         Map.of(ResourceLocation.withDefaultNamespace("protection"), 1,
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)));
         // Guaranteed counter kit — the bounty winner walks away ready to defend the lead.
-        crateItem("anchor_from_bounty",    ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.ANCHOR_CHARM.get(), 1, 1);
-        crateItem("bola_from_bounty",      ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BOLA.get(), 3, 5);
-        crateItem("truesight_from_bounty", ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.TRUESIGHT_LENS.get(), 1, 1);
-        crateItem("bulwark_from_bounty",   ModBlocks.BOUNTY_CRATE.get(), 1.0f, ModItems.BULWARK_LEGGUARDS.get(), 1, 1);
-        crateItem("end_crystal_from_bounty", ModBlocks.BOUNTY_CRATE.get(), 0.5f, Items.END_CRYSTAL, 1, 2);
+        oneOf("bounty_counter", ModBlocks.BOUNTY_CRATE.get(), 1.0f,
+                new OneOfItemModifier.Choice(ModItems.ANCHOR_CHARM.get(), 1, 1,1),
+                new OneOfItemModifier.Choice(ModItems.BOLA.get(), 1, 3, 5),
+                new OneOfItemModifier.Choice(ModItems.TRUESIGHT_LENS.get(), 1, 1, 1),
+                new OneOfItemModifier.Choice(ModItems.BULWARK_LEGGUARDS.get(), 1, 1,1),
+                new OneOfItemModifier.Choice(Items.END_CRYSTAL, 1, 1, 2)
+                );
 
         // ------------------------------------------------------------------
         // Mystery Crate Loot — a curatable grab-bag (bought as a "box" at the Tribute

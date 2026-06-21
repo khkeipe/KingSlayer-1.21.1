@@ -1,0 +1,33 @@
+{
+  "type": "kcs_kingslayer:one_of_item",
+  "choices": [
+    {
+      "item": "kcs_kingslayer:anchor_charm"
+    },
+    {
+      "item": "kcs_kingslayer:bola",
+      "max_count": 5,
+      "min_count": 3
+    },
+    {
+      "item": "kcs_kingslayer:truesight_lens"
+    },
+    {
+      "item": "kcs_kingslayer:bulwark_legguards"
+    },
+    {
+      "item": "minecraft:end_crystal",
+      "max_count": 2
+    }
+  ],
+  "conditions": [
+    {
+      "block": "kcs_kingslayer:bounty_crate",
+      "condition": "minecraft:block_state_property"
+    },
+    {
+      "chance": 1.0,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}
