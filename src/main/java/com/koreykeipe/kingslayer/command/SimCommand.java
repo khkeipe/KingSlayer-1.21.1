@@ -34,7 +34,7 @@ public class SimCommand {
                                             int n = IntegerArgumentType.getInteger(ctx, "count");
                                             int now = GameManager.get().setSimulatedPlayerCount(ctx.getSource().getServer(), n);
                                             // Re-evaluate progress so tier/finale gates reflect the new roster.
-                                            AirdropManager.get().onPlayerDeath(ctx.getSource().getServer());
+                                            AirdropManager.get().evaluateProgressNow(ctx.getSource().getServer());
                                             reply(ctx.getSource(), "Simulated players set to §e" + now + "§7. Roster status:");
                                             status(ctx.getSource());
                                             return 1;
@@ -46,7 +46,7 @@ public class SimCommand {
                                             int applied = GameManager.get().setSimulatedDeaths(total);
                                             // Drive the game stage: evaluate airdrop thresholds + King finale
                                             // against the new death progress (same call a real death makes).
-                                            AirdropManager.get().onPlayerDeath(ctx.getSource().getServer());
+                                            AirdropManager.get().evaluateProgressNow(ctx.getSource().getServer());
                                             reply(ctx.getSource(), "Applied §e" + applied + " §7deaths across the simulated players.");
                                             status(ctx.getSource());
                                             return 1;

@@ -118,6 +118,16 @@ public class AirdropManager {
     // Death hook — called after every player death
     // -------------------------------------------------------------------------
 
+    /**
+     * Test/sim hook ({@code /kssim}): evaluate thresholds + finale just like a real death, but
+     * skip the one-time restart pre-marking so newly-crossed tiers actually queue their crate
+     * (and their knights) consistently — no "knights but no airdrop" first-call asymmetry.
+     */
+    public void evaluateProgressNow(MinecraftServer server) {
+        initialized = true; // bypass the pre-marking branch; go straight to the queue path
+        onPlayerDeath(server);
+    }
+
     public void onPlayerDeath(MinecraftServer server) {
         if (!AirdropConfig.ENABLED.get()) return;
         if (!GameManager.get().isGameActive()) return;
