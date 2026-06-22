@@ -30,19 +30,19 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     protected void start() {
 
         // Broken Crate Loot
-        oneOf("broken_special", ModBlocks.BROKEN_CRATE.get(), 0.75f,
+        oneOf("broken_special", ModBlocks.BROKEN_CRATE.get(), 0.5f,
                 new OneOfItemModifier.Choice(ModItems.SLAYER_SHOVEL.get(), 1),
                 new OneOfItemModifier.Choice(ModItems.SLAYER_HOE.get(),1));
 
         this.add("flint_from_broken_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.8f).build() }, Items.FLINT, 2, 5));
+                        LootItemRandomChanceCondition.randomChance(.6f).build() }, Items.FLINT, 2, 5));
         this.add("feather_from_broken_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.BROKEN_CRATE.get()).build(),
                         LootItemRandomChanceCondition.randomChance(.5f).build() }, Items.FEATHER, 1, 5));
-        oneOf("food_from_broken_crate",ModBlocks.BROKEN_CRATE.get(),.8f,
+        oneOf("food_from_broken_crate",ModBlocks.BROKEN_CRATE.get(),.6f,
                 new OneOfItemModifier.Choice(Items.CARROT, 1, 2, 5),
                 new OneOfItemModifier.Choice(Items.POTATO, 1, 2, 5),
                 new OneOfItemModifier.Choice(Items.BEETROOT, 2, 2, 5),
@@ -52,7 +52,7 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         this.add("slayer_pickaxe_from_common_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
-                        LootItemRandomChanceCondition.randomChance(.85f).build() }, ModItems.SLAYER_PICKAXE.get()));
+                        LootItemRandomChanceCondition.randomChance(.6f).build() }, ModItems.SLAYER_PICKAXE.get()));
         this.add("raw_iron_from_common_crate",
                 new AddItemModifier(new LootItemCondition[] {
                         LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModBlocks.COMMON_CRATE.get()).build(),
@@ -222,8 +222,8 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                                ResourceLocation.withDefaultNamespace("fire_aspect"), 2,
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
                 new OneOfItemModifier.Choice(ModItems.SLAYER_BAT.get(), 1,
-                        Map.of(ResourceLocation.withDefaultNamespace("knockback"), 5,
-                               ResourceLocation.withDefaultNamespace("unbreaking"), 3)),
+                        Map.of(ResourceLocation.withDefaultNamespace("knockback"), 10,
+                               ResourceLocation.withDefaultNamespace("unbreaking"), 2)),
                 new OneOfItemModifier.Choice(ModItems.STORM_BRAND.get(), 2,
                         Map.of(ResourceLocation.withDefaultNamespace("sharpness"), 3,
                                ResourceLocation.withDefaultNamespace("unbreaking"), 3)),

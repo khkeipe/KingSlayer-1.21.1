@@ -29,6 +29,13 @@ public class KsWorldData extends SavedData {
     /** Every player who has joined the event (online or not) — the full roster. */
     public final Set<UUID> participants = new LinkedHashSet<>();
 
+    /**
+     * Players who have already expanded the world border on their first-ever join. Tracked by
+     * UUID here (not player NBT) so it survives death + relog — otherwise the border re-grows
+     * every time a player who has died reconnects.
+     */
+    public final Set<UUID> borderContributors = new LinkedHashSet<>();
+
     /** Per-participant death count this event. Elimination latches at 5. Survives restarts. */
     public final Map<UUID, Integer> deaths = new HashMap<>();
 
@@ -41,6 +48,9 @@ public class KsWorldData extends SavedData {
     /** True once a victor (or draw) has been declared — the event is over until a new world. */
     public boolean concluded = false;
 
+    /** Number of simulated/test players currently injected into the roster via the /kssim command. */
+    public int simulatedCount = 0;
+
     public static KsWorldData get(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(
                 new SavedData.Factory<>(KsWorldData::new, KsWorldData::load, null), NAME);
@@ -51,9 +61,13 @@ public class KsWorldData extends SavedData {
         data.firstStartDone = tag.getBoolean("firstStartDone");
         data.kingSummoned   = tag.getBoolean("kingSummoned");
         data.concluded      = tag.getBoolean("concluded");
+        data.simulatedCount = tag.getInt("simulatedCount");
 
         for (Tag t : tag.getList("participants", Tag.TAG_STRING)) {
             data.participants.add(UUID.fromString(t.getAsString()));
+        }
+        for (Tag t : tag.getList("borderContributors", Tag.TAG_STRING)) {
+            data.borderContributors.add(UUID.fromString(t.getAsString()));
         }
         for (Tag t : tag.getList("deaths", Tag.TAG_COMPOUND)) {
             CompoundTag c = (CompoundTag) t;
@@ -71,10 +85,15 @@ public class KsWorldData extends SavedData {
         tag.putBoolean("firstStartDone", firstStartDone);
         tag.putBoolean("kingSummoned", kingSummoned);
         tag.putBoolean("concluded", concluded);
+        tag.putInt("simulatedCount", simulatedCount);
 
         ListTag plist = new ListTag();
         for (UUID id : participants) plist.add(net.minecraft.nbt.StringTag.valueOf(id.toString()));
         tag.put("participants", plist);
+
+        ListTag blist = new ListTag();
+        for (UUID id : borderContributors) blist.add(net.minecraft.nbt.StringTag.valueOf(id.toString()));
+        tag.put("borderContributors", blist);
 
         ListTag dlist = new ListTag();
         for (Map.Entry<UUID, Integer> e : deaths.entrySet()) {

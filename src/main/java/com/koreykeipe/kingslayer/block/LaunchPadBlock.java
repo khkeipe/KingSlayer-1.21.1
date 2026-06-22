@@ -31,8 +31,7 @@ import java.util.List;
  */
 public class LaunchPadBlock extends Block {
 
-    private static final double LAUNCH        = 1.6;  // vertical pop
-    private static final double FORWARD_BOOST = 1.6;   // kick in the direction of travel (or facing)
+    // Launch power is config-driven (config/kcs_kingslayer-server.toml → [combat]).
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16); // bottom slab
 
     public LaunchPadBlock(Properties properties) {
@@ -59,6 +58,8 @@ public class LaunchPadBlock extends Block {
 
         // Vertical pop, plus a strong kick in the direction the entity is travelling — or, if
         // they're standing still, the way they're facing, so it always flings you somewhere.
+        double launch  = com.koreykeipe.kingslayer.airdrop.AirdropConfig.LAUNCH_PAD_VERTICAL.get();
+        double forward = com.koreykeipe.kingslayer.airdrop.AirdropConfig.LAUNCH_PAD_FORWARD.get();
         Vec3 m = entity.getDeltaMovement();
         double hLen = Math.sqrt(m.x * m.x + m.z * m.z);
         double dirX, dirZ;
@@ -70,7 +71,7 @@ public class LaunchPadBlock extends Block {
             dirX = -Math.sin(yaw);
             dirZ = Math.cos(yaw);
         }
-        entity.setDeltaMovement(m.x + dirX * FORWARD_BOOST, LAUNCH, m.z + dirZ * FORWARD_BOOST);
+        entity.setDeltaMovement(m.x + dirX * forward, launch, m.z + dirZ * forward);
         entity.hurtMarked = true;
         entity.fallDistance = 0;
         if (entity instanceof LivingEntity le) {

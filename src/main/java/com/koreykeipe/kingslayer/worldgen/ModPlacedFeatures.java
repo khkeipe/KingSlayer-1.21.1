@@ -46,39 +46,39 @@ public class ModPlacedFeatures {
         // or river floor (their aquatic biomes are added in ModBiomeModifiers) — a
         // tempting crate guarded by the risk of drowning.
         register(context, BROKEN_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BROKEN_CRATE_KEY),
-                onSurface(8));
+                onSurface(16));
         register(context, COMMON_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.COMMON_CRATE_KEY),
-                onSurfaceOrSeabed(8));
+                onSurfaceOrSeabed(16));
         // Rare/Epic appear only in their gated biomes (see ModBiomeModifiers), so a
         // modest rarity here still makes them scarce overall.
         register(context, RARE_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.RARE_CRATE_KEY),
-                onSurfaceOrSeabed(6));
+                onSurfaceOrSeabed(12));
         register(context, EPIC_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.EPIC_CRATE_KEY),
-                onSurfaceOrSeabed(6));
+                onSurfaceOrSeabed(12));
 
         // Decorative King's-realm piles — dry land, scattered for atmosphere as you explore.
         register(context, DECOR_CAMP_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_CAMP_KEY),
-                onSurface(10));
-        register(context, DECOR_BATTLE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_BATTLE_KEY),
-                onSurface(10));
-        register(context, DECOR_GRAVE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_GRAVE_KEY),
-                onSurface(10));
-        register(context, DECOR_RUINS_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_RUINS_KEY),
-                onSurface(10));
-
-        // Custom NBT structures. The two tents share the decor pool; each at rarity 30 puts
-        // their COMBINED rate near once per ~15 chunks — a bit scarcer than the old 1/12 tent.
-        register(context, KNIGHT_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.KNIGHT_TENT_KEY),
-                onSurface(30));
-        register(context, BIG_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BIG_TENT_KEY),
-                onSurface(30));
-        // Outpost tower — low rate for now.
-        register(context, OUTPOST_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.OUTPOST_KEY),
-                onSurface(44));
-
-        // Crypt — rarer than the tents; buried, so it surfaces only as a ruined entrance.
-        register(context, CRYPT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.CRYPT_KEY),
                 onSurface(20));
+        register(context, DECOR_BATTLE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_BATTLE_KEY),
+                onSurface(20));
+        register(context, DECOR_GRAVE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_GRAVE_KEY),
+                onSurface(20));
+        register(context, DECOR_RUINS_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_RUINS_KEY),
+                onSurface(20));
+
+        // Custom NBT structures. The two tents share the decor pool; halved to ~once per
+        // 60 chunks each so they read as occasional landmarks, not a sea of tents.
+        register(context, KNIGHT_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.KNIGHT_TENT_KEY),
+                onSurface(60));
+        register(context, BIG_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BIG_TENT_KEY),
+                onSurface(60));
+        // Outpost tower — quartered to a genuinely rare find (they were clustering badly).
+        register(context, OUTPOST_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.OUTPOST_KEY),
+                onSurface(176));
+
+        // Crypt — quartered (was generating right on top of itself); now a scarce, special find.
+        register(context, CRYPT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.CRYPT_KEY),
+                onSurface(80));
     }
 
     /**

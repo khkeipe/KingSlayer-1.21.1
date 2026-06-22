@@ -14,7 +14,7 @@
       "condition": "minecraft:block_state_property"
     },
     {
-      "chance": 0.75,
+      "chance": 0.5,
       "condition": "minecraft:random_chance"
     }
   ]

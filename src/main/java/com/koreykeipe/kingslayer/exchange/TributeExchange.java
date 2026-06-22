@@ -41,14 +41,14 @@ public final class TributeExchange {
     }
 
     public static final List<Offer> OFFERS = List.of(
-            new Offer(8,  "Mystery Crate",          () -> new ItemStack(ModBlocks.MYSTERY_CRATE.get())),
+            new Offer(20,  "Mystery Crate",          () -> new ItemStack(ModBlocks.MYSTERY_CRATE.get())),
             new Offer(64,  "Crown",                  () -> new ItemStack(ModItems.CROWN.get())),
-            new Offer(24,  "2x Golden Apple",        () -> new ItemStack(Items.GOLDEN_APPLE, 2)),
-            new Offer(10,  "Slayer Sword",           () -> new ItemStack(ModItems.SLAYER_SWORD.get())),
-            new Offer(10,  "Slayer Pickaxe",         () -> new ItemStack(ModItems.SLAYER_PICKAXE.get())),
-            new Offer(10,  "Slayer Axe",             () -> new ItemStack(ModItems.SLAYER_AXE.get())),
-            new Offer(10, "3x Diamond",             () -> new ItemStack(Items.DIAMOND, 3)),
-            new Offer(32, "Boss Key — summons The King",
+            new Offer(32,  "2x Golden Apple",        () -> new ItemStack(Items.GOLDEN_APPLE, 2)),
+            new Offer(15,  "Slayer Sword",           () -> new ItemStack(ModItems.SLAYER_SWORD.get())),
+            new Offer(15,  "Slayer Pickaxe",         () -> new ItemStack(ModItems.SLAYER_PICKAXE.get())),
+            new Offer(15,  "Slayer Axe",             () -> new ItemStack(ModItems.SLAYER_AXE.get())),
+            new Offer(10, "2x Diamond",             () -> new ItemStack(Items.DIAMOND, 2)),
+            new Offer(50, "Boss Key — summons The King",
                     () -> new ItemStack(ModItems.BOSS_KEY.get()), AirdropTier.EPIC)
     );
 

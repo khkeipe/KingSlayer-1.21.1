@@ -28,9 +28,10 @@ import java.util.List;
  */
 public class BolaItem extends Item {
 
-    private static final double RANGE       = 24.0;
-    private static final int    ROOT_TICKS  = 80;   // 4 seconds
-    private static final int    COOLDOWN    = 100;  // 5 seconds
+    // Range / root duration / cooldown are config-driven ([combat] in the server config).
+    private static double range()     { return com.koreykeipe.kingslayer.airdrop.AirdropConfig.BOLA_RANGE.get(); }
+    private static int    rootTicks() { return com.koreykeipe.kingslayer.airdrop.AirdropConfig.BOLA_ROOT_TICKS.get(); }
+    private static int    cooldown()  { return com.koreykeipe.kingslayer.airdrop.AirdropConfig.BOLA_COOLDOWN_TICKS.get(); }
 
     public BolaItem(Properties properties) {
         super(properties);
@@ -48,21 +49,21 @@ public class BolaItem extends Item {
 
         Vec3 eye = sp.getEyePosition();
         Vec3 look = sp.getViewVector(1.0f);
-        Vec3 end = eye.add(look.scale(RANGE));
+        Vec3 end = eye.add(look.scale(range()));
 
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(sl, sp, eye, end,
-                sp.getBoundingBox().expandTowards(look.scale(RANGE)).inflate(1.0),
+                sp.getBoundingBox().expandTowards(look.scale(range())).inflate(1.0),
                 e -> e instanceof LivingEntity && e != sp && !e.isSpectator());
 
         if (hit == null || !(hit.getEntity() instanceof LivingEntity victim)) {
             sp.displayClientMessage(Component.literal("✖ The net found no target.")
                     .withStyle(ChatFormatting.GRAY), true);
             sl.playSound(null, sp.blockPosition(), SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS, 0.9f, 0.8f);
-            sp.getCooldowns().addCooldown(this, COOLDOWN / 2);
+            sp.getCooldowns().addCooldown(this, cooldown() / 2);
             return InteractionResultHolder.fail(stack);
         }
 
-        MovementCombatHandler.root(victim, ROOT_TICKS);
+        MovementCombatHandler.root(victim, rootTicks());
         if (victim instanceof ServerPlayer netted) {
             CombatTracker.registerAttribution(netted.getUUID(), sp.getUUID(),
                     sp.getName().getString(), "netted", 7);
@@ -72,7 +73,7 @@ public class BolaItem extends Item {
 
         sl.playSound(null, sp.blockPosition(), SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS, 1.0f, 1.0f);
         sl.playSound(null, victim.blockPosition(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.PLAYERS, 1.2f, 0.8f);
-        sp.getCooldowns().addCooldown(this, COOLDOWN);
+        sp.getCooldowns().addCooldown(this, cooldown());
         if (!sp.getAbilities().instabuild) stack.shrink(1);
         return InteractionResultHolder.consume(stack);
     }

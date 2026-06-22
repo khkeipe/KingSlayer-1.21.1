@@ -1,6 +1,7 @@
 package com.koreykeipe.kingslayer.event;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
 import com.koreykeipe.kingslayer.airdrop.AirdropManager;
 import com.koreykeipe.kingslayer.airdrop.AirdropTier;
 import com.koreykeipe.kingslayer.game.GameManager;
@@ -68,27 +69,15 @@ public class KnightSpawnHandler {
     // Spawn tuning
     // ------------------------------------------------------------------
 
-    /** Server ticks between spawn attempts per player. 450 = 22.5 s. */
-    private static final int SPAWN_INTERVAL_TICKS = 450;
-
-    /** Probability of spawning on each attempt (0.0–1.0). */
-    private static final float SPAWN_CHANCE = 0.25f;
+    // Spawn pacing, knight HP and champion/guard attack are config-driven
+    // (config/kcs_kingslayer-server.toml → [knights]).
 
     /** Maximum knights within this many blocks of a player before skipping spawn. */
     private static final double MAX_KNIGHTS_SEARCH_RADIUS = 64.0;
-    private static final int    MAX_KNIGHTS_NEAR_PLAYER   = 3;
 
     /** Minimum and maximum spawn distance from the target player (blocks). */
-    private static final int SPAWN_DIST_MIN = 28;
+    private static final int SPAWN_DIST_MIN = 32;
     private static final int SPAWN_DIST_MAX = 48;
-
-    // ------------------------------------------------------------------
-    // Attribute overrides
-    // ------------------------------------------------------------------
-
-    private static final double FOOTSOLDIER_MAX_HP = 50.0;
-    private static final double CHAMPION_MAX_HP = 50.0;
-    private static final double GUARD_MAX_HP    = 60.0;
 
     // ------------------------------------------------------------------
     // Spawn tick
@@ -99,7 +88,7 @@ public class KnightSpawnHandler {
         if (!GameManager.get().isGameActive()) return;
 
         MinecraftServer server = event.getServer();
-        if (server.getTickCount() % SPAWN_INTERVAL_TICKS != 0) return;
+        if (server.getTickCount() % AirdropConfig.KNIGHT_SPAWN_INTERVAL_TICKS.get() != 0) return;
 
         AirdropManager am = AirdropManager.get();
         boolean commonFired = am.isTierTriggered(AirdropTier.COMMON);
@@ -115,9 +104,9 @@ public class KnightSpawnHandler {
             if (!player.level().dimension().equals(Level.OVERWORLD)) continue;
 
             // Skip if already at the knight cap near this player
-            if (countNearbyKnights(overworld, player.blockPosition()) >= MAX_KNIGHTS_NEAR_PLAYER) continue;
+            if (countNearbyKnights(overworld, player.blockPosition()) >= AirdropConfig.KNIGHT_MAX_NEAR_PLAYER.get()) continue;
 
-            if (overworld.random.nextFloat() > SPAWN_CHANCE) continue;
+            if (overworld.random.nextFloat() > AirdropConfig.KNIGHT_SPAWN_CHANCE.get()) continue;
 
             // Higher tiers available = pick a weighted random tier to spawn
             String tier = pickTier(rareFired, epicFired, overworld);
@@ -166,11 +155,11 @@ public class KnightSpawnHandler {
             GameManager.get().broadcast(
                     "§6⚔ §a" + killer.getName().getString()
                     + " §ehas slain the " + display + "§e!");
-            // Award threat score: Footsoldier=1, Champion=2, Guard=3
+            // Award threat score (config-driven per tier).
             int points = switch (tier) {
-                case "CHAMPION" -> 2;
-                case "GUARD"    -> 3;
-                default         -> 1; // FOOTSOLDIER
+                case "CHAMPION" -> AirdropConfig.THREAT_PER_CHAMPION.get();
+                case "GUARD"    -> AirdropConfig.THREAT_PER_GUARD.get();
+                default         -> AirdropConfig.THREAT_PER_FOOTSOLDIER.get();
             };
             GameManager.get().awardThreatScore(killer.getUUID(), points);
         } else {
@@ -223,9 +212,12 @@ public class KnightSpawnHandler {
                 z.setCustomName(Component.literal("King's Footsoldier")
                         .withStyle(s -> s.withColor(ChatFormatting.GRAY).withBold(false).withItalic(false)));
                 z.setCustomNameVisible(true);
+                double fhp = AirdropConfig.FOOTSOLDIER_HP.get();
                 AttributeInstance hp = z.getAttribute(Attributes.MAX_HEALTH);
-                if (hp != null) hp.setBaseValue(FOOTSOLDIER_MAX_HP);
-                z.setHealth((float) FOOTSOLDIER_MAX_HP);
+                if (hp != null) hp.setBaseValue(fhp);
+                z.setHealth((float) fhp);
+                setSpeed(z, AirdropConfig.FOOTSOLDIER_SPEED.get());
+                z.setBaby(false); // never a baby footsoldier (re-enforced after finalizeSpawn in equip)
                 z.setPersistenceRequired();
                 yield z;
             }
@@ -236,12 +228,14 @@ public class KnightSpawnHandler {
                 v.setCustomNameVisible(true);
                 v.setPersistenceRequired();
                 // Boost max health
+                double chp = AirdropConfig.CHAMPION_HP.get();
                 AttributeInstance hp = v.getAttribute(Attributes.MAX_HEALTH);
-                if (hp != null) hp.setBaseValue(CHAMPION_MAX_HP);
-                v.setHealth((float) CHAMPION_MAX_HP);
+                if (hp != null) hp.setBaseValue(chp);
+                v.setHealth((float) chp);
                 // Lower base attack so the iron axe doesn't out-hit The King (≈9 total).
                 AttributeInstance dmg = v.getAttribute(Attributes.ATTACK_DAMAGE);
-                if (dmg != null) dmg.setBaseValue(1.0);
+                if (dmg != null) dmg.setBaseValue(AirdropConfig.CHAMPION_ATTACK.get());
+                setSpeed(v, AirdropConfig.CHAMPION_SPEED.get());
                 yield v;
             }
             case "GUARD" -> {
@@ -251,20 +245,32 @@ public class KnightSpawnHandler {
                 w.setCustomNameVisible(true);
                 w.setPersistenceRequired();
                 // Boost max health
+                double ghp = AirdropConfig.GUARD_HP.get();
                 AttributeInstance hp = w.getAttribute(Attributes.MAX_HEALTH);
-                if (hp != null) hp.setBaseValue(GUARD_MAX_HP);
-                w.setHealth((float) GUARD_MAX_HP);
+                if (hp != null) hp.setBaseValue(ghp);
+                w.setHealth((float) ghp);
                 // Lower base attack; its sword + wither DoT still make it dangerous (≈6 + wither).
                 AttributeInstance dmg = w.getAttribute(Attributes.ATTACK_DAMAGE);
-                if (dmg != null) dmg.setBaseValue(2.0);
+                if (dmg != null) dmg.setBaseValue(AirdropConfig.GUARD_ATTACK.get());
+                setSpeed(w, AirdropConfig.GUARD_SPEED.get());
                 yield w;
             }
             default -> null;
         };
     }
 
+    /** Applies a base MOVEMENT_SPEED to a knight (configurable per tier). */
+    private static void setSpeed(Mob mob, double speed) {
+        AttributeInstance attr = mob.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (attr != null) attr.setBaseValue(speed);
+    }
+
     /** Sets equipment and zeroes all drop chances so knights drop no gear. */
     private static void equip(Mob mob, String tier) {
+        // finalizeSpawn can re-roll a zombie into a baby (and chicken jockey); force it off here,
+        // after that runs, so footsoldiers are always full-size adults.
+        if (mob instanceof Zombie z) z.setBaby(false);
+
         switch (tier) {
             case "FOOTSOLDIER" -> {
                 mob.setItemSlot(EquipmentSlot.HEAD,      new ItemStack(Items.IRON_HELMET));

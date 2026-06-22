@@ -118,6 +118,16 @@ public class KingSlayer
             grayTeam.setColor(ChatFormatting.GRAY);
         }
 
+        // THE MARKED — a dark-red name with a ☠ skull prefix, applied while a player holds the
+        // bounty (GameManager.assignNameTagTeam) and removed when it ends.
+        String team_marked = "marked_team";
+        PlayerTeam markedTeam = scoreboard.getPlayerTeam(team_marked);
+        if(markedTeam == null){
+            markedTeam = scoreboard.addPlayerTeam(team_marked);
+        }
+        markedTeam.setColor(ChatFormatting.DARK_RED);
+        markedTeam.setPlayerPrefix(net.minecraft.network.chat.Component.literal("☠ ")
+                .withStyle(ChatFormatting.DARK_RED));
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

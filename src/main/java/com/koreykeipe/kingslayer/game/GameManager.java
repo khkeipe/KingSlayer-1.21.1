@@ -1,6 +1,8 @@
 package com.koreykeipe.kingslayer.game;
 
 import com.koreykeipe.kingslayer.KingSlayer;
+import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
+import com.koreykeipe.kingslayer.airdrop.BorderManager;
 import com.koreykeipe.kingslayer.block.ModBlocks;
 import com.koreykeipe.kingslayer.item.ModItems;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -22,6 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.item.component.Fireworks;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.neoforged.neoforge.client.event.sound.SoundEvent;
 
 import javax.annotation.Nullable;
@@ -37,7 +41,8 @@ public class GameManager {
     /** Persistent event state (roster, per-player deaths, finale flags) — survives restarts. */
     private KsWorldData state;
 
-    private static final int MAX_DEATHS = 5; // lives per player; elimination latches at this count
+    /** Lives each player starts with (config-driven); elimination latches at this death count. */
+    private static int maxDeaths() { return AirdropConfig.LIVES.get(); }
 
     // -------------------------------------------------------------------------
     // Kill tracking
@@ -61,6 +66,18 @@ public class GameManager {
 
     @Nullable private UUID currentMarkedUUID = null;
 
+    /** Game-tick the current bounty contract lapses if it hasn't been claimed. */
+    private long markedExpiresTick = 0L;
+    /** Game-tick before which no NEW bounty may be elected — a short breather after one ENDS. */
+    private long nextMarkedAllowedTick = 0L;
+    /** Per-player tick until which a player who just held the bounty (killed or expired) can't be re-marked. */
+    private final Map<UUID, Long> markedCooldownUntil = new HashMap<>();
+
+    // Bounty pacing is config-driven (config/kcs_kingslayer-server.toml → [bounty]); minutes → ticks.
+    private static long contractTicks()          { return AirdropConfig.BOUNTY_CONTRACT_MINUTES.get() * 1200L; }
+    private static long selectionCooldownTicks() { return AirdropConfig.BOUNTY_SELECTION_COOLDOWN_MINUTES.get() * 1200L; }
+    private static long reselectPlayerTicks()    { return AirdropConfig.BOUNTY_RESELECT_PLAYER_MINUTES.get() * 1200L; }
+
     // -------------------------------------------------------------------------
 
     private GameManager() {}
@@ -83,6 +100,9 @@ public class GameManager {
         threatScores.clear();
         assistCounts.clear();
         currentMarkedUUID = null;
+        markedCooldownUntil.clear();
+        nextMarkedAllowedTick = 0L;
+        markedExpiresTick = 0L;
         CombatLog.clear();
         CombatTracker.clear();
 
@@ -113,12 +133,138 @@ public class GameManager {
     }
 
     // -------------------------------------------------------------------------
-    // Roster helpers — "alive" = a participant who hasn't hit MAX_DEATHS, online or not.
+    // Roster helpers — "alive" = a participant who hasn't hit maxDeaths(), online or not.
     // -------------------------------------------------------------------------
 
     public int getDeaths(UUID uuid)        { return state == null ? 0 : state.deaths.getOrDefault(uuid, 0); }
-    public boolean isEliminated(UUID uuid) { return getDeaths(uuid) >= MAX_DEATHS; }
+    public boolean isEliminated(UUID uuid) { return getDeaths(uuid) >= maxDeaths(); }
     public boolean isAlive(UUID uuid)      { return state != null && state.participants.contains(uuid) && !isEliminated(uuid); }
+
+    /** Max lives a player starts with (used by the setlives command bounds). */
+    public int maxLives() { return maxDeaths(); }
+
+    // -------------------------------------------------------------------------
+    // Test simulation — inject fake roster members so player-count features can be
+    // exercised solo (/kssim). Simulated players are deterministic offline participants.
+    // -------------------------------------------------------------------------
+
+    /** Deterministic offline UUID for simulated player #i (1-based). */
+    private static UUID simUuid(int i) {
+        return UUID.nameUUIDFromBytes(("kingslayer-sim-" + i).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public int simulatedCount() { return state == null ? 0 : state.simulatedCount; }
+
+    /**
+     * Adjusts the number of simulated roster members to exactly {@code target}. Added sims join
+     * as alive (0-death) participants and expand the border like real first-joins; removed sims
+     * are stripped from the roster. Returns the new simulated count.
+     */
+    public int setSimulatedPlayerCount(MinecraftServer server, int target) {
+        if (state == null) return 0;
+        target = Math.max(0, target);
+        int old = state.simulatedCount;
+        for (int i = old + 1; i <= target; i++) {        // grow
+            UUID id = simUuid(i);
+            state.participants.add(id);
+            state.names.put(id, "SimPlayer" + i);
+            state.deaths.putIfAbsent(id, 0);
+            if (markBorderContributor(id)) BorderManager.get().onNewPlayerFirstJoin(server);
+        }
+        for (int i = target + 1; i <= old; i++) {        // shrink
+            UUID id = simUuid(i);
+            state.participants.remove(id);
+            state.deaths.remove(id);
+            state.names.remove(id);
+            state.borderContributors.remove(id);
+        }
+        state.simulatedCount = target;
+        state.setDirty();
+        return target;
+    }
+
+    /** Spreads {@code total} deaths across the simulated players (round-robin, each capped at maxDeaths()). */
+    public int setSimulatedDeaths(int total) {
+        if (state == null || state.simulatedCount == 0) return 0;
+        int n = state.simulatedCount;
+        for (int i = 1; i <= n; i++) state.deaths.put(simUuid(i), 0); // reset sim deaths first
+        int target = Math.max(0, Math.min(total, n * maxDeaths()));
+        int applied = 0;
+        while (applied < target) {
+            state.deaths.merge(simUuid((applied % n) + 1), 1, Integer::sum);
+            applied++;
+        }
+        state.setDirty();
+        return applied;
+    }
+
+    /** Removes all simulated players from the roster (does not shrink the world border). */
+    public void clearSimulatedPlayers(MinecraftServer server) {
+        setSimulatedPlayerCount(server, 0);
+    }
+
+    /**
+     * Puts a player on the correct name-colour team: the dedicated {@code marked_team}
+     * (☠ skull + dark-red name) while they're THE MARKED, otherwise their lives-count colour.
+     * Single source of truth so respawn/relog/marking all agree on the nametag.
+     */
+    public void assignNameTagTeam(ServerPlayer player) {
+        if (server == null) return;
+        Scoreboard sb = server.getScoreboard();
+        String teamName;
+        if (player.getUUID().equals(currentMarkedUUID)) {
+            teamName = "marked_team";
+        } else {
+            // Map deaths onto the colour ramp scaled to the configured life total, so any
+            // lives count works: full = aqua, last life = red, eliminated = gray.
+            int max = maxDeaths();
+            int deaths = getDeaths(player.getUUID());
+            if (deaths >= max) {
+                teamName = "gray_team";          // eliminated
+            } else if (deaths <= 0) {
+                teamName = "aqua_team";          // full lives
+            } else if (deaths >= max - 1) {
+                teamName = "red_team";           // last life
+            } else {
+                double frac = (double) deaths / (double) (max - 1); // 0..1 toward elimination
+                teamName = frac < 0.34 ? "green_team" : (frac < 0.67 ? "lime_team" : "yello_team");
+            }
+        }
+        PlayerTeam team = sb.getPlayerTeam(teamName);
+        if (team != null) sb.addPlayerToTeam(player.getScoreboardName(), team);
+    }
+
+    /**
+     * Records that a player has expanded the world border on their first-ever join. Tracked by
+     * UUID in persistent save data (not player NBT, which is wiped on death), so the border
+     * doesn't re-grow when a player relogs after dying. Returns true only the FIRST time.
+     */
+    public boolean markBorderContributor(UUID uuid) {
+        if (state == null) return false;
+        boolean isNew = state.borderContributors.add(uuid);
+        if (isNew) state.setDirty();
+        return isNew;
+    }
+
+    /**
+     * Admin override: set a player's remaining lives directly (the real life counter that the
+     * death-progress + tier pacing read). Updates the persisted death count and restores or
+     * removes spectator mode accordingly. The caller refreshes the name-colour team afterwards.
+     */
+    public void setLives(ServerPlayer player, int lives) {
+        if (state == null) return;
+        UUID uuid = player.getUUID();
+        int deaths = Math.max(0, Math.min(maxDeaths(), maxDeaths() - lives));
+        state.participants.add(uuid);
+        state.names.put(uuid, player.getName().getString());
+        state.deaths.put(uuid, deaths);
+        state.setDirty();
+        if (deaths >= maxDeaths()) {
+            player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+        } else if (player.isSpectator()) {
+            player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+        }
+    }
 
     public int aliveCount() {
         if (state == null) return 0;
@@ -127,11 +273,11 @@ public class GameManager {
         return n;
     }
 
-    /** Total lives left across the WHOLE roster (each participant starts with MAX_DEATHS). */
+    /** Total lives left across the WHOLE roster (each participant starts with maxDeaths()). */
     public int remainingLives() {
         if (state == null) return 0;
         int total = 0;
-        for (UUID p : state.participants) total += Math.max(0, MAX_DEATHS - getDeaths(p));
+        for (UUID p : state.participants) total += Math.max(0, maxDeaths() - getDeaths(p));
         return total;
     }
 
@@ -139,8 +285,8 @@ public class GameManager {
     public double eventDeathProgress() {
         if (state == null || state.participants.isEmpty()) return 0.0;
         int total = 0;
-        for (UUID p : state.participants) total += Math.min(getDeaths(p), MAX_DEATHS);
-        return (double) total / ((double) state.participants.size() * MAX_DEATHS);
+        for (UUID p : state.participants) total += Math.min(getDeaths(p), maxDeaths());
+        return (double) total / ((double) state.participants.size() * maxDeaths());
     }
 
     public boolean isKingSummoned()        { return state != null && state.kingSummoned; }
@@ -148,7 +294,7 @@ public class GameManager {
 
     /**
      * Records one death for a player (the single source of truth for lives). Returns the new
-     * count. When it crosses {@link #MAX_DEATHS} the player is eliminated and the win condition
+     * count. When it crosses {@link #maxDeaths()} the player is eliminated and the win condition
      * is re-checked. Called from the death hook before airdrop progress is read.
      */
     public int recordDeath(ServerPlayer player) {
@@ -158,7 +304,7 @@ public class GameManager {
         state.names.put(uuid, player.getName().getString());
         int count = state.deaths.merge(uuid, 1, Integer::sum);
         state.setDirty();
-        if (count == MAX_DEATHS) {   // exact crossing — eliminate once
+        if (count == maxDeaths()) {   // exact crossing — eliminate once
             onPlayerEliminated(player);
         }
         return count;
@@ -191,16 +337,21 @@ public class GameManager {
             announceFirstBlood(attribution.killerName(), victim.getName().getString());
         }
 
-        // If The Marked was just killed, pay out the bounty before re-electing
+        // If The Marked was just killed, pay out the bounty before re-electing. Start a cooldown
+        // (both global and on the fallen player) so a fresh bounty doesn't drop instantly.
         if (uuid.equals(currentMarkedUUID)) {
             currentMarkedUUID = null;
+            long now = server.overworld().getGameTime();
+            markedExpiresTick = 0L;
+            markedCooldownUntil.put(uuid, now + reselectPlayerTicks()); // slain target can't be re-marked back-to-back
+            // nextMarkedAllowedTick stays as set at assignment — the 1-hour spacing runs from assignment.
             handleMarkedKilled(uuid, attribution.killerUUID(), attribution.killerName());
         }
 
         // Credit the kill and re-evaluate The Marked
         if (attribution.killerUUID() != null) {
             killCounts.merge(attribution.killerUUID(), 1, Integer::sum);
-            threatScores.merge(attribution.killerUUID(), 2, Integer::sum);
+            threatScores.merge(attribution.killerUUID(), AirdropConfig.THREAT_PER_KILL.get(), Integer::sum);
         }
 
         // Reward assists — partial threat to everyone who contributed, so the fight
@@ -209,7 +360,7 @@ public class GameManager {
             UUID au = assist.playerUUID();
             if (au == null || au.equals(uuid) || au.equals(attribution.killerUUID())) continue;
             assistCounts.merge(au, 1, Integer::sum);
-            threatScores.merge(au, 1, Integer::sum);
+            threatScores.merge(au, AirdropConfig.THREAT_PER_ASSIST.get(), Integer::sum);
             ServerPlayer assister = server.getPlayerList().getPlayer(au);
             if (assister != null) {
                 assister.displayClientMessage(Component.literal(
@@ -225,7 +376,7 @@ public class GameManager {
     // -------------------------------------------------------------------------
 
     /**
-     * Called once when a player crosses {@link #MAX_DEATHS} (from {@link #recordDeath}).
+     * Called once when a player crosses {@link #maxDeaths()} (from {@link #recordDeath}).
      * Elimination itself is derived from the persisted death count; this handles the
      * win-condition check, milestones, and victory/draw — over the FULL roster, so players
      * who are merely offline still count as alive.
@@ -310,21 +461,54 @@ public class GameManager {
     // Marked / Bounty — internal
     // -------------------------------------------------------------------------
 
+    /**
+     * Lapses the bounty contract if it ran its full duration unclaimed: clears the Marked,
+     * restores their name colour, gives them a re-mark reprieve, and opens a short breather
+     * before the next bounty. Called periodically from the server tick.
+     */
+    public void tickBounty() {
+        if (server == null || currentMarkedUUID == null) return;
+        long now = server.overworld().getGameTime();
+        if (now < markedExpiresTick) return;
+
+        UUID expired = currentMarkedUUID;
+        currentMarkedUUID = null;
+        markedExpiresTick = 0L;
+        markedCooldownUntil.put(expired, now + reselectPlayerTicks());
+        // nextMarkedAllowedTick stays as set at assignment — spacing is measured from assignment.
+
+        ServerPlayer p = server.getPlayerList().getPlayer(expired);
+        if (p != null) assignNameTagTeam(p);
+        String name = (state != null && state.names.containsKey(expired)) ? state.names.get(expired) : "The Marked";
+        broadcast("§7☠ §eThe bounty on §c" + name + " §ehas expired — they outlasted the contract!");
+    }
+
     private void computeMarked() {
         if (server == null) return;
 
+        // A bounty is locked once assigned — it never transfers; it only ends by kill or expiry.
+        if (currentMarkedUUID != null) return;
+
+        long now = server.overworld().getGameTime();
+        // Selection cooldown measured from the LAST assignment — keeps bounties rare/spaced.
+        if (now < nextMarkedAllowedTick) return;
+
         UUID newMarked = threatScores.entrySet().stream()
                 .filter(e -> isAlive(e.getKey()))
-                .filter(e -> e.getValue() > 5)
+                .filter(e -> e.getValue() > AirdropConfig.BOUNTY_THREAT_THRESHOLD.get())
+                .filter(e -> now >= markedCooldownUntil.getOrDefault(e.getKey(), 0L)) // not the last target (back-to-back)
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(null);
-
-        if (newMarked == null || newMarked.equals(currentMarkedUUID)) return;
+        if (newMarked == null) return;
 
         currentMarkedUUID = newMarked;
+        markedExpiresTick     = now + contractTicks();          // target is hunted only this long
+        nextMarkedAllowedTick = now + selectionCooldownTicks(); // no other bounty until this elapses
+
         ServerPlayer markedPlayer = server.getPlayerList().getPlayer(newMarked);
         if (markedPlayer == null) return;
+        assignNameTagTeam(markedPlayer); // ☠ skull + dark-red name while marked
 
         String name  = markedPlayer.getName().getString();
         int    score = threatScores.getOrDefault(newMarked, 0);

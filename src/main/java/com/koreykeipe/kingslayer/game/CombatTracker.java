@@ -92,16 +92,21 @@ public class CombatTracker {
      *   1. Most recent damage hit within KILL_CREDIT_WINDOW (10s)
      *   2. Highest-priority AttributionTag within ATTRIBUTION_TAG_WINDOW (5 min)
      *   3. Most recent damage hit within EXTENDED_CREDIT_WINDOW (2 min)
-     *   4. No player credit — pure environmental death
+     *   4. Vanilla kill-credit fallback (Minecraft's own "doomed to fall by / knocked into" logic)
+     *   5. No player credit — pure environmental death
      *
      * @param directKillerUUID  UUID of the player whose attack dealt the killing blow, or null
      * @param directKillerName  Name of that player, or null
      * @param cause             getMsgId() from the DamageSource (e.g. "fall", "player", "lava")
+     * @param vanillaCreditUUID UUID from the victim's vanilla combat tracker (getKillCredit), or null
+     * @param vanillaCreditName name for that fallback, or null
      */
     public static KillAttribution resolveKill(UUID victimUUID,
                                               @Nullable UUID directKillerUUID,
                                               @Nullable String directKillerName,
-                                              String cause) {
+                                              String cause,
+                                              @Nullable UUID vanillaCreditUUID,
+                                              @Nullable String vanillaCreditName) {
         long now = System.currentTimeMillis();
         List<DamageContribution> history = damageHistory.getOrDefault(victimUUID, Collections.emptyList());
         List<AttributionTag>     tags    = attributionTags.getOrDefault(victimUUID, Collections.emptyList());
@@ -138,6 +143,11 @@ public class CombatTracker {
             } else if (extendedHit.isPresent()) {
                 killerUUID = extendedHit.get().attackerUUID();
                 killerName = extendedHit.get().attackerName();
+            } else if (vanillaCreditUUID != null) {
+                // Last resort: Minecraft's own combat tracker (knocked into a hazard, doomed to
+                // fall by, explosion credit) — catches indirect kills our windows/tags missed.
+                killerUUID = vanillaCreditUUID;
+                killerName = vanillaCreditName;
             }
         }
 

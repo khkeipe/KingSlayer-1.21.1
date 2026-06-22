@@ -19,7 +19,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
 
@@ -311,8 +313,8 @@ public class AirdropManager {
     private void spawnAirdrop(MinecraftServer server, AirdropTier tier, String label) {
         ServerLevel overworld = server.overworld();
 
-        // Pick a random surface position inside the current world border (8-block inset
-        // keeps drops away from the wall even while the border is shrinking).
+        // Stay inside the current world border (8-block inset keeps drops off the wall even
+        // while it's shrinking).
         WorldBorder border = overworld.getWorldBorder();
         final int BORDER_INSET = 8;
         int minX = (int) Math.ceil(border.getMinX())  + BORDER_INSET;
@@ -323,8 +325,29 @@ public class AirdropManager {
         if (minX > maxX) { minX = maxX = (int) border.getCenterX(); }
         if (minZ > maxZ) { minZ = maxZ = (int) border.getCenterZ(); }
 
-        int x        = overworld.random.nextIntBetweenInclusive(minX, maxX);
-        int z        = overworld.random.nextIntBetweenInclusive(minZ, maxZ);
+        // Drop near a random active player (so airdrops land where the action is) and clamp
+        // inside the border. Falls back to a fully random border position if the radius is 0
+        // or nobody's in the overworld.
+        int radius = AirdropConfig.DROP_RADIUS.get();
+        List<ServerPlayer> eligible = server.getPlayerList().getPlayers().stream()
+                .filter(p -> !p.isSpectator()
+                        && p.level().dimension().equals(Level.OVERWORLD)
+                        && GameManager.get().isAlive(p.getUUID()))
+                .toList();
+
+        int x;
+        int z;
+        if (radius > 0 && !eligible.isEmpty()) {
+            ServerPlayer target = eligible.get(overworld.random.nextInt(eligible.size()));
+            int minDist = Math.min(24, radius); // not right on their head
+            double angle = overworld.random.nextDouble() * Math.PI * 2;
+            double dist  = minDist + overworld.random.nextDouble() * (radius - minDist);
+            x = Mth.clamp((int) (target.getX() + Math.cos(angle) * dist), minX, maxX);
+            z = Mth.clamp((int) (target.getZ() + Math.sin(angle) * dist), minZ, maxZ);
+        } else {
+            x = overworld.random.nextIntBetweenInclusive(minX, maxX);
+            z = overworld.random.nextIntBetweenInclusive(minZ, maxZ);
+        }
         int surfaceY = overworld.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
         int spawnY   = surfaceY + AirdropConfig.SPAWN_HEIGHT.get();
 

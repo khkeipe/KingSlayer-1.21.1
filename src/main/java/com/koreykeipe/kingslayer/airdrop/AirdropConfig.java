@@ -19,6 +19,8 @@ public class AirdropConfig {
     // -------------------------------------------------------------------------
 
     public static final ModConfigSpec.BooleanValue ENABLED;
+    /** Lives each player starts with; elimination latches when their death count reaches this. */
+    public static final ModConfigSpec.IntValue LIVES;
     /**
      * Total remaining lives across the WHOLE roster at which The King is auto-summoned as the
      * grand finale — fires once when remaining lives drop to this value, regardless of player
@@ -35,6 +37,11 @@ public class AirdropConfig {
     public static final ModConfigSpec.DoubleValue FALL_SPEED;
     /** How many ticks the chest glows after landing. 20 ticks = 1 second. */
     public static final ModConfigSpec.IntValue GLOW_DURATION;
+    /**
+     * Airdrops spawn within this many blocks of a randomly chosen active player (clamped to the
+     * world border). 0 = fall back to a fully random position inside the border (old behaviour).
+     */
+    public static final ModConfigSpec.IntValue DROP_RADIUS;
 
     // -------------------------------------------------------------------------
     // World-border settings
@@ -52,6 +59,58 @@ public class AirdropConfig {
     public static final ModConfigSpec.IntValue BORDER_MIN_RADIUS;
 
     // -------------------------------------------------------------------------
+    // Knight settings
+    // -------------------------------------------------------------------------
+
+    /** Movement-speed base attribute for each knight tier. */
+    public static final ModConfigSpec.DoubleValue FOOTSOLDIER_SPEED;
+    public static final ModConfigSpec.DoubleValue CHAMPION_SPEED;
+    public static final ModConfigSpec.DoubleValue GUARD_SPEED;
+    /** Max health per knight tier. */
+    public static final ModConfigSpec.DoubleValue FOOTSOLDIER_HP;
+    public static final ModConfigSpec.DoubleValue CHAMPION_HP;
+    public static final ModConfigSpec.DoubleValue GUARD_HP;
+    /** Base attack-damage overrides for the champion/guard (footsoldier keeps its iron sword). */
+    public static final ModConfigSpec.DoubleValue CHAMPION_ATTACK;
+    public static final ModConfigSpec.DoubleValue GUARD_ATTACK;
+    /** Ambient knight spawn pacing near players. */
+    public static final ModConfigSpec.DoubleValue KNIGHT_SPAWN_CHANCE;
+    public static final ModConfigSpec.IntValue    KNIGHT_SPAWN_INTERVAL_TICKS;
+    public static final ModConfigSpec.IntValue    KNIGHT_MAX_NEAR_PLAYER;
+
+    // -------------------------------------------------------------------------
+    // Bounty / The Marked pacing
+    // -------------------------------------------------------------------------
+
+    /** How long (minutes) a bounty stays active before it expires unclaimed. */
+    public static final ModConfigSpec.IntValue BOUNTY_CONTRACT_MINUTES;
+    /** Minutes after a bounty is ASSIGNED before another may be selected (spacing). */
+    public static final ModConfigSpec.IntValue BOUNTY_SELECTION_COOLDOWN_MINUTES;
+    /** Minutes a former bounty holder is excluded from becoming the bounty again. */
+    public static final ModConfigSpec.IntValue BOUNTY_RESELECT_PLAYER_MINUTES;
+    /** Threat score a player must exceed to be eligible to become The Marked. */
+    public static final ModConfigSpec.IntValue BOUNTY_THREAT_THRESHOLD;
+    /** Threat points awarded per player kill / assist. */
+    public static final ModConfigSpec.IntValue THREAT_PER_KILL;
+    public static final ModConfigSpec.IntValue THREAT_PER_ASSIST;
+    /** Threat points awarded per knight kill, by tier. */
+    public static final ModConfigSpec.IntValue THREAT_PER_FOOTSOLDIER;
+    public static final ModConfigSpec.IntValue THREAT_PER_CHAMPION;
+    public static final ModConfigSpec.IntValue THREAT_PER_GUARD;
+
+    // -------------------------------------------------------------------------
+    // Combat-item power
+    // -------------------------------------------------------------------------
+
+    public static final ModConfigSpec.DoubleValue LAUNCH_PAD_VERTICAL;
+    public static final ModConfigSpec.DoubleValue LAUNCH_PAD_FORWARD;
+    public static final ModConfigSpec.DoubleValue YOINK_MAX_PULL;
+    public static final ModConfigSpec.IntValue    BOLA_ROOT_TICKS;
+    public static final ModConfigSpec.IntValue    BOLA_COOLDOWN_TICKS;
+    public static final ModConfigSpec.DoubleValue BOLA_RANGE;
+    public static final ModConfigSpec.DoubleValue BULWARK_DAMAGE_REDUCTION;
+
+    // -------------------------------------------------------------------------
     // Per-tier settings
     // -------------------------------------------------------------------------
 
@@ -65,6 +124,10 @@ public class AirdropConfig {
         ENABLED = BUILDER
                 .comment("Set to false to disable all airdrops.")
                 .define("enabled", true);
+        LIVES = BUILDER
+                .comment("Lives each player gets before elimination (the core tournament knob). "
+                        + "Drives name colours, death progress, airdrop-tier pacing and the win condition.")
+                .defineInRange("lives_per_player", 5, 1, 50);
         KING_AUTO_SUMMON_LIVES = BUILDER
                 .comment("Total remaining lives across the whole roster at which The King auto-summons as the "
                         + "finale (fires once, regardless of player count). 3 = he rises with more than 2 lives "
@@ -78,8 +141,13 @@ public class AirdropConfig {
                         + "0.5 = slow/cinematic (~5s from 60 blocks), 1.5 = default (~3s), 3.0 = fast (~2s).")
                 .defineInRange("fall_speed", 0.5, 0.1, 5.0);
         GLOW_DURATION = BUILDER
-                .comment("How many ticks the chest glows after landing. 200 = 10 seconds.")
-                .defineInRange("glow_duration_ticks", 1500, 20, 6000);
+                .comment("How many ticks the smoke signal rises after the crate lands. "
+                        + "20 ticks = 1 second, 3000 = 150 seconds.")
+                .defineInRange("glow_duration_ticks", 3000, 20, 12000);
+        DROP_RADIUS = BUILDER
+                .comment("Airdrops spawn within this many blocks of a randomly chosen active player "
+                        + "(clamped to the world border). 0 = fully random position inside the border.")
+                .defineInRange("drop_radius", 90, 0, 4000);
 
         BORDER_ENABLED = BUILDER
                 .comment("Set to false to leave the world border unmanaged by the airdrop system.")
@@ -94,15 +162,85 @@ public class AirdropConfig {
                 .defineInRange("border_min_radius", 100, 10, 5000);
         BUILDER.pop();
 
+        BUILDER.comment("Knight movement speed (base MOVEMENT_SPEED attribute). "
+                + "Vanilla references: zombie 0.23, vindicator 0.35, wither skeleton 0.25.").push("knights");
+        FOOTSOLDIER_SPEED = BUILDER
+                .comment("Footsoldier (zombie) movement speed.")
+                .defineInRange("footsoldier_speed", 0.20, 0.05, 1.0);
+        CHAMPION_SPEED = BUILDER
+                .comment("Champion (vindicator) movement speed. Lowered from vanilla 0.35 so they don't run players down.")
+                .defineInRange("champion_speed", 0.20, 0.05, 1.0);
+        GUARD_SPEED = BUILDER
+                .comment("Guard (wither skeleton) movement speed.")
+                .defineInRange("guard_speed", 0.20, 0.05, 1.0);
+        FOOTSOLDIER_HP = BUILDER.comment("Footsoldier max health.").defineInRange("footsoldier_hp", 50.0, 1.0, 1024.0);
+        CHAMPION_HP    = BUILDER.comment("Champion max health.").defineInRange("champion_hp", 50.0, 1.0, 1024.0);
+        GUARD_HP       = BUILDER.comment("Guard max health.").defineInRange("guard_hp", 60.0, 1.0, 1024.0);
+        CHAMPION_ATTACK = BUILDER.comment("Champion base attack damage (its axe adds more).")
+                .defineInRange("champion_attack", 1.0, 0.0, 100.0);
+        GUARD_ATTACK    = BUILDER.comment("Guard base attack damage (its sword + wither effect add more).")
+                .defineInRange("guard_attack", 2.0, 0.0, 100.0);
+        KNIGHT_SPAWN_CHANCE = BUILDER
+                .comment("Chance (0-1) a knight spawns on each per-player attempt.")
+                .defineInRange("spawn_chance", 0.25, 0.0, 1.0);
+        KNIGHT_SPAWN_INTERVAL_TICKS = BUILDER
+                .comment("Server ticks between ambient knight spawn attempts per player. 1000 = 50s.")
+                .defineInRange("spawn_interval_ticks", 1000, 20, 24000);
+        KNIGHT_MAX_NEAR_PLAYER = BUILDER
+                .comment("Max knights near a player before further ambient spawns are skipped.")
+                .defineInRange("max_knights_near_player", 3, 0, 50);
+        BUILDER.pop();
+
+        BUILDER.comment("THE MARKED / bounty pacing. A bounty is a rare, time-boxed hunt so no one "
+                + "gets ganged up on and eliminated early.").push("bounty");
+        BOUNTY_CONTRACT_MINUTES = BUILDER
+                .comment("Minutes a bounty stays active before it expires unclaimed — the target is "
+                        + "only hunted this long, then they're safe.")
+                .defineInRange("contract_minutes", 5, 1, 120);
+        BOUNTY_SELECTION_COOLDOWN_MINUTES = BUILDER
+                .comment("Minutes after a bounty is ASSIGNED before another can be selected. Keeps "
+                        + "bounties spaced out. 0 = a new bounty can be picked as soon as the last ends.")
+                .defineInRange("selection_cooldown_minutes", 60, 0, 600);
+        BOUNTY_RESELECT_PLAYER_MINUTES = BUILDER
+                .comment("Minutes a player who just held the bounty is excluded from being picked "
+                        + "again — prevents the same player being targeted back-to-back.")
+                .defineInRange("reselect_same_player_minutes", 120, 0, 1200);
+        BOUNTY_THREAT_THRESHOLD = BUILDER
+                .comment("Threat score a player must EXCEED to be eligible for a bounty.")
+                .defineInRange("threat_threshold", 5, 0, 1000);
+        THREAT_PER_KILL = BUILDER.comment("Threat gained per player kill.").defineInRange("threat_per_kill", 2, 0, 100);
+        THREAT_PER_ASSIST = BUILDER.comment("Threat gained per kill assist.").defineInRange("threat_per_assist", 1, 0, 100);
+        THREAT_PER_FOOTSOLDIER = BUILDER.comment("Threat gained for slaying a Footsoldier.").defineInRange("threat_per_footsoldier", 1, 0, 100);
+        THREAT_PER_CHAMPION = BUILDER.comment("Threat gained for slaying a Champion.").defineInRange("threat_per_champion", 2, 0, 100);
+        THREAT_PER_GUARD = BUILDER.comment("Threat gained for slaying a Guard.").defineInRange("threat_per_guard", 3, 0, 100);
+        BUILDER.pop();
+
+        BUILDER.comment("Combat-item power. Tune the custom arsenal without recompiling.").push("combat");
+        LAUNCH_PAD_VERTICAL = BUILDER.comment("Launch Pad vertical pop (blocks/tick velocity).")
+                .defineInRange("launch_pad_vertical", 1.6, 0.1, 10.0);
+        LAUNCH_PAD_FORWARD = BUILDER.comment("Launch Pad horizontal kick in the direction of travel/facing.")
+                .defineInRange("launch_pad_forward", 1.6, 0.0, 10.0);
+        YOINK_MAX_PULL = BUILDER.comment("Yoink Rod max reel-in speed (blocks/tick).")
+                .defineInRange("yoink_max_pull", 4.0, 0.1, 10.0);
+        BOLA_ROOT_TICKS = BUILDER.comment("How long a Bola roots its target. 80 = 4s.")
+                .defineInRange("bola_root_ticks", 80, 1, 600);
+        BOLA_COOLDOWN_TICKS = BUILDER.comment("Bola use cooldown. 100 = 5s.")
+                .defineInRange("bola_cooldown_ticks", 100, 0, 600);
+        BOLA_RANGE = BUILDER.comment("Bola throw/lock range in blocks.")
+                .defineInRange("bola_range", 24.0, 1.0, 64.0);
+        BULWARK_DAMAGE_REDUCTION = BUILDER.comment("Fraction (0-1) of incoming damage the Bulwark Legguards absorb.")
+                .defineInRange("bulwark_damage_reduction", 0.20, 0.0, 0.9);
+        BUILDER.pop();
+
         // repeat_interval_ticks defaults (0 = fire once and stop):
         //   6000  =  5 min  |  9000  = 7.5 min  |  12000 = 10 min  |  18000 = 15 min
-        BROKEN = new TierConfig(BUILDER, "broken", 0.15, 6000, 75, 12000);
+        BROKEN = new TierConfig(BUILDER, "broken", 0.10, 22000, 75, 12000);
 
-        COMMON = new TierConfig(BUILDER, "common", 0.35, 9000, 100, 15000);
+        COMMON = new TierConfig(BUILDER, "common", 0.30, 21000, 100, 15000);
 
-        RARE = new TierConfig(BUILDER, "rare", 0.60, 12000, 125, 18000);
+        RARE = new TierConfig(BUILDER, "rare", 0.60, 19000, 125, 18000);
 
-        EPIC = new TierConfig(BUILDER, "epic", 0.85, 18000, 150, 24000);
+        EPIC = new TierConfig(BUILDER, "epic", 0.80, 18000, 150, 24000);
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();

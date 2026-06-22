@@ -53,8 +53,8 @@ public class TheKing extends Warden {
     private int summonCooldown = 200;
 
     // Ranged attack timers (staggered so they don't all fire at once).
-    private int lightningCooldown = 300;
-    private int hexCooldown = 160;
+    private int lightningCooldown = 200;
+    private int hexCooldown = 100;
     /** Positions queued for a telegraphed lightning strike, and the tick they land. */
     private final java.util.List<BlockPos> pendingBolts = new java.util.ArrayList<>();
     private int boltStrikeTick = 0;
@@ -75,7 +75,7 @@ public class TheKing extends Warden {
         return Warden.createAttributes()
                 .add(Attributes.MAX_HEALTH, 500.0)
                 .add(Attributes.ATTACK_DAMAGE, 18.0)    // tuned down ~18% — threatening but beatable in diamond
-                .add(Attributes.MOVEMENT_SPEED, 0.22)   // heavy, menacing, kitable pace (slower than a vanilla Warden)
+                .add(Attributes.MOVEMENT_SPEED, 0.30)   // heavy, menacing, kitable pace (slower than a vanilla Warden)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
                 .add(Attributes.FOLLOW_RANGE, 50.0)
                 .add(Attributes.SCALE, 1.6);        // towers over players (scales hitbox too)
@@ -142,11 +142,11 @@ public class TheKing extends Warden {
         }
 
         if (--lightningCooldown <= 0) {
-            lightningCooldown = 260 + this.random.nextInt(160); // ~13–21s
+            lightningCooldown = 200 + this.random.nextInt(120); // ~10–16s (was ~13–21s)
             chargeLightning();
         }
         if (--hexCooldown <= 0) {
-            hexCooldown = 160 + this.random.nextInt(140);        // ~8–15s
+            hexCooldown = 120 + this.random.nextInt(100);        // ~6–11s (was ~8–15s)
             castHex();
         }
     }

@@ -12,8 +12,8 @@
     },
     {
       "enchantments": {
-        "minecraft:knockback": 5,
-        "minecraft:unbreaking": 3
+        "minecraft:knockback": 10,
+        "minecraft:unbreaking": 2
       },
       "item": "kcs_kingslayer:slayer_bat"
     },

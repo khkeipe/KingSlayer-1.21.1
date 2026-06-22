@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -79,7 +80,10 @@ public class CrownHandler {
     // Totem (passive, while held in inventory)
     // ------------------------------------------------------------------
 
-    @SubscribeEvent
+    // HIGHEST priority so the Crown cancels the death BEFORE the game's death-counter
+    // (ModEvents.onLivingDeath, normal priority) can run. Once cancelled, that handler is
+    // skipped — so a Crown save never registers as a death, elimination, or airdrop progress.
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 

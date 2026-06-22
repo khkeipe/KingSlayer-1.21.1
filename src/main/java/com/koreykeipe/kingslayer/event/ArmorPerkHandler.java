@@ -39,8 +39,10 @@ public class ArmorPerkHandler {
 
     private static final double REVEAL_RADIUS = 16.0;
 
-    /** Flat share of incoming damage the Bulwark Legguards absorb. */
-    private static final float BULWARK_DR = 0.20f;
+    /** Flat share of incoming damage the Bulwark Legguards absorb (config-driven, [combat]). */
+    private static float bulwarkDr() {
+        return com.koreykeipe.kingslayer.airdrop.AirdropConfig.BULWARK_DAMAGE_REDUCTION.get().floatValue();
+    }
 
     @SubscribeEvent
     public static void onLivingTick(EntityTickEvent.Post event) {
@@ -95,6 +97,6 @@ public class ArmorPerkHandler {
                 || src.is(DamageTypes.GENERIC_KILL)) {
             return;
         }
-        event.setAmount(event.getAmount() * (1.0f - BULWARK_DR));
+        event.setAmount(event.getAmount() * (1.0f - bulwarkDr()));
     }
 }

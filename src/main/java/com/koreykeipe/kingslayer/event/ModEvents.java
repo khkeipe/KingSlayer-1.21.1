@@ -49,10 +49,10 @@ public class ModEvents {
         if(event.getEntity() instanceof ServerPlayer player){
             GameManager.get().onPlayerLogin(player);
 
-            CompoundTag persistent = player.getPersistentData();
-            if(!persistent.contains("hasJoinedBefore")){
-                //First Time Join — expand the world border by one player's allocation
-                persistent.putBoolean("hasJoinedBefore", true);
+            // First-EVER join expands the border once. Tracked by UUID in the persistent game
+            // data (not player NBT, which is wiped on death) so a relog-after-death no longer
+            // re-grows the border.
+            if (GameManager.get().markBorderContributor(player.getUUID())) {
                 net.minecraft.server.MinecraftServer srv = player.getServer();
                 if (srv != null) {
                     BorderManager.get().onNewPlayerFirstJoin(srv);
@@ -60,15 +60,13 @@ public class ModEvents {
                 player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Welcome to ")
                         .append(Component.literal("King Slayer").withStyle(ChatFormatting.GOLD))
                 ));
-                Scoreboard scoreboard = player.getServer().getScoreboard();
-                PlayerTeam team = scoreboard.getPlayerTeam("aqua_team");
-                if(team != null){
-                    scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                }
-            }else{
+            } else {
                 player.sendSystemMessage(Component.literal("Welcome Back o/"));
             }
 
+            // Always reflect the player's CURRENT life count on their name colour on every login,
+            // so a relog never appears to reset them to full lives.
+            updateDeaths(player);
         }
     }
 
@@ -87,75 +85,37 @@ public class ModEvents {
         DeathCommand.register(event.getDispatcher());
         AirdropCommand.register(event.getDispatcher());
         com.koreykeipe.kingslayer.command.KingCommand.register(event.getDispatcher());
+        com.koreykeipe.kingslayer.command.SimCommand.register(event.getDispatcher());
     }
 
     public static void updateDeaths(ServerPlayer player){
-        final int MAX_DEATHS = 5;
-        Scoreboard scoreboard = player.getServer().getScoreboard();
         // Lives are driven by the persistent event death counter (incremented in onLivingDeath),
-        // so they survive restarts. This hook just reflects the count on respawn.
+        // so they survive restarts. This hook just reflects the count on respawn/login.
+        int max = GameManager.get().maxLives();
         int deaths = GameManager.get().getDeaths(player.getUUID());
-        int lives = MAX_DEATHS - deaths;
+        int lives = max - deaths;
 
-        if(deaths <= 0){
-            PlayerTeam team = scoreboard.getPlayerTeam("aqua_team");
-            if(team != null){
-                scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                player.sendSystemMessage(Component.literal("You Have ")
-                        .append(Component.literal(String.valueOf(lives)).withStyle(ChatFormatting.AQUA))
-                        .append(" Lives Remaining").withStyle(ChatFormatting.RESET)
-                );
-            }
-        }
-        else if(deaths == 1){
-            PlayerTeam team = scoreboard.getPlayerTeam("green_team");
-            if(team != null){
-                scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                player.sendSystemMessage(Component.literal("You Have ")
-                        .append(Component.literal(String.valueOf(lives)).withStyle(ChatFormatting.DARK_GREEN))
-                        .append(" Lives Remaining").withStyle(ChatFormatting.RESET)
-                );
-            }
-        }
-        else if(deaths == 2){
-            PlayerTeam team = scoreboard.getPlayerTeam("lime_team");
-            if(team != null){
-                scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                player.sendSystemMessage(Component.literal("You Have ")
-                        .append(Component.literal(String.valueOf(lives)).withStyle(ChatFormatting.GREEN))
-                        .append(" Lives Remaining").withStyle(ChatFormatting.RESET)
-                );
-            }
-        }
-        else if(deaths == 3){
-            PlayerTeam team = scoreboard.getPlayerTeam("yello_team");
-            if(team != null){
-                scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                player.sendSystemMessage(Component.literal("You Have ")
-                        .append(Component.literal(String.valueOf(lives)).withStyle(ChatFormatting.YELLOW))
-                        .append(" Lives Remaining").withStyle(ChatFormatting.RESET)
-                );
-            }
-        }
-        else if(deaths == 4){
-            PlayerTeam team = scoreboard.getPlayerTeam("red_team");
-            if(team != null){
-                scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-                player.sendSystemMessage(Component.literal("You Have ")
-                        .append(Component.literal(String.valueOf(lives)).withStyle(ChatFormatting.RED))
-                        .append(" Life Remaining").withStyle(ChatFormatting.RESET)
-                        .append(". . . MAKE IT COUNT!").withStyle(ChatFormatting.DARK_RED)
-                );
-            }
-        }
-        else { // deaths >= 5 — eliminated (the win-condition check already ran in recordDeath)
-            PlayerTeam team = scoreboard.getPlayerTeam("gray_team");
-            if(team != null){
-                scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
-            }
+        // Name colour is owned by GameManager (it also applies the ☠ marked override).
+        GameManager.get().assignNameTagTeam(player);
+
+        if (lives <= 0) { // eliminated (the win-condition check already ran in recordDeath)
             player.setGameMode(GameType.SPECTATOR);
             player.sendSystemMessage(Component.literal("THANKS FOR PLAYING KING SLAYER"));
+            return;
         }
+
+        // Lives-aware message + colour, so any configured life total reads sensibly.
+        ChatFormatting color = lives == 1 ? ChatFormatting.RED
+                : (lives <= Math.max(1, max / 2) ? ChatFormatting.YELLOW
+                : (lives < max ? ChatFormatting.GREEN : ChatFormatting.AQUA));
+        net.minecraft.network.chat.MutableComponent msg = Component.literal("You Have ")
+                .append(Component.literal(String.valueOf(lives)).withStyle(color))
+                .append(Component.literal(lives == 1 ? " Life Remaining" : " Lives Remaining")
+                        .withStyle(ChatFormatting.RESET));
+        if (lives == 1) {
+            msg.append(Component.literal(". . . MAKE IT COUNT!").withStyle(ChatFormatting.DARK_RED));
+        }
+        player.sendSystemMessage(msg);
     }
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
@@ -182,6 +142,11 @@ public class ModEvents {
     public static void onServerTick(ServerTickEvent.Post event) {
         AirdropManager.get().onServerTick(event.getServer());
         com.koreykeipe.kingslayer.exchange.TributeExchange.tick(event.getServer());
+
+        // Lapse the bounty contract if it ran out unclaimed (checked once a second).
+        if (event.getServer().getTickCount() % 20 == 0) {
+            GameManager.get().tickBounty();
+        }
 
         // Leaderboard broadcast every 3 600 ticks (3 minutes)
         if (event.getServer().getTickCount() % 3600 == 0) {
@@ -228,8 +193,15 @@ public class ModEvents {
             };
         }
 
+        // Vanilla's own combat-tracker credit as a last-resort fallback: catches indirect kills
+        // (knocked into lava/void, doomed to fall by X, explosions) our windows/tags missed.
+        net.minecraft.world.entity.LivingEntity vanillaCredit = victim.getKillCredit();
+        UUID vanillaCreditUUID = vanillaCredit instanceof ServerPlayer vp ? vp.getUUID() : null;
+        String vanillaCreditName = vanillaCredit instanceof ServerPlayer vp ? vp.getName().getString() : null;
+
         CombatTracker.KillAttribution attribution = CombatTracker.resolveKill(
-            victim.getUUID(), directKillerUUID, directKillerName, cause
+            victim.getUUID(), directKillerUUID, directKillerName, cause,
+            vanillaCreditUUID, vanillaCreditName
         );
 
         CombatTracker.clearPlayer(victim.getUUID());
