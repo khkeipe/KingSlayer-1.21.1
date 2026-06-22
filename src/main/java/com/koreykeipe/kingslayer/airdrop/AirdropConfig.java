@@ -111,6 +111,13 @@ public class AirdropConfig {
     public static final ModConfigSpec.DoubleValue BULWARK_DAMAGE_REDUCTION;
 
     // -------------------------------------------------------------------------
+    // Custom-structure content markers
+    // -------------------------------------------------------------------------
+
+    /** Chance (0-1) each {@code kcs:crate} data marker in a structure becomes a crate. */
+    public static final ModConfigSpec.DoubleValue STRUCTURE_CRATE_CHANCE;
+
+    // -------------------------------------------------------------------------
     // Per-tier settings
     // -------------------------------------------------------------------------
 
@@ -230,6 +237,13 @@ public class AirdropConfig {
                 .defineInRange("bola_range", 24.0, 1.0, 64.0);
         BULWARK_DAMAGE_REDUCTION = BUILDER.comment("Fraction (0-1) of incoming damage the Bulwark Legguards absorb.")
                 .defineInRange("bulwark_damage_reduction", 0.20, 0.0, 0.9);
+        BUILDER.pop();
+
+        BUILDER.comment("Content placed by data markers inside custom structures.").push("structures");
+        STRUCTURE_CRATE_CHANCE = BUILDER
+                .comment("Chance (0-1) each 'kcs:crate' data marker becomes a crate (else cleared to air). "
+                        + "Rolled per marker, so crate placement varies between generations.")
+                .defineInRange("crate_marker_chance", 0.5, 0.0, 1.0);
         BUILDER.pop();
 
         // repeat_interval_ticks defaults (0 = fire once and stop):

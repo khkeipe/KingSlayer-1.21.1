@@ -1,14 +1,21 @@
 package com.koreykeipe.kingslayer.worldgen;
 
+import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
+import com.koreykeipe.kingslayer.block.ModBlocks;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -19,6 +26,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -85,7 +93,164 @@ public class TemplateFeature extends Feature<TemplateConfiguration> {
             levelFootprint(level, footprint);
         }
 
-        return template.placeInWorld(level, origin, origin, settings, ctx.random(), Block.UPDATE_CLIENTS);
+        boolean placed = template.placeInWorld(level, origin, origin, settings, ctx.random(), Block.UPDATE_CLIENTS);
+        if (placed) {
+            resolveMarkers(level, template, origin, settings, ctx.random());
+        }
+        return placed;
+    }
+
+    // -------------------------------------------------------------------------
+    // Data-marker content — DATA-mode structure blocks the build author scatters,
+    // resolved at generation so each placement can randomise crates/spawners.
+    //   kcs:crate              → crate (random tier), rolled against the config chance
+    //   kcs:crate:<tier>       → that tier (broken|common|rare|epic|random)
+    //   kcs:spawner:<entityId> → a mob spawner for that entity (e.g. minecraft:zombie)
+    // Any other / leftover structure block is cleared to air so none leak into the world.
+    // -------------------------------------------------------------------------
+
+    private static void resolveMarkers(WorldGenLevel level, StructureTemplate template,
+                                       BlockPos origin, StructurePlaceSettings settings, RandomSource rand) {
+        for (StructureTemplate.StructureBlockInfo info :
+                template.filterBlocks(origin, settings, Blocks.STRUCTURE_BLOCK)) {
+            String meta = info.nbt() != null ? info.nbt().getString("metadata") : "";
+            BlockPos pos = info.pos();
+            if (meta.startsWith("kcs:pool:")) {
+                resolvePool(level, pos, meta.substring("kcs:pool:".length()), rand);
+            } else if (meta.equals("kcs:crate") || meta.startsWith("kcs:crate:")) {
+                resolveCrate(level, pos, meta, rand);
+            } else if (meta.startsWith("kcs:spawner:")) {
+                resolveSpawner(level, pos, meta.substring("kcs:spawner:".length()), rand);
+            } else if (meta.startsWith("kcs:block:")) {
+                resolveBlock(level, pos, meta.substring("kcs:block:".length()));
+            } else {
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    /**
+     * Resolves a weighted pool marker so one spot can randomly be a crate, a spawner, a plain
+     * block, or nothing — varying every generation.
+     *
+     * <p>Format: {@code kcs:pool:<entry>;<entry>;...} where each entry is an outcome with an
+     * optional {@code @weight} (default 1). One entry is chosen at random by weight. Outcomes:
+     * {@code crate}, {@code crate:<tier>}, {@code spawner:<entityId>}, {@code block:<blockId>},
+     * {@code air}. Example:</p>
+     * <pre>kcs:pool:crate:mystery@2;spawner:minecraft:zombie@1;block:minecraft:gold_block@3;air@4</pre>
+     */
+    private static void resolvePool(WorldGenLevel level, BlockPos pos, String spec, RandomSource rand) {
+        java.util.List<String> outcomes = new java.util.ArrayList<>();
+        java.util.List<Integer> weights = new java.util.ArrayList<>();
+        int total = 0;
+        for (String entry : spec.split(";")) {
+            String e = entry.trim();
+            if (e.isEmpty()) continue;
+            int at = e.lastIndexOf('@');
+            String outcome = at >= 0 ? e.substring(0, at) : e;
+            int weight = 1;
+            if (at >= 0) {
+                try { weight = Integer.parseInt(e.substring(at + 1).trim()); } catch (NumberFormatException ignored) {}
+            }
+            if (weight <= 0) continue;
+            outcomes.add(outcome);
+            weights.add(weight);
+            total += weight;
+        }
+        if (total <= 0) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+            return;
+        }
+        int r = rand.nextInt(total);
+        String chosen = outcomes.get(outcomes.size() - 1);
+        for (int i = 0; i < outcomes.size(); i++) {
+            r -= weights.get(i);
+            if (r < 0) { chosen = outcomes.get(i); break; }
+        }
+        resolveOutcome(level, pos, chosen, rand);
+    }
+
+    /** Places one deterministic outcome (the shared core used by pools). */
+    private static void resolveOutcome(WorldGenLevel level, BlockPos pos, String outcome, RandomSource rand) {
+        String o = outcome.trim();
+        String lower = o.toLowerCase(Locale.ROOT);
+        if (lower.isEmpty() || lower.equals("air") || lower.equals("none")
+                || lower.equals("empty") || lower.equals("nothing")) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+        } else if (lower.equals("crate") || lower.startsWith("crate:")) {
+            String tier = lower.startsWith("crate:") ? lower.substring("crate:".length()) : "random";
+            Block crate = crateForTier(tier);
+            if (crate == null) crate = randomCrate(rand);
+            level.setBlock(pos, crate.defaultBlockState(), Block.UPDATE_CLIENTS);
+        } else if (lower.startsWith("spawner:")) {
+            resolveSpawner(level, pos, o.substring("spawner:".length()), rand);
+        } else if (lower.startsWith("block:")) {
+            resolveBlock(level, pos, o.substring("block:".length()));
+        } else {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /** Places a plain block by id (default state); unknown id → air. */
+    private static void resolveBlock(WorldGenLevel level, BlockPos pos, String blockId) {
+        ResourceLocation rl = ResourceLocation.tryParse(blockId.trim());
+        Block b = rl != null ? BuiltInRegistries.BLOCK.getOptional(rl).orElse(null) : null;
+        level.setBlock(pos, (b != null ? b : Blocks.AIR).defaultBlockState(), Block.UPDATE_CLIENTS);
+    }
+
+    private static void resolveCrate(WorldGenLevel level, BlockPos pos, String meta, RandomSource rand) {
+        String[] parts = meta.split(":"); // kcs:crate[:tier]
+        String tier = parts.length >= 3 ? parts[2].toLowerCase(Locale.ROOT) : "random";
+        Block crate = crateForTier(tier);
+
+        // Bare / random / unknown tier = "scatter" loot: roll the configured chance (so placement
+        // varies), and pick a random tier when it lands. An EXPLICIT tier is a deliberate
+        // centrepiece crate, so it always places.
+        if (crate == null) {
+            if (rand.nextFloat() >= AirdropConfig.STRUCTURE_CRATE_CHANCE.get()) {
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+                return;
+            }
+            crate = randomCrate(rand);
+        }
+        level.setBlock(pos, crate.defaultBlockState(), Block.UPDATE_CLIENTS);
+    }
+
+    /** Maps a tier tag to its crate block, or null for "random"/unknown (scatter behaviour). */
+    private static Block crateForTier(String tier) {
+        return switch (tier) {
+            case "broken"    -> ModBlocks.BROKEN_CRATE.get();
+            case "common"    -> ModBlocks.COMMON_CRATE.get();
+            case "rare"      -> ModBlocks.RARE_CRATE.get();
+            case "epic"      -> ModBlocks.EPIC_CRATE.get();
+            case "mystery"   -> ModBlocks.MYSTERY_CRATE.get();
+            case "bounty"    -> ModBlocks.BOUNTY_CRATE.get();
+            case "broken_ad" -> ModBlocks.BROKEN_AD_CRATE.get();
+            case "common_ad" -> ModBlocks.COMMON_AD_CRATE.get();
+            case "rare_ad"   -> ModBlocks.RARE_AD_CRATE.get();
+            case "epic_ad"   -> ModBlocks.EPIC_AD_CRATE.get();
+            default          -> null; // "random" or unrecognised
+        };
+    }
+
+    /** Weighted random crate tier for bare {@code kcs:crate}: broken 40%, common 30%, rare 20%, epic 10%. */
+    private static Block randomCrate(RandomSource rand) {
+        int r = rand.nextInt(10);
+        if (r < 4) return ModBlocks.BROKEN_CRATE.get();
+        if (r < 7) return ModBlocks.COMMON_CRATE.get();
+        if (r < 9) return ModBlocks.RARE_CRATE.get();
+        return ModBlocks.EPIC_CRATE.get();
+    }
+
+    private static void resolveSpawner(WorldGenLevel level, BlockPos pos, String entityId, RandomSource rand) {
+        level.setBlock(pos, Blocks.SPAWNER.defaultBlockState(), Block.UPDATE_CLIENTS);
+        ResourceLocation rl = ResourceLocation.tryParse(entityId);
+        EntityType<?> type = rl != null
+                ? BuiltInRegistries.ENTITY_TYPE.getOptional(rl).orElse(EntityType.ZOMBIE)
+                : EntityType.ZOMBIE;
+        if (level.getBlockEntity(pos) instanceof SpawnerBlockEntity sbe) {
+            sbe.setEntityId(type, rand);
+        }
     }
 
     /**
