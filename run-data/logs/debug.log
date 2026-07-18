@@ -1,35 +1,35 @@
-[18Jul2026 16:10:41.206] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgedatauserdev, --assetIndex, 17, --assetsDir, C:\\Users\\kkeip\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.neoForgeVersion, 21.1.93, --fml.fmlVersion, 4.0.34, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430, --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
-[18Jul2026 16:10:41.207] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.11+10-LTS
-[18Jul2026 16:10:41.209] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.11 by Eclipse Adoptium; OS Windows 11 arch amd64 version 10.0
-[18Jul2026 16:10:41.261] [main/WARN] [net.neoforged.fml.loading.FMLConfig/CORE]: Configuration file C:\Minecraft Modding\KingSlayer\run-data\config\fml.toml is not correct. Correcting
-[18Jul2026 16:10:41.283] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgedatauserdev
-[18Jul2026 16:10:41.316] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/kkeip/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23131!/ Service=ModLauncher Env=CLIENT
-[18Jul2026 16:10:41.321] [main/WARN] [net.neoforged.fml.loading.FMLConfig/CORE]: Configuration file C:\Minecraft Modding\KingSlayer\run-data\config\fml.toml is not correct. Correcting
-[18Jul2026 16:10:41.579] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
-[18Jul2026 16:10:41.580] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+[18Jul2026 16:13:01.341] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgedatauserdev, --assetIndex, 17, --assetsDir, C:\\Users\\kkeip\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.neoForgeVersion, 21.1.93, --fml.fmlVersion, 4.0.34, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430, --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
+[18Jul2026 16:13:01.344] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.11+10-LTS
+[18Jul2026 16:13:01.344] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.11 by Eclipse Adoptium; OS Windows 11 arch amd64 version 10.0
+[18Jul2026 16:13:01.395] [main/WARN] [net.neoforged.fml.loading.FMLConfig/CORE]: Configuration file C:\Minecraft Modding\KingSlayer\run-data\config\fml.toml is not correct. Correcting
+[18Jul2026 16:13:01.415] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgedatauserdev
+[18Jul2026 16:13:01.446] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/kkeip/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23131!/ Service=ModLauncher Env=CLIENT
+[18Jul2026 16:13:01.450] [main/WARN] [net.neoforged.fml.loading.FMLConfig/CORE]: Configuration file C:\Minecraft Modding\KingSlayer\run-data\config\fml.toml is not correct. Correcting
+[18Jul2026 16:13:01.664] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[18Jul2026 16:13:01.666] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
      Mod List:
 		Name Version (Mod Id)
 
 		King Slayer 0.2.4 (kcs_kingslayer)
 		Minecraft 1.21.1 (minecraft)
 		NeoForge 21.1.93 (neoforge)
-[18Jul2026 16:10:42.177] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgedatauserdev' with arguments [--gameDir, ., --assetsDir, C:\Users\kkeip\.gradle\caches\neoformruntime\assets, --assetIndex, 17, --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
-[18Jul2026 16:10:42.590] [main/INFO] [net.neoforged.neoforge.data.loading.DatagenModLoader/]: Initializing Data Gatherer for mods [kcs_kingslayer]
-[18Jul2026 16:10:42.599] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
-[18Jul2026 16:10:45.723] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.93, for MC 1.21.1
-[18Jul2026 16:10:46.014] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Minecraft%20Modding/KingSlayer/build/moddev/artifacts/neoforge-21.1.93.jar%23183!/assets/.mcassetsroot' uses unexpected schema
-[18Jul2026 16:10:46.014] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Minecraft%20Modding/KingSlayer/build/moddev/artifacts/neoforge-21.1.93.jar%23183!/data/.mcassetsroot' uses unexpected schema
-[18Jul2026 16:10:46.137] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Loot Tables
-[18Jul2026 16:10:46.189] [main/INFO] [net.minecraft.data.DataGenerator/]: Loot Tables finished after 51 ms
-[18Jul2026 16:10:46.189] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Item Models: kcs_kingslayer
-[18Jul2026 16:10:46.199] [main/INFO] [net.minecraft.data.DataGenerator/]: Item Models: kcs_kingslayer finished after 9 ms
-[18Jul2026 16:10:46.199] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Block States: kcs_kingslayer
-[18Jul2026 16:10:46.211] [main/INFO] [net.minecraft.data.DataGenerator/]: Block States: kcs_kingslayer finished after 10 ms
-[18Jul2026 16:10:46.211] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Global Loot Modifiers : kcs_kingslayer
-[18Jul2026 16:10:46.227] [main/INFO] [net.minecraft.data.DataGenerator/]: Global Loot Modifiers : kcs_kingslayer finished after 16 ms
-[18Jul2026 16:10:46.227] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Registries
-[18Jul2026 16:10:46.286] [main/INFO] [net.minecraft.data.DataGenerator/]: Registries finished after 58 ms
-[18Jul2026 16:10:46.286] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Recipes
-[18Jul2026 16:10:46.302] [main/INFO] [net.minecraft.data.DataGenerator/]: Recipes finished after 15 ms
-[18Jul2026 16:10:46.302] [main/INFO] [net.minecraft.data.DataGenerator/]: All providers took: 165 ms
-[18Jul2026 16:10:46.310] [main/INFO] [net.minecraft.data.HashCache/]: Caching: total files: 193, old count: 193, new count: 194, removed stale: 0, written: 2
+[18Jul2026 16:13:02.187] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgedatauserdev' with arguments [--gameDir, ., --assetsDir, C:\Users\kkeip\.gradle\caches\neoformruntime\assets, --assetIndex, 17, --mod, kcs_kingslayer, --all, --output, C:\Minecraft Modding\KingSlayer\src\generated\resources, --existing, C:\Minecraft Modding\KingSlayer\src\main\resources]
+[18Jul2026 16:13:02.536] [main/INFO] [net.neoforged.neoforge.data.loading.DatagenModLoader/]: Initializing Data Gatherer for mods [kcs_kingslayer]
+[18Jul2026 16:13:02.547] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+[18Jul2026 16:13:05.740] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.93, for MC 1.21.1
+[18Jul2026 16:13:05.992] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Minecraft%20Modding/KingSlayer/build/moddev/artifacts/neoforge-21.1.93.jar%23183!/assets/.mcassetsroot' uses unexpected schema
+[18Jul2026 16:13:05.992] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Minecraft%20Modding/KingSlayer/build/moddev/artifacts/neoforge-21.1.93.jar%23183!/data/.mcassetsroot' uses unexpected schema
+[18Jul2026 16:13:06.117] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Loot Tables
+[18Jul2026 16:13:06.177] [main/INFO] [net.minecraft.data.DataGenerator/]: Loot Tables finished after 58 ms
+[18Jul2026 16:13:06.177] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Item Models: kcs_kingslayer
+[18Jul2026 16:13:06.186] [main/INFO] [net.minecraft.data.DataGenerator/]: Item Models: kcs_kingslayer finished after 8 ms
+[18Jul2026 16:13:06.186] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Block States: kcs_kingslayer
+[18Jul2026 16:13:06.198] [main/INFO] [net.minecraft.data.DataGenerator/]: Block States: kcs_kingslayer finished after 11 ms
+[18Jul2026 16:13:06.199] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Global Loot Modifiers : kcs_kingslayer
+[18Jul2026 16:13:06.216] [main/INFO] [net.minecraft.data.DataGenerator/]: Global Loot Modifiers : kcs_kingslayer finished after 17 ms
+[18Jul2026 16:13:06.216] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Registries
+[18Jul2026 16:13:06.272] [main/INFO] [net.minecraft.data.DataGenerator/]: Registries finished after 55 ms
+[18Jul2026 16:13:06.274] [main/INFO] [net.minecraft.data.DataGenerator/]: Starting provider: Recipes
+[18Jul2026 16:13:06.288] [main/INFO] [net.minecraft.data.DataGenerator/]: Recipes finished after 15 ms
+[18Jul2026 16:13:06.290] [main/INFO] [net.minecraft.data.DataGenerator/]: All providers took: 171 ms
+[18Jul2026 16:13:06.293] [main/INFO] [net.minecraft.data.HashCache/]: Caching: total files: 193, old count: 193, new count: 194, removed stale: 0, written: 0
