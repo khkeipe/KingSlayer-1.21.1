@@ -41,6 +41,7 @@ public class ModBiomeModifiers {
     public static final ResourceKey<BiomeModifier> ADD_RARE_CRATE   = registerKey("add_rare_crate");
     public static final ResourceKey<BiomeModifier> ADD_EPIC_CRATE   = registerKey("add_epic_crate");
     public static final ResourceKey<BiomeModifier> ADD_DECOR        = registerKey("add_decor");
+    public static final ResourceKey<BiomeModifier> ADD_OCEAN_DECOR  = registerKey("add_ocean_decor");
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         var placed = context.lookup(Registries.PLACED_FEATURE);
@@ -106,7 +107,19 @@ public class ModBiomeModifiers {
                         placed.getOrThrow(ModPlacedFeatures.KNIGHT_TENT_PLACED_KEY),
                         placed.getOrThrow(ModPlacedFeatures.BIG_TENT_PLACED_KEY),
                         placed.getOrThrow(ModPlacedFeatures.OUTPOST_PLACED_KEY),
-                        placed.getOrThrow(ModPlacedFeatures.CRYPT_PLACED_KEY)),
+                        placed.getOrThrow(ModPlacedFeatures.CRYPT_PLACED_KEY),
+                        placed.getOrThrow(ModPlacedFeatures.GRAVEYARD_PLACED_KEY)),
+                GenerationStep.Decoration.VEGETAL_DECORATION));
+
+        // Ocean-only: the ship floats on open sea. Frozen oceans are excluded — the surface ice
+        // sheet would swallow it.
+        List<ResourceKey<Biome>> openOcean = List.of(
+                Biomes.OCEAN, Biomes.DEEP_OCEAN,
+                Biomes.WARM_OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN,
+                Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN);
+        context.register(ADD_OCEAN_DECOR, new BiomeModifiers.AddFeaturesBiomeModifier(
+                HolderSet.direct(biomes::getOrThrow, openOcean),
+                HolderSet.direct(placed.getOrThrow(ModPlacedFeatures.SHIP_PLACED_KEY)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 

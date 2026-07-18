@@ -4,10 +4,16 @@ import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
 import com.koreykeipe.kingslayer.block.ModBlocks;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.WorldGenLevel;
@@ -87,6 +93,19 @@ public class TemplateFeature extends Feature<TemplateConfiguration> {
             return false;
         }
 
+        // Reject wet spots. The placement's own water filter only checks the CENTRE column, so a
+        // big footprint could still hang over a lake — and a buried build on a low shore floods.
+        // maxWater = -1 opts out entirely (rafts / ships / underwater builds).
+        if (cfg.maxWater() >= 0 && submergedColumns(level, footprint) > cfg.maxWater()) {
+            return false;
+        }
+
+        // Inverse gate for water builds: the whole footprint must be over water, so a ship can't
+        // end up beached on a shoreline or straddling an island.
+        if (cfg.requireWater() && submergedColumns(level, footprint) < sampleCount(footprint)) {
+            return false;
+        }
+
         // Seat the build flush with the terrain before stamping: carve out any hillside that
         // would intersect it, and fill underneath so it never floats over a slope or overhang.
         if (cfg.level()) {
@@ -95,6 +114,11 @@ public class TemplateFeature extends Feature<TemplateConfiguration> {
 
         boolean placed = template.placeInWorld(level, origin, origin, settings, ctx.random(), Block.UPDATE_CLIENTS);
         if (placed) {
+            // Re-skin first, then resolve markers — marker-placed content is an explicit author
+            // choice and shouldn't be re-themed.
+            if (cfg.biomePalette()) {
+                applyBiomePalette(level, template, origin, settings);
+            }
             resolveMarkers(level, template, origin, settings, ctx.random());
         }
         return placed;
@@ -187,7 +211,14 @@ public class TemplateFeature extends Feature<TemplateConfiguration> {
         } else if (lower.startsWith("block:")) {
             resolveBlock(level, pos, o.substring("block:".length()));
         } else {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+            // Convenience: a bare block id (no "block:" prefix) is treated as a block outcome,
+            // so entries like "minecraft:mud@2" work as written. Anything else → air.
+            ResourceLocation rl = ResourceLocation.tryParse(o);
+            if (rl != null && BuiltInRegistries.BLOCK.getOptional(rl).isPresent()) {
+                resolveBlock(level, pos, o);
+            } else {
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+            }
         }
     }
 
@@ -244,13 +275,166 @@ public class TemplateFeature extends Feature<TemplateConfiguration> {
 
     private static void resolveSpawner(WorldGenLevel level, BlockPos pos, String entityId, RandomSource rand) {
         level.setBlock(pos, Blocks.SPAWNER.defaultBlockState(), Block.UPDATE_CLIENTS);
-        ResourceLocation rl = ResourceLocation.tryParse(entityId);
+        ResourceLocation rl = ResourceLocation.tryParse(entityId.trim());
         EntityType<?> type = rl != null
                 ? BuiltInRegistries.ENTITY_TYPE.getOptional(rl).orElse(EntityType.ZOMBIE)
                 : EntityType.ZOMBIE;
+
+        CompoundTag tag = spawnerNbt(type, pos);
+
+        // Belt-and-braces: the two chunk states need different treatment, and getting it wrong
+        // silently yields an EMPTY spawner. Do BOTH rather than pick one.
+
+        // 1) Worldgen: the chunk is a ProtoChunk, so setBlock only left a placeholder block
+        //    entity and getBlockEntity() returns null. Writing the NBT into the chunk gets it
+        //    applied when the chunk is promoted to a full LevelChunk.
+        level.getChunk(pos).setBlockEntityNbt(tag);
+
+        // 2) Loaded chunk (e.g. /place feature): a real block entity already exists, and the
+        //    pending NBT above would never be applied to it. Assign the mob directly FIRST so
+        //    the spawner is never empty even if the fuller NBT load fails to parse, then layer
+        //    the rest (light rules, spawn/player ranges) on top.
         if (level.getBlockEntity(pos) instanceof SpawnerBlockEntity sbe) {
             sbe.setEntityId(type, rand);
+            sbe.loadWithComponents(tag, level.registryAccess());
+            sbe.setChanged();
         }
+    }
+
+    /**
+     * Builds mob-spawner block-entity NBT for the given entity, with {@code custom_spawn_rules}
+     * opening both light limits to 0-15 so the spawner works in <em>any</em> light — daytime,
+     * torch-lit rooms, or open sky. (It still needs a player within ~16 blocks, a non-Peaceful
+     * difficulty, and open space to spawn into.)
+     */
+    private static CompoundTag spawnerNbt(EntityType<?> type, BlockPos pos) {
+        ResourceLocation typeId = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        CompoundTag entityTag = new CompoundTag();
+        entityTag.putString("id", typeId.toString());
+
+        CompoundTag anyLight = new CompoundTag();
+        anyLight.put("block_light_limit", lightRange());
+        anyLight.put("sky_light_limit", lightRange());
+
+        CompoundTag spawnData = new CompoundTag();
+        spawnData.put("entity", entityTag);
+        spawnData.put("custom_spawn_rules", anyLight);
+
+        CompoundTag potentialData = new CompoundTag();
+        potentialData.put("entity", entityTag.copy());
+        potentialData.put("custom_spawn_rules", anyLight.copy());
+        CompoundTag potential = new CompoundTag();
+        potential.putInt("weight", 1);
+        potential.put("data", potentialData);
+        ListTag potentials = new ListTag();
+        potentials.add(potential);
+
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", "minecraft:mob_spawner");
+        tag.putInt("x", pos.getX());
+        tag.putInt("y", pos.getY());
+        tag.putInt("z", pos.getZ());
+        tag.put("SpawnData", spawnData);
+        tag.put("SpawnPotentials", potentials);
+
+        // Widen the search area so a spawner in a cramped/buried room can still find open space
+        // (mobs may appear outside the structure). NOTE: the vanilla spawner reads
+        // MaxNearbyEntities and RequiredPlayerRange as a PAIR — writing one without the other
+        // leaves the player range at 0 and the spawner never activates, so always write both.
+        tag.putShort("SpawnRange", (short) (int) AirdropConfig.SPAWNER_SPAWN_RANGE.get());
+        tag.putShort("MaxNearbyEntities", (short) (int) AirdropConfig.SPAWNER_MAX_NEARBY.get());
+        tag.putShort("RequiredPlayerRange", (short) (int) AirdropConfig.SPAWNER_PLAYER_RANGE.get());
+        return tag;
+    }
+
+    /** An inclusive 0-15 light range — i.e. "any light level is valid". */
+    private static CompoundTag lightRange() {
+        CompoundTag range = new CompoundTag();
+        range.putInt("min_inclusive", 0);
+        range.putInt("max_inclusive", 15);
+        return range;
+    }
+
+    /**
+     * Re-skins the build to suit the biome it landed in. Runs AFTER placement and uses
+     * {@link StructureTemplate#filterBlocks} so it only rewrites the template's OWN blocks —
+     * surrounding terrain is never touched — and {@link Block#withPropertiesOf} so stairs keep
+     * their facing/half and logs keep their axis. (A fixed-state swap would flatten them, which
+     * is why this doesn't use a vanilla RuleProcessor.)
+     */
+    private static void applyBiomePalette(WorldGenLevel level, StructureTemplate template,
+                                          BlockPos origin, StructurePlaceSettings settings) {
+        java.util.Map<Block, Block> swaps = paletteFor(level.getBiome(origin));
+        if (swaps.isEmpty()) return;
+        for (java.util.Map.Entry<Block, Block> e : swaps.entrySet()) {
+            for (StructureTemplate.StructureBlockInfo info :
+                    template.filterBlocks(origin, settings, e.getKey())) {
+                BlockState current = level.getBlockState(info.pos());
+                if (current.is(e.getKey())) {
+                    level.setBlock(info.pos(), e.getValue().withPropertiesOf(current), Block.UPDATE_CLIENTS);
+                }
+            }
+        }
+    }
+
+    /** Block mapping for a biome, or empty to leave the authored palette alone. */
+    private static java.util.Map<Block, Block> paletteFor(Holder<Biome> biome) {
+        // Arid land: turf/soil → sand family, so a grassy build doesn't import a lawn.
+        if (biome.is(Biomes.DESERT))          return aridSwaps(Blocks.SAND, Blocks.SANDSTONE);
+        if (biome.is(BiomeTags.IS_BADLANDS))  return aridSwaps(Blocks.RED_SAND, Blocks.RED_SANDSTONE);
+
+        // Ocean temperature: re-timber ships so tropical and cold seas read differently.
+        if (biome.is(Biomes.WARM_OCEAN) || biome.is(Biomes.LUKEWARM_OCEAN)
+                || biome.is(Biomes.DEEP_LUKEWARM_OCEAN)) {
+            return timberSwaps(Blocks.OAK_LOG, Blocks.STRIPPED_OAK_LOG, Blocks.OAK_SLAB, Blocks.OAK_STAIRS);
+        }
+        if (biome.is(Biomes.COLD_OCEAN) || biome.is(Biomes.DEEP_COLD_OCEAN)) {
+            return timberSwaps(Blocks.SPRUCE_LOG, Blocks.STRIPPED_SPRUCE_LOG, Blocks.SPRUCE_SLAB, Blocks.SPRUCE_STAIRS);
+        }
+        return java.util.Map.of(); // temperate ocean / anywhere else — keep the build as authored
+    }
+
+    private static java.util.Map<Block, Block> aridSwaps(Block top, Block sub) {
+        return java.util.Map.of(
+                Blocks.GRASS_BLOCK, top,
+                Blocks.PODZOL,      top,
+                Blocks.DIRT_PATH,   top,
+                Blocks.DIRT,        sub,
+                Blocks.COARSE_DIRT, sub,
+                Blocks.ROOTED_DIRT, sub);
+    }
+
+    /** Dark-oak hull → another wood set (the ship's dark oak family). */
+    private static java.util.Map<Block, Block> timberSwaps(Block log, Block stripped, Block slab, Block stairs) {
+        return java.util.Map.of(
+                Blocks.DARK_OAK_LOG,          log,
+                Blocks.STRIPPED_DARK_OAK_LOG, stripped,
+                Blocks.DARK_OAK_SLAB,         slab,
+                Blocks.DARK_OAK_STAIRS,       stairs);
+    }
+
+    /**
+     * Counts sampled footprint columns that have fluid standing on them. Compares the world
+     * surface (which includes water) against the ocean floor (which doesn't) — if the surface is
+     * higher, that column is underwater.
+     */
+    /** How many columns {@link #submergedColumns} samples — the stride must match (every 2 blocks). */
+    private static int sampleCount(BoundingBox bb) {
+        int nx = ((bb.maxX() - bb.minX()) / 2) + 1;
+        int nz = ((bb.maxZ() - bb.minZ()) / 2) + 1;
+        return nx * nz;
+    }
+
+    private static int submergedColumns(WorldGenLevel level, BoundingBox bb) {
+        int wet = 0;
+        for (int x = bb.minX(); x <= bb.maxX(); x += 2) {
+            for (int z = bb.minZ(); z <= bb.maxZ(); z += 2) {
+                int surface = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
+                int floor   = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z);
+                if (surface > floor) wet++;
+            }
+        }
+        return wet;
     }
 
     /**

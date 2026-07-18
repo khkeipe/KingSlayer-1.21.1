@@ -7,6 +7,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.*;
 
@@ -36,6 +37,8 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> BIG_TENT_PLACED_KEY      = registerKey("big_tent_placed");
     public static final ResourceKey<PlacedFeature> OUTPOST_PLACED_KEY       = registerKey("outpost_01_placed");
     public static final ResourceKey<PlacedFeature> CRYPT_PLACED_KEY         = registerKey("crypt_placed");
+    public static final ResourceKey<PlacedFeature> GRAVEYARD_PLACED_KEY     = registerKey("graveyard_placed");
+    public static final ResourceKey<PlacedFeature> SHIP_PLACED_KEY          = registerKey("ship_placed");
 
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var cf = context.lookup(Registries.CONFIGURED_FEATURE);
@@ -48,30 +51,30 @@ public class ModPlacedFeatures {
         register(context, BROKEN_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BROKEN_CRATE_KEY),
                 onSurface(16));
         register(context, COMMON_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.COMMON_CRATE_KEY),
-                onSurfaceOrSeabed(16));
+                onSurfaceOrSeabed(20));
         // Rare/Epic appear only in their gated biomes (see ModBiomeModifiers), so a
         // modest rarity here still makes them scarce overall.
         register(context, RARE_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.RARE_CRATE_KEY),
-                onSurfaceOrSeabed(12));
+                onSurfaceOrSeabed(16));
         register(context, EPIC_CRATE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.EPIC_CRATE_KEY),
-                onSurfaceOrSeabed(12));
+                onSurfaceOrSeabed(16));
 
         // Decorative King's-realm piles — dry land, scattered for atmosphere as you explore.
         register(context, DECOR_CAMP_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_CAMP_KEY),
-                onSurface(20));
+                onSurface(30));
         register(context, DECOR_BATTLE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_BATTLE_KEY),
-                onSurface(20));
+                onSurface(30));
         register(context, DECOR_GRAVE_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_GRAVE_KEY),
-                onSurface(20));
+                onSurface(25));
         register(context, DECOR_RUINS_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.DECOR_RUINS_KEY),
-                onSurface(20));
+                onSurface(25));
 
         // Custom NBT structures. The two tents share the decor pool; halved to ~once per
         // 60 chunks each so they read as occasional landmarks, not a sea of tents.
         register(context, KNIGHT_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.KNIGHT_TENT_KEY),
                 onSurface(60));
         register(context, BIG_TENT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.BIG_TENT_KEY),
-                onSurface(60));
+                onSurface(80));
         // Outpost tower — quartered to a genuinely rare find (they were clustering badly).
         register(context, OUTPOST_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.OUTPOST_KEY),
                 onSurface(176));
@@ -79,6 +82,27 @@ public class ModPlacedFeatures {
         // Crypt — quartered (was generating right on top of itself); now a scarce, special find.
         register(context, CRYPT_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.CRYPT_KEY),
                 onSurface(80));
+
+        // Graveyard — same scarcity as the crypt.
+        register(context, GRAVEYARD_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.GRAVEYARD_KEY),
+                onSurface(100));
+
+        // Ship — floats on the sea surface; injected only into ocean biomes (ModBiomeModifiers).
+        register(context, SHIP_PLACED_KEY, cf.getOrThrow(ModConfiguredFeatures.SHIP_KEY),
+                onWaterSurface(100));
+    }
+
+    /**
+     * Floating placement for water builds. Uses the WORLD_SURFACE heightmap, which counts fluid,
+     * so the origin lands on the <em>water</em> surface rather than the seabed that
+     * {@link #onSurface} targets. No water-depth filter — being in water is the whole point.
+     */
+    private static List<PlacementModifier> onWaterSurface(int rarity) {
+        return List.of(
+                RarityFilter.onAverageOnceEvery(rarity),
+                InSquarePlacement.spread(),
+                HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG),
+                BiomeFilter.biome());
     }
 
     /**

@@ -25,22 +25,49 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
  *                  build's footprint. 0 = no check. If the terrain is steeper than this the
  *                  feature skips that spot entirely — keeps builds off cliffs where a flat shell
  *                  would jut out into open air. Smaller = flatter ground required (and rarer).
+ * @param biomePalette when true, the build's turf/soil blocks are swapped to match an arid biome
+ *                  (desert → sand/sandstone, badlands → red sand/red sandstone) so it blends in
+ *                  instead of importing a patch of grassland. No effect in other biomes.
+ * @param maxWater  how many sampled footprint columns may be underwater.
+ *                  <ul>
+ *                    <li><b>0</b> (default) — dry land only; any water in the footprint rejects
+ *                        the spot. Stops half-submerged and flooded builds.</li>
+ *                    <li><b>N &gt; 0</b> — tolerate up to N wet columns (shoreline leeway).</li>
+ *                    <li><b>-1</b> — ignore water entirely; use this for rafts, ships and
+ *                        deliberately underwater builds.</li>
+ *                  </ul>
+ * @param requireWater the inverse gate for water builds: when true the ENTIRE sampled footprint
+ *                  must be over water, so a ship can't beach itself on a shoreline or island.
+ *                  Pair with {@code maxWater = -1} and a water-surface placement.
  */
-public record TemplateConfiguration(ResourceLocation template, float integrity, boolean level, int buryDepth, int maxSlope) implements FeatureConfiguration {
+public record TemplateConfiguration(ResourceLocation template, float integrity, boolean level, int buryDepth,
+                                    int maxSlope, boolean biomePalette, int maxWater,
+                                    boolean requireWater) implements FeatureConfiguration {
 
     /** Convenience: intact-and-levelled is the common case for hand-built tents/outposts. */
     public TemplateConfiguration(ResourceLocation template, float integrity) {
-        this(template, integrity, true, 0, 0);
+        this(template, integrity, true, 0, 0, false, 0, false);
     }
 
     /** Convenience: pick the leveling mode but keep the build on the surface (no burying). */
     public TemplateConfiguration(ResourceLocation template, float integrity, boolean level) {
-        this(template, integrity, level, 0, 0);
+        this(template, integrity, level, 0, 0, false, 0, false);
     }
 
     /** Convenience: leveling mode + bury depth, no slope gate. */
     public TemplateConfiguration(ResourceLocation template, float integrity, boolean level, int buryDepth) {
-        this(template, integrity, level, buryDepth, 0);
+        this(template, integrity, level, buryDepth, 0, false, 0, false);
+    }
+
+    /** Convenience: leveling + bury + slope gate, no biome palette swap. */
+    public TemplateConfiguration(ResourceLocation template, float integrity, boolean level, int buryDepth, int maxSlope) {
+        this(template, integrity, level, buryDepth, maxSlope, false, 0, false);
+    }
+
+    /** Convenience: everything except the water rule (defaults to dry land only). */
+    public TemplateConfiguration(ResourceLocation template, float integrity, boolean level, int buryDepth,
+                                 int maxSlope, boolean biomePalette) {
+        this(template, integrity, level, buryDepth, maxSlope, biomePalette, 0, false);
     }
 
     public static final Codec<TemplateConfiguration> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -48,6 +75,9 @@ public record TemplateConfiguration(ResourceLocation template, float integrity, 
             Codec.floatRange(0f, 1f).optionalFieldOf("integrity", 1.0f).forGetter(TemplateConfiguration::integrity),
             Codec.BOOL.optionalFieldOf("level", true).forGetter(TemplateConfiguration::level),
             Codec.intRange(0, 64).optionalFieldOf("bury_depth", 0).forGetter(TemplateConfiguration::buryDepth),
-            Codec.intRange(0, 64).optionalFieldOf("max_slope", 0).forGetter(TemplateConfiguration::maxSlope)
+            Codec.intRange(0, 64).optionalFieldOf("max_slope", 0).forGetter(TemplateConfiguration::maxSlope),
+            Codec.BOOL.optionalFieldOf("biome_palette", false).forGetter(TemplateConfiguration::biomePalette),
+            Codec.intRange(-1, 4096).optionalFieldOf("max_water", 0).forGetter(TemplateConfiguration::maxWater),
+            Codec.BOOL.optionalFieldOf("require_water", false).forGetter(TemplateConfiguration::requireWater)
     ).apply(inst, TemplateConfiguration::new));
 }

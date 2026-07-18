@@ -1,5 +1,6 @@
 package com.koreykeipe.kingslayer.entity;
 
+import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
 import com.koreykeipe.kingslayer.event.KnightSpawnHandler;
 import com.koreykeipe.kingslayer.game.GameManager;
 import com.koreykeipe.kingslayer.item.ModItems;
@@ -74,7 +75,7 @@ public class TheKing extends Warden {
     public static AttributeSupplier.Builder createAttributes() {
         return Warden.createAttributes()
                 .add(Attributes.MAX_HEALTH, 500.0)
-                .add(Attributes.ATTACK_DAMAGE, 18.0)    // tuned down ~18% — threatening but beatable in diamond
+                .add(Attributes.ATTACK_DAMAGE, 15.0)    // tuned down ~18% — threatening but beatable in diamond
                 .add(Attributes.MOVEMENT_SPEED, 0.30)   // heavy, menacing, kitable pace (slower than a vanilla Warden)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
                 .add(Attributes.FOLLOW_RANGE, 50.0)
@@ -142,11 +143,11 @@ public class TheKing extends Warden {
         }
 
         if (--lightningCooldown <= 0) {
-            lightningCooldown = 200 + this.random.nextInt(120); // ~10–16s (was ~13–21s)
+            lightningCooldown = AirdropConfig.KING_LIGHTNING_COOLDOWN.get() + this.random.nextInt(140);
             chargeLightning();
         }
         if (--hexCooldown <= 0) {
-            hexCooldown = 120 + this.random.nextInt(100);        // ~6–11s (was ~8–15s)
+            hexCooldown = AirdropConfig.KING_HEX_COOLDOWN.get() + this.random.nextInt(120);
             castHex();
         }
     }
@@ -229,7 +230,7 @@ public class TheKing extends Warden {
      *  1.6 the King is already imposing; the vanilla Warden volume is overwhelming up close. */
     @Override
     protected float getSoundVolume() {
-        return 0.5f;
+        return 0.4f;
     }
 
     /** The King is immune to his own hex effects so the clouds never weaken him. */

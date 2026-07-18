@@ -1,9 +1,13 @@
 package com.koreykeipe.kingslayer.item;
 
+import com.koreykeipe.kingslayer.airdrop.AirdropConfig;
+import com.koreykeipe.kingslayer.event.StormBrandSoundHandler;
 import com.koreykeipe.kingslayer.game.CombatTracker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -79,7 +83,18 @@ public class StormBrandItem extends SwordItem {
         if (bolt != null) {
             bolt.moveTo(strike.getX() + 0.5, strike.getY(), strike.getZ() + 0.5);
             bolt.setCause(sp); // credits the wielder for the kill
+            // Claim this bolt's thunder so StormBrandSoundHandler suppresses vanilla's
+            // server-wide WEATHER blast, then play a local one in its place. A sword swing
+            // shouldn't be audible to the whole map the way a real storm is.
+            StormBrandSoundHandler.markStrike(sl, strike);
             sl.addFreshEntity(bolt);
+
+            float volume = (float) (double) AirdropConfig.STORM_BRAND_THUNDER_VOLUME.get();
+            if (volume > 0f) {
+                sl.playSound(null, strike.getX() + 0.5, strike.getY(), strike.getZ() + 0.5,
+                        SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS,
+                        volume, 0.8f + sl.random.nextFloat() * 0.2f);
+            }
         }
 
         // The vanilla lightning damage source carries no attacker, so register attribution for

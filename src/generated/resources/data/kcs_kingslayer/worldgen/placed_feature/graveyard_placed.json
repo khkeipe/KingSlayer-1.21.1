@@ -1,9 +1,9 @@
 {
-  "feature": "kcs_kingslayer:decor_ruins",
+  "feature": "kcs_kingslayer:graveyard",
   "placement": [
     {
       "type": "minecraft:rarity_filter",
-      "chance": 25
+      "chance": 100
     },
     {
       "type": "minecraft:in_square"

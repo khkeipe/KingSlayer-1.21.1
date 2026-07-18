@@ -57,6 +57,9 @@ public class GameManager {
      */
     private final Map<UUID, Integer> threatScores = new HashMap<>();
 
+    /** Fingerprint of the last standings posted, so an unchanged board isn't reprinted. */
+    private String lastLeaderboardSignature = null;
+
     /** Kill assists credited to each UUID this session (for stats / leaderboard). */
     private final Map<UUID, Integer> assistCounts = new HashMap<>();
 
@@ -98,6 +101,7 @@ public class GameManager {
         // the win-critical roster + death counts live in `state` and persist.
         killCounts.clear();
         threatScores.clear();
+        lastLeaderboardSignature = null;
         assistCounts.clear();
         currentMarkedUUID = null;
         markedCooldownUntil.clear();
@@ -442,6 +446,18 @@ public class GameManager {
                 .sorted(Map.Entry.<UUID, Integer>comparingByValue().reversed())
                 .limit(3)
                 .toList();
+
+        // Skip the post entirely when nothing has moved since last time. Quiet stretches
+        // (everyone looting, nobody fighting) used to reprint an identical board on every
+        // interval, which is what made the standings feel like spam.
+        String signature = top.stream()
+                .map(e -> e.getKey() + ":" + e.getValue()
+                        + ":" + assistCounts.getOrDefault(e.getKey(), 0)
+                        + ":" + threatScores.getOrDefault(e.getKey(), 0))
+                .collect(java.util.stream.Collectors.joining("|"))
+                + "#" + aliveCount();
+        if (signature.equals(lastLeaderboardSignature)) return;
+        lastLeaderboardSignature = signature;
 
         broadcast("§6======= KingSlayer Standings =======");
         int rank = 1;

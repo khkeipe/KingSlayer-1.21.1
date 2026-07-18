@@ -1,6 +1,7 @@
 {
   "type": "kcs_kingslayer:template",
   "config": {
+    "bury_depth": 1,
     "max_slope": 4,
     "template": "kcs_kingslayer:outpost_01"
   }

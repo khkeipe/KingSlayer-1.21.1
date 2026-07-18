@@ -148,8 +148,10 @@ public class ModEvents {
             GameManager.get().tickBounty();
         }
 
-        // Leaderboard broadcast every 3 600 ticks (3 minutes)
-        if (event.getServer().getTickCount() % 3600 == 0) {
+        // Standings broadcast on the configured interval. broadcastLeaderboard() suppresses
+        // itself when nothing has changed, so this is an upper bound on frequency.
+        int leaderboardInterval = com.koreykeipe.kingslayer.airdrop.AirdropConfig.LEADERBOARD_INTERVAL.get();
+        if (leaderboardInterval > 0 && event.getServer().getTickCount() % leaderboardInterval == 0) {
             GameManager.get().broadcastLeaderboard();
         }
     }

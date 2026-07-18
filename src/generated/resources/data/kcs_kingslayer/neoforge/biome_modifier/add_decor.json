@@ -9,7 +9,8 @@
     "kcs_kingslayer:knight_tent_placed",
     "kcs_kingslayer:big_tent_placed",
     "kcs_kingslayer:outpost_01_placed",
-    "kcs_kingslayer:crypt_placed"
+    "kcs_kingslayer:crypt_placed",
+    "kcs_kingslayer:graveyard_placed"
   ],
   "step": "vegetal_decoration"
 }

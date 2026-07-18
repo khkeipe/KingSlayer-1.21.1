@@ -49,6 +49,8 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?,?>> BIG_TENT_KEY     = registerKey("big_tent");
     public static final ResourceKey<ConfiguredFeature<?,?>> OUTPOST_KEY      = registerKey("outpost_01");
     public static final ResourceKey<ConfiguredFeature<?,?>> CRYPT_KEY        = registerKey("crypt");
+    public static final ResourceKey<ConfiguredFeature<?,?>> GRAVEYARD_KEY    = registerKey("graveyard");
+    public static final ResourceKey<ConfiguredFeature<?,?>> SHIP_KEY         = registerKey("ship");
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
 
@@ -177,19 +179,39 @@ public class ModConfiguredFeatures {
                         ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "big_tent"),
                         1.0f, true, 0, 4));
 
+        // Outpost — sunk 1 block so its bottom layer (which holds a spawner) sits underground
+        // rather than resting on the surface. Still levelled so the tower seats flush on slopes.
         register(context, OUTPOST_KEY, ModFeatures.TEMPLATE.get(),
                 new TemplateConfiguration(
                         ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "outpost_01"),
-                        1.0f, true, 0, 4));
+                        1.0f, true, 1, 4));
 
         // Crypt — a buried tomb. level=false keeps the hill above it; bury_depth sinks the
         // bulk so only the top couple of layers (the ruined entrance lip) pierce the surface.
         // integrity 1.0 for now so the raw shell is fully visible while testing the shape;
         // drop to ~0.85 later to weather the exposed entrance.
+        // biome_palette=true → its grass/dirt becomes sand/sandstone in deserts (red in badlands).
         register(context, CRYPT_KEY, ModFeatures.TEMPLATE.get(),
                 new TemplateConfiguration(
                         ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "crypt"),
-                        1.0f, false, 6, 4));
+                        1.0f, false, 6, 4, true));
+
+        // Graveyard — 9x4x9, sunk HALF underground (bury_depth 2 of 4 layers) so the graves sit
+        // below ground and the headstones/markers pierce the surface. level=false keeps the
+        // surrounding ground intact; max_slope 4 keeps it off cliffs like the crypt.
+        register(context, GRAVEYARD_KEY, ModFeatures.TEMPLATE.get(),
+                new TemplateConfiguration(
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "graveyard"),
+                        1.0f, false, 2, 4, true));
+
+        // Ship (10x18x23) — floats on the sea. Its placed feature lands on the WATER surface
+        // (not the seabed), then bury_depth 2 sinks the hull two blocks below the waterline so
+        // the rest rides above. level=false so we never carve/fill the ocean floor;
+        // max_water=-1 waives the dry-land rule and require_water=true keeps it off shorelines.
+        register(context, SHIP_KEY, ModFeatures.TEMPLATE.get(),
+                new TemplateConfiguration(
+                        ResourceLocation.fromNamespaceAndPath(KingSlayer.MOD_ID, "ship"),
+                        1.0f, false, 2, 0, true, -1, true));
     }
 
     /** A log laid on its side along the given horizontal axis (X or Z) instead of upright. */

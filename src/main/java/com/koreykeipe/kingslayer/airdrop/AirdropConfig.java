@@ -37,6 +37,8 @@ public class AirdropConfig {
     public static final ModConfigSpec.DoubleValue FALL_SPEED;
     /** How many ticks the chest glows after landing. 20 ticks = 1 second. */
     public static final ModConfigSpec.IntValue GLOW_DURATION;
+    /** Ticks between automatic standings broadcasts (skipped when standings are unchanged). */
+    public static final ModConfigSpec.IntValue LEADERBOARD_INTERVAL;
     /**
      * Airdrops spawn within this many blocks of a randomly chosen active player (clamped to the
      * world border). 0 = fall back to a fully random position inside the border (old behaviour).
@@ -109,6 +111,13 @@ public class AirdropConfig {
     public static final ModConfigSpec.IntValue    BOLA_COOLDOWN_TICKS;
     public static final ModConfigSpec.DoubleValue BOLA_RANGE;
     public static final ModConfigSpec.DoubleValue BULWARK_DAMAGE_REDUCTION;
+    /** Volume of the Storm Brand's local thunder replacement (vanilla's is global). */
+    public static final ModConfigSpec.DoubleValue STORM_BRAND_THUNDER_VOLUME;
+
+    /** Minimum ticks between The King's telegraphed lightning storms. */
+    public static final ModConfigSpec.IntValue KING_LIGHTNING_COOLDOWN;
+    /** Minimum ticks between The King's hex casts. */
+    public static final ModConfigSpec.IntValue KING_HEX_COOLDOWN;
 
     // -------------------------------------------------------------------------
     // Custom-structure content markers
@@ -116,6 +125,12 @@ public class AirdropConfig {
 
     /** Chance (0-1) each {@code kcs:crate} data marker in a structure becomes a crate. */
     public static final ModConfigSpec.DoubleValue STRUCTURE_CRATE_CHANCE;
+    /** Horizontal radius a structure spawner places mobs within (vanilla default 4). */
+    public static final ModConfigSpec.IntValue SPAWNER_SPAWN_RANGE;
+    /** How many of its mob may be nearby before a spawner pauses (vanilla default 6). */
+    public static final ModConfigSpec.IntValue SPAWNER_MAX_NEARBY;
+    /** How close a player must be for a spawner to activate (vanilla default 16). */
+    public static final ModConfigSpec.IntValue SPAWNER_PLAYER_RANGE;
 
     // -------------------------------------------------------------------------
     // Per-tier settings
@@ -146,15 +161,22 @@ public class AirdropConfig {
         FALL_SPEED = BUILDER
                 .comment("Terminal fall velocity in blocks/tick (acceleration is fixed at 0.04 b/t²). "
                         + "0.5 = slow/cinematic (~5s from 60 blocks), 1.5 = default (~3s), 3.0 = fast (~2s).")
-                .defineInRange("fall_speed", 0.5, 0.1, 5.0);
+                .defineInRange("fall_speed", 0.3, 0.1, 5.0);
         GLOW_DURATION = BUILDER
                 .comment("How many ticks the smoke signal rises after the crate lands. "
                         + "20 ticks = 1 second, 3000 = 150 seconds.")
-                .defineInRange("glow_duration_ticks", 3000, 20, 12000);
+                .defineInRange("glow_duration_ticks", 4000, 20, 12000);
         DROP_RADIUS = BUILDER
                 .comment("Airdrops spawn within this many blocks of a randomly chosen active player "
                         + "(clamped to the world border). 0 = fully random position inside the border.")
                 .defineInRange("drop_radius", 90, 0, 4000);
+
+        LEADERBOARD_INTERVAL = BUILDER
+                .comment("How many ticks between standings broadcasts. 20 ticks = 1 second, "
+                        + "36000 = 30 minutes. Standings are skipped entirely when nothing has "
+                        + "changed since the last post, so this is a ceiling, not a guarantee. "
+                        + "0 = never broadcast standings automatically.")
+                .defineInRange("leaderboard_interval_ticks", 36000, 0, 72000);
 
         BORDER_ENABLED = BUILDER
                 .comment("Set to false to leave the world border unmanaged by the airdrop system.")
@@ -225,8 +247,11 @@ public class AirdropConfig {
         BUILDER.comment("Combat-item power. Tune the custom arsenal without recompiling.").push("combat");
         LAUNCH_PAD_VERTICAL = BUILDER.comment("Launch Pad vertical pop (blocks/tick velocity).")
                 .defineInRange("launch_pad_vertical", 1.6, 0.1, 10.0);
-        LAUNCH_PAD_FORWARD = BUILDER.comment("Launch Pad horizontal kick in the direction of travel/facing.")
-                .defineInRange("launch_pad_forward", 1.6, 0.0, 10.0);
+        LAUNCH_PAD_FORWARD = BUILDER.comment("Launch Pad horizontal kick in the direction of travel/facing. "
+                        + "Horizontal velocity bleeds off to ~0.91x per tick in air, so distance scales "
+                        + "less than linearly with this — expect a big number to feel smaller than it "
+                        + "reads. Pair with a LOWER launch_pad_vertical for a flatter, longer arc.")
+                .defineInRange("launch_pad_forward", 2.8, 0.0, 10.0);
         YOINK_MAX_PULL = BUILDER.comment("Yoink Rod max reel-in speed (blocks/tick).")
                 .defineInRange("yoink_max_pull", 4.0, 0.1, 10.0);
         BOLA_ROOT_TICKS = BUILDER.comment("How long a Bola roots its target. 80 = 4s.")
@@ -237,6 +262,23 @@ public class AirdropConfig {
                 .defineInRange("bola_range", 24.0, 1.0, 64.0);
         BULWARK_DAMAGE_REDUCTION = BUILDER.comment("Fraction (0-1) of incoming damage the Bulwark Legguards absorb.")
                 .defineInRange("bulwark_damage_reduction", 0.20, 0.0, 0.9);
+        STORM_BRAND_THUNDER_VOLUME = BUILDER
+                .comment("Volume of the Storm Brand's thunder. Audible range is roughly volume x 16 "
+                        + "blocks, so 4.0 = ~64 blocks. Vanilla lightning uses 10000 (server-wide), "
+                        + "which is why the Storm Brand replaces it with a local sound on the PLAYERS "
+                        + "channel instead of WEATHER. 0 = silent.")
+                .defineInRange("storm_brand_thunder_volume", 4.0, 0.0, 100.0);
+        BUILDER.pop();
+
+        BUILDER.comment("The King's ranged-attack pacing. Each cooldown is a MINIMUM; a random "
+                + "spread is added on top so his rhythm isn't metronomic.").push("king");
+        KING_LIGHTNING_COOLDOWN = BUILDER
+                .comment("Minimum ticks between telegraphed lightning storms (a random 0-140 is added). "
+                        + "240 = 12-19s. Lower = more frequent.")
+                .defineInRange("lightning_cooldown_ticks", 240, 20, 2400);
+        KING_HEX_COOLDOWN = BUILDER
+                .comment("Minimum ticks between hex casts (a random 0-120 is added). 140 = 7-13s.")
+                .defineInRange("hex_cooldown_ticks", 140, 20, 2400);
         BUILDER.pop();
 
         BUILDER.comment("Content placed by data markers inside custom structures.").push("structures");
@@ -244,17 +286,32 @@ public class AirdropConfig {
                 .comment("Chance (0-1) each 'kcs:crate' data marker becomes a crate (else cleared to air). "
                         + "Rolled per marker, so crate placement varies between generations.")
                 .defineInRange("crate_marker_chance", 0.5, 0.0, 1.0);
+        SPAWNER_SPAWN_RANGE = BUILDER
+                .comment("Horizontal radius (blocks) a structure spawner places mobs within — vanilla is 4. "
+                        + "Raise this so mobs can appear OUTSIDE a cramped structure instead of stalling.")
+                .defineInRange("spawner_spawn_range", 8, 1, 32);
+        SPAWNER_MAX_NEARBY = BUILDER
+                .comment("How many of its own mob may already be nearby before a spawner pauses (vanilla 6).")
+                .defineInRange("spawner_max_nearby_entities", 6, 1, 64);
+        SPAWNER_PLAYER_RANGE = BUILDER
+                .comment("How close a player must be for a structure spawner to activate (vanilla 16).")
+                .defineInRange("spawner_required_player_range", 16, 1, 128);
         BUILDER.pop();
 
         // repeat_interval_ticks defaults (0 = fire once and stop):
         //   6000  =  5 min  |  9000  = 7.5 min  |  12000 = 10 min  |  18000 = 15 min
-        BROKEN = new TierConfig(BUILDER, "broken", 0.10, 22000, 75, 12000);
+        // Threshold pacing (deaths needed = threshold x players x lives):
+        //   broken 0.04 -> fires on the first death or two, so the action starts immediately
+        //   common 0.25 / rare 0.50 / epic 0.70 -> evenly spaced rungs
+        // Epic at 0.70 leaves a real gap before the King (who rises at 3 lives left), so the
+        // epic loot actually gets used: gap = 1.5 x players - 3 deaths.
+        BROKEN = new TierConfig(BUILDER, "broken", 0.04, 22000, 75, 12000);
 
-        COMMON = new TierConfig(BUILDER, "common", 0.30, 21000, 100, 15000);
+        COMMON = new TierConfig(BUILDER, "common", 0.25, 21000, 100, 15000);
 
-        RARE = new TierConfig(BUILDER, "rare", 0.60, 19000, 125, 18000);
+        RARE = new TierConfig(BUILDER, "rare", 0.50, 19000, 125, 18000);
 
-        EPIC = new TierConfig(BUILDER, "epic", 0.80, 18000, 150, 24000);
+        EPIC = new TierConfig(BUILDER, "epic", 0.70, 18000, 150, 24000);
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();

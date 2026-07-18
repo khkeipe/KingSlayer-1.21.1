@@ -11,6 +11,6 @@
     }
   ],
   "item": "minecraft:paper",
-  "max_count": 30,
-  "min_count": 10
+  "max_count": 16,
+  "min_count": 2
 }

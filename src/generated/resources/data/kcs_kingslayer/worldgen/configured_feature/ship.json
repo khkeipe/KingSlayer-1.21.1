@@ -1,0 +1,11 @@
+{
+  "type": "kcs_kingslayer:template",
+  "config": {
+    "biome_palette": true,
+    "bury_depth": 2,
+    "level": false,
+    "max_water": -1,
+    "require_water": true,
+    "template": "kcs_kingslayer:ship"
+  }
+}
